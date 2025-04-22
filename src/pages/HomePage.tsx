@@ -6,7 +6,6 @@ import { QRCodeSVG } from "qrcode.react";
 
 import ZefeLogo from "@/components/svgs/logo";
 import UserIcon from "@/components/svgs/user-icon";
-import CrossIcon from "@/components/svgs/cross-icon";
 import CameraIcon from "@/components/svgs/camera-icon";
 
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
