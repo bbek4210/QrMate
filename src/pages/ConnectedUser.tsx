@@ -6,20 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 import BackButtonSvg from "@/components/svgs/back-button";
-import PlaceIcon from "@/components/svgs/place-icon";
 import UserIconpeople from "@/components/svgs/userIcon";
-import {
-  TwitterIcon,
-  LinkedinIcon,
-  TelegramIcon,
-} from "@/components/svgs/social-icons";
+import { TwitterIcon, LinkedinIcon } from "@/components/svgs/social-icons";
 
 import useGetConnectionProfile from "@/hooks/use-get-connected-profile";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import SelfieNoteSection from "@/components/connected-user/selfie-note-section";
-import CompanyIcon from "@/components/svgs/compnay-name";
 import ProjectIcon from "@/components/svgs/compnay-name";
-import { UserField } from "@/components/user-profile/user-profile-container";
 
 const ConnectedUserPage = () => {
   const { data: currentUser, error: userError } = useGetUserProfile();
@@ -65,12 +58,12 @@ const ConnectedUserPage = () => {
           <AvatarFallback>{connection.scanned_name?.[0] || "U"}</AvatarFallback>
         </Avatar>
 
-        <h1 className="text-[32px] font-semibold text-white uppercase">
+        <h1 className="text-[24px] font-semibold text-white uppercase">
           {connection.scanned_name || "Unnamed"}
         </h1>
 
         <div className="flex items-center justify-center gap-2">
-          {connection.fields.map((field: any, index: any) => (
+          {connection.fields.map((field: string, index: number) => (
             <Badge
               key={index}
               className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
@@ -86,7 +79,7 @@ const ConnectedUserPage = () => {
           </div>
           <div className="flex items-center gap-2 uppercase">
             <ProjectIcon />
-            {connection.city || connection.base_event?.city || "Unknown City"}
+            {connection.project_name || "Unknown City"}
           </div>
         </div>
 

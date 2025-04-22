@@ -11,7 +11,6 @@ import CameraIcon from "@/components/svgs/camera-icon";
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
 import AddEvent from "@/components/event/add-event";
 import QRCodeScanner from "@/components/qr/qrcode-scanner";
-import TapToCompleteProfile from "@/components/complete-profile";
 
 import { Badge } from "@/components/ui/badge";
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";

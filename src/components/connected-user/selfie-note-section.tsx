@@ -32,6 +32,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
+  const [showBadge, setShowBadge] = useState(true);
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
@@ -48,6 +49,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       setPhotos(existingImgs);
     }
   }, [selfieNote]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowBadge(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -121,9 +127,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         <Badge className="bg-[#ED2944] text-white text-center mx-auto border-white px-3 py-2 rounded-[29px]">
           Met at <span className="ml-1 font-semibold">{eventTitle}</span>
         </Badge>
-        <button className="w-full flex items-center justify-center gap-2 text-[1rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
-          <CheckedcircleSvg /> Contact saved
-        </button>
+        {showBadge && (
+          <Badge className="w-full flex items-center justify-center gap-2 text-[1rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20 animate-slide-in-out">
+            <CheckedcircleSvg /> Contact saved
+          </Badge>
+        )}
       </div>
 
       {photos.length > 0 && (
@@ -166,7 +174,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
           <Button
             onClick={handleSave}
-            className="w-full text-white py-2 bg-[#ED2944] rounded-[29px] font-medium"
+            className="w-full text-white py-2 bg-[#ED2944] rounded-[29px] font-medium "
           >
             Save
           </Button>
@@ -195,7 +203,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           />
           <Button
             onClick={handleSave}
-            className="w-full text-black py-2 bg-white rounded-[29px] border border-white font-medium"
+            className="w-full text-black py-2 bg-white rounded-[29px] border border-white font-medium hover:bg-[#5A41FF]"
           >
             Save
           </Button>
