@@ -25,7 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>
   <BrowserRouter>
     <QueryProvider>
-      <App /> <div className="bg-red-500 text-white p-4">Tailwind Test</div>
+      <App />
     </QueryProvider>
     <Toaster />
   </BrowserRouter>

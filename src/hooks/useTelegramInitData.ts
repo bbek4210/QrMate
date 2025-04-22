@@ -88,8 +88,8 @@ export function useTelegramInitData() {
   // @ts-ignore - we ignore strict type check for mock or incomplete initData
   const rawInitData = useMemo(() => {
     if (isLocal) return mockInitData;
-
-    const user = launchParams?.user;
+    const webAppData = launchParams?.tgWebAppData
+    const user = webAppData?.user;
     if (!user) {
       return null;
     }
