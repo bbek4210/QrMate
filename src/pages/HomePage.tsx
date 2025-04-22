@@ -152,12 +152,11 @@ export default function Home() {
         </>
       )}
 
-      <Link
-        to={"/init-data"}
+      <div onClick={() => setIsScannerOpen(true)}
         className="fixed bottom-32 rounded-[37px] left-0 right-0 flex items-center justify-center"
       >
         <CameraIcon />
-      </Link>
+      </div>
     </main>
   );
 }
