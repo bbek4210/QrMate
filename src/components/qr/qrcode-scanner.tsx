@@ -24,10 +24,10 @@ const QRCodeScanner = forwardRef(
 
     useEffect(() => {
       if (isScannerOpen) {
-        // Delay scanner start until DOM is fully ready
-        requestAnimationFrame(() => {
-          startScanner();
-        });
+        setTimeout(() => {
+          const readerElement = document.getElementById("qr-reader");
+          if (readerElement) startScanner();
+        }, 100); // Allow DOM to fully render
       } else {
         stopScanner();
       }
@@ -45,28 +45,34 @@ const QRCodeScanner = forwardRef(
       const qrRegionId = "qr-reader";
       const config = {
         fps: 10,
-        qrbox: {
-          width: 250,
-          height: 250,
-        },
-        aspectRatio: 0.7,
+        qrbox: { width: 300, height: 300 },
+        aspectRatio: 0.75,
       };
 
       try {
         console.log("Attempting to start QR scanner...");
 
-        // Check camera API support
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (!navigator.mediaDevices?.getUserMedia) {
           toast.error("Camera API not supported in this browser");
           return;
         }
 
-        if (!scannerRef.current) {
-          scannerRef.current = new Html5Qrcode(qrRegionId);
-        } else {
-          await scannerRef.current.stop();
-          await scannerRef.current.clear();
+        // If scanner already exists, stop safely
+        if (scannerRef.current) {
+          try {
+            await scannerRef.current.stop(); // only if already running
+          } catch (err: any) {
+            console.warn("Scanner was not running, skip stop:", err.message);
+          }
+
+          try {
+            await scannerRef.current.clear();
+          } catch (err: any) {
+            console.warn("Scanner clear error:", err.message);
+          }
         }
+
+        scannerRef.current = new Html5Qrcode(qrRegionId);
 
         await scannerRef.current.start(
           { facingMode: "environment" },
@@ -75,13 +81,17 @@ const QRCodeScanner = forwardRef(
             handleScannedText(decodedText);
             stopScanner();
           },
-          undefined
+          (errorMessage: string) => {
+            console.warn("QR Scan error:", errorMessage);
+          }
         );
-
       } catch (error: any) {
         console.error("Failed to start QR scanner:", error);
-        if (!error.message?.toLowerCase().includes("camera")) return;
-        toast.error("Failed to access camera");
+        if (error.message?.toLowerCase().includes("camera")) {
+          toast.error("Failed to access camera");
+        } else {
+          toast.error("QR scanner failed to start");
+        }
       }
     };
 
@@ -116,7 +126,9 @@ const QRCodeScanner = forwardRef(
       }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (
+      e: React.ChangeEvent<HTMLInputElement>
+    ) => {
       const file = e.target.files?.[0];
       if (!file) return;
 

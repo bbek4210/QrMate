@@ -10,7 +10,7 @@ const BottomNavbar = ({ baseOnClick}: { baseOnClick: () => void}) => {
   const isNetworksActive = pathname.startsWith("/networks-and-connections");
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 flex items-center justify-between px-6 bg-[#232223] z-50">
+    <div className="fixed bottom-4 left-0 right-0 flex items-center justify-between px-6 bg-transparent z-50">
       <Link to="/" aria-label="Home">
         <div onClick={baseOnClick} className="flex items-center justify-center mb-4 rounded-[37px] w-[80px] h-[60px] bg-white">
           <DashboardIcon color={isDashboardActive ? "#ED2944" : "#222222"} />
