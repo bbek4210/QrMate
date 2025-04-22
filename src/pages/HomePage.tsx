@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
 
 import ZefeLogo from "@/components/svgs/logo";
 import UserIcon from "@/components/svgs/user-icon";
@@ -24,6 +23,7 @@ import {
   parseTelegramStartAppData,
 } from "@/lib/utils";
 import ProfileBanner from "@/components/profile-banner";
+import FancyQRCode from "@/components/FancyQRCode";
 
 export default function Home() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export default function Home() {
       navigate(url);
     }
   }, []);
-  const scannerRef = useRef<any>(null);
+  const scannerRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (zefeUserId) {
@@ -82,6 +82,7 @@ export default function Home() {
     try {
       await createEvent(eventPayload);
       toast.success("Event created successfully!");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to create event. Please try again.");
     }
@@ -140,10 +141,15 @@ export default function Home() {
               <p className="mb-4 text-lg font-medium text-[#7F7F7F] text-center">
                 Your QR code
               </p>
-              <DownloadableQRCode
-                selectedEvent={selectedEvent}
-                initData={initData}
+              <FancyQRCode
+                value={generateTelegramMiniAppLink({
+                  eventId: selectedEvent?.id?.toString() ?? "",
+                  title: selectedEvent?.title ?? "",
+                  userId: initData?.zefeUser?.id?.toString() ?? "",
+                  telegramUserId: initData?.telegramUser?.id?.toString() ?? "",
+                })}
               />
+
               <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
                 You are at {selectedEvent.title}
               </p>
@@ -156,7 +162,7 @@ export default function Home() {
 
       <div
         onClick={() => setIsScannerOpen((pre) => !pre)}
-        className="fixed bottom-28 rounded-[37px] left-0 right-0 flex items-center justify-center"
+        className="fixed bottom-[77px] rounded-[37px] left-0 right-0 flex items-center justify-center"
       >
         <CameraIcon />
       </div>
@@ -164,43 +170,10 @@ export default function Home() {
   );
 }
 
-const DownloadableQRCode = ({ selectedEvent, initData }: any) => {
-  const qrValue = generateTelegramMiniAppLink({
-    eventId: selectedEvent?.id,
-    title: selectedEvent?.title,
-    userId: initData?.zefeUser?.id,
-    telegramUserId: initData?.telegramUser?.id,
-  });
-
-  const svgRef = useRef<SVGSVGElement | null>(null);
-
-  const handleDownload = () => {
-    const svg = svgRef.current;
-    if (!svg) return;
-
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-    const blob = new Blob([svgString], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "telegram-qr-code.svg";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <div>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          handleDownload();
-        }}
-      >
-        <QRCodeSVG value={qrValue} size={256} ref={svgRef} />
-      </a>
-    </div>
-  );
-};
+// const DownloadableQRCode = ({ selectedEvent, initData }: any) => {
+//   const qrValue = generateTelegramMiniAppLink({
+//     eventId: selectedEvent?.id,
+//     title: selectedEvent?.title,
+//     userId: initData?.zefeUser?.id,
+//     telegramUserId: initData?.telegramUser?.id,
+//   });
