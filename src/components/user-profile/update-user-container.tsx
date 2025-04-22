@@ -19,13 +19,14 @@ import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useGetUserProfile from "@/hooks/use-get-user-profile";
+import { useNavigate } from "react-router-dom";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   username: z.string().min(1, "Username is required"),
   position: z.string().min(1, "Position is required"),
   project_name: z.string().min(1, "Project name is required"),
-  // company_name: z.string().min(1, "Company name is required"),
   city: z.string().min(1, "City is required"),
   telegram_account: z.string().min(1, "Telegram account is required"),
   twitter_account: z.string().optional(),
@@ -35,7 +36,6 @@ const profileSchema = z.object({
     .email("Invalid email")
     .or(z.literal("").transform(() => undefined))
     .optional(),
-
   selected_fields: z
     .array(z.number())
     .min(1, "Select at least 1 field")
@@ -148,25 +148,13 @@ const fieldOptions = [
   },
 ];
 
-type ProfileData = {
-  name: string;
-  username: string;
-  position: string;
-  project_name: string;
-  company_name: string;
-  city: string;
-  telegram_account: string;
-  twitter_account: string;
-  linkedin_url: string;
-  email: string;
-  selected_fields: number[];
-};
-
 const UpdateUserContainer = () => {
+  const navigate = useNavigate();
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const telegramInitData = useTelegramInitData();
+  const { data: userProfile } = useGetUserProfile();
 
   const { mutateAsync } = useUpdateUserProfile();
 
@@ -209,6 +197,26 @@ const UpdateUserContainer = () => {
 
   const selectedFields = watch("selected_fields");
 
+  useEffect(() => {
+    if (userProfile) {
+      const profile = userProfile.user_profile;
+
+      setValue("name", userProfile.name || "");
+      setValue("username", userProfile.username || "");
+      setValue("position", profile.position || "");
+      setValue("project_name", profile.project_name || "");
+      setValue("city", profile.city || "");
+      setValue("telegram_account", profile.telegram_account || "");
+      setValue("twitter_account", profile.twitter_account || "");
+      setValue("linkedin_url", profile.linkedin_url || "");
+      setValue("email", profile.email || "");
+
+      const selectedFieldIds =
+        profile.user_fields?.map((field: { id: number }) => field.id) || [];
+      setValue("selected_fields", selectedFieldIds);
+    }
+  }, [userProfile, setValue]);
+
   const toggleSelectedField = (fieldId: number) => {
     const current = getValues("selected_fields");
     if (current.includes(fieldId)) {
@@ -237,6 +245,7 @@ const UpdateUserContainer = () => {
       await mutateAsync(formattedData);
 
       toast.success("Profile updated successfully");
+      navigate("/user");
     } catch {
       toast.error("Failed to update profile");
     } finally {
@@ -444,7 +453,7 @@ const UpdateUserContainer = () => {
       <Button
         type="submit"
         disabled={isSubmitting || !termsAccepted}
-        className="rounded-[29px] text-white bg-[#ED2944] border-2 border-white py-4"
+        className="rounded-[29px] text-white bg-[#ED2944] border-2 hover:bg-[#5A41FF] border-white py-4"
       >
         {isSubmitting ? "Submitting..." : "Continue"}
       </Button>

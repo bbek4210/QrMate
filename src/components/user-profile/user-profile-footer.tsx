@@ -58,14 +58,14 @@ const UserProfileFooter = () => {
       <div className="flex justify-between w-full gap-3 mt-3">
         <Button
           leftIcon={<SendFeedbackIconSvg />}
-          className="w-full py-4 rounded-[29px] text-[0.9rem] font-medium text-white border border-white bg-transparent"
+          className="w-full py-4 rounded-[29px] h-[52px] text-[0.9rem] font-medium text-white border hover:bg-[#5A41FF] border-white bg-transparent"
           onClick={() => setIsFeedbackDrawerOpen(true)}
         >
           Send feedback
         </Button>
         <Link className="w-full" href="/user/update-profile">
           <Button
-            className="rounded-[29px] py-4 text-sm w-full text-white bg-[#ED2944]"
+            className="rounded-[29px] py-4 text-sm w-full h-[52pz] text-white border hover:bg-[#5A41FF] border-white bg-[#ED2944]"
             leftIcon={<EditProfileIconSvg />}
           >
             Edit profile
@@ -79,7 +79,7 @@ const UserProfileFooter = () => {
         >
           <DrawerContent className="p-4 drawerContent">
             <DrawerHeader>
-              <DrawerTitle className="mt-10 text-black">
+              <DrawerTitle className="mt-10 text-black hover:bg-[#5A41FF]">
                 Send feedback
               </DrawerTitle>
             </DrawerHeader>
@@ -117,7 +117,7 @@ const UserProfileFooter = () => {
               </div>
             )}
             <Button
-              className="w-full p-6 mt-8 border border-black text-white rounded-[29px] bg-[#ED2944]"
+              className="w-full p-6 mt-8 border border-black text-white rounded-[29px] bg-[#ED2944] hover:bg-[#5A41FF]"
               onClick={handleSendFeedback}
             >
               Send Feedback

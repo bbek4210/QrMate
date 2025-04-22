@@ -1,6 +1,5 @@
 "use client";
 import BackButtonSvg from "../svgs/back-button";
-import LogoutButtonSvg from "../svgs/logout-button";
 
 const UserProfileHeader = () => {
   return (

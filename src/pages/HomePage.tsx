@@ -137,10 +137,11 @@ export default function Home() {
           </div>
 
           {selectedEvent && (
-            <div className="flex flex-col items-center justify-center p-4">
+            <div className="flex flex-col items-center justify-center p-4 ">
               <p className="mb-4 text-lg font-medium text-[#7F7F7F] text-center">
                 Your QR code
               </p>
+
               <FancyQRCode
                 value={generateTelegramMiniAppLink({
                   eventId: selectedEvent?.id?.toString() ?? "",

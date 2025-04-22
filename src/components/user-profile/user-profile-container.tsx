@@ -47,7 +47,7 @@ const UserProfileContainer = () => {
           <div className="flex items-center gap-3">
             <PositionIcon />
             <div>
-              <p className="text-xs text-gray-400">Position</p>
+              {/* <p className="text-xs text-gray-400">Position</p> */}
               <p>{user.user_profile.position}</p>
             </div>
           </div>
@@ -56,7 +56,7 @@ const UserProfileContainer = () => {
           <div className="flex items-center gap-3">
             <PlaceIcon />
             <div>
-              <p className="text-xs text-gray-400">Project</p>
+              {/* <p className="text-xs text-gray-400">Project</p> */}
               <p>{user.user_profile.project_name}</p>
             </div>
           </div>
