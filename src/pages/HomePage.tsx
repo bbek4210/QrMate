@@ -1,66 +1,60 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
+
+import ZefeLogo from "@/components/svgs/logo";
+import UserIcon from "@/components/svgs/user-icon";
+import CrossIcon from "@/components/svgs/cross-icon";
+import CameraIcon from "@/components/svgs/camera-icon";
+
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
 import AddEvent from "@/components/event/add-event";
 import QRCodeScanner from "@/components/qr/qrcode-scanner";
-import CameraIcon from "@/components/svgs/camera-icon";
-import CrossIcon from "@/components/svgs/cross-icon";
-import ZefeLogo from "@/components/svgs/logo";
-import UserIcon from "@/components/svgs/user-icon";
+import TapToCompleteProfile from "@/components/complete-profile";
+
 import { Badge } from "@/components/ui/badge";
-
-import { Link } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
-
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
-import { useState, useMemo, useRef } from "react";
+
 import toast from "react-hot-toast";
-import TapToCompleteProfile from "@/components/complete-profile";
 import {
   generateTelegramMiniAppLink,
   TGenerateTelegramLink,
+  parseTelegramStartAppData,
 } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 
 export default function Home() {
   const [isProfileVisible, setIsProfileVisible] = useState(true);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-  const hideProfile = () => {
-    setIsProfileVisible(false);
-  };
-
-  console.log("this is home page.")
-
   const initData = useTelegramInitData();
+  const navigate = useNavigate();
 
-  const lp = useLaunchParams();
-  console.log({ lp });
-
-  const zefeUserId = initData?.zefeUser?.["id"];
-  console.log({ initData });
+  const zefeUserId = initData?.zefeUser?.id;
   const { data: fetchedEvents, error, refetch } = useGetEvents(zefeUserId);
 
   const eventList = Array.isArray(fetchedEvents) ? fetchedEvents : [];
-
   const firstEvent = eventList?.[0];
+
   const selectedEvent = useMemo(
     () => eventList.find((e) => e.id === Number(selectedEventId)) || firstEvent,
     [eventList, selectedEventId]
   );
 
-  const navigate = useNavigate();
-
-  const handleEventQrSelect = (eventId: string) => {
-    setSelectedEventId(eventId);
-  };
-
-  const scannerRef = useRef<any>(null);
-  console.log({ initData });
+  useEffect(() => {
+    const parsed = parseTelegramStartAppData();
+    if (parsed?.userId) {
+      let url = `/connected-user/${parsed.userId}`;
+      if (parsed?.eventId) {
+        url += `?event_id=${parsed.eventId}&telegram_user_id=${parsed.telegramUserId}`;
+      }
+      navigate(url);
+    }
+  }, []);
 
   const handleScanSuccess = (parsedText: TGenerateTelegramLink) => {
     setIsScannerOpen(false);
@@ -74,22 +68,17 @@ export default function Home() {
   const { mutateAsync: createEvent } = useCreateEvent();
 
   const handleNewEvent = async (newEvent: { title: string; city: string }) => {
-    const userId = initData?.zefeUser?.id;
-    if (!userId) {
+    if (!zefeUserId) {
       toast("User not identified, please try again!");
       return;
     }
 
     const eventPayload = { title: newEvent.title, city: newEvent.city };
-
     try {
-      const createdEvent = await createEvent(eventPayload);
-
+      await createEvent(eventPayload);
       toast.success("Event created successfully!");
-      console.log("Created Event:", createdEvent);
     } catch (error) {
       toast.error("Failed to create event. Please try again.");
-      console.error("Error creating event:", error);
     }
   };
 
@@ -106,7 +95,7 @@ export default function Home() {
 
       {isScannerOpen ? (
         <QRCodeScanner
-          ref={scannerRef}
+          ref={useRef(null)}
           isScannerOpen={isScannerOpen}
           onScanSuccess={handleScanSuccess}
         />
@@ -115,14 +104,12 @@ export default function Home() {
           {isProfileVisible && (
             <div className="bg-[#5A41FF] py-4 px-3 flex items-center justify-between">
               <TapToCompleteProfile />
-              <CrossIcon onClick={hideProfile} />
+              <CrossIcon onClick={() => setIsProfileVisible(false)} />
             </div>
           )}
 
           <div className="px-3 py-2">
-            <p className="text-[#DDCCCC] font-semibold text-[22px]">
-              You are at
-            </p>
+            <p className="text-[#DDCCCC] font-semibold text-[22px]">You are at</p>
             <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[15px]">
               <AddEvent
                 triggerNode={<> + ADD EVENT</>}
@@ -133,7 +120,7 @@ export default function Home() {
                 <Badge
                   key={index}
                   variant="red"
-                  onClick={() => handleEventQrSelect(event.id.toString())}
+                  onClick={() => setSelectedEventId(event.id.toString())}
                   className={`cursor-pointer text-[15px] ${
                     selectedEvent?.id === event.id
                       ? "border-[#ffffff] bg-[#E30613]"
@@ -148,10 +135,7 @@ export default function Home() {
 
           {selectedEvent && (
             <div className="flex flex-col items-center justify-center p-4">
-              <p
-                className="mb-4 text-lg font-medium text-[#7F7F7F] text-center"
-                style={{ textShadow: "2px 2px 2px rgba(0, 0, 0, 0.25)" }}
-              >
+              <p className="mb-4 text-lg font-medium text-[#7F7F7F] text-center">
                 Your QR code
               </p>
               <DownloadableQRCode
@@ -174,13 +158,6 @@ export default function Home() {
       >
         <CameraIcon />
       </Link>
-
-      {/* <div
-        onClick={() => setIsScannerOpen((prev) => !prev)}
-        className="fixed bottom-32 rounded-[37px] left-0 right-0 flex items-center justify-center"
-      >
-        <CameraIcon />
-      </div> */}
     </main>
   );
 }
@@ -193,7 +170,7 @@ const DownloadableQRCode = ({ selectedEvent, initData }: any) => {
     telegramUserId: initData?.telegramUser?.id,
   });
 
-  const svgRef = useRef(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const handleDownload = () => {
     const svg = svgRef.current;
@@ -219,7 +196,6 @@ const DownloadableQRCode = ({ selectedEvent, initData }: any) => {
           e.preventDefault();
           handleDownload();
         }}
-        style={{ display: "inline-block" }}
       >
         <QRCodeSVG value={qrValue} size={256} ref={svgRef} />
       </a>

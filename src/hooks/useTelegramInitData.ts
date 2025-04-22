@@ -85,18 +85,15 @@ export function useTelegramInitData() {
   const alreadyInitialized = useRef(false);
   const launchParams = useLaunchParams();
 
-  // @ts-ignore - we ignore strict type check for mock or incomplete initData
   const rawInitData = useMemo(() => {
     if (isLocal) return mockInitData;
-    const webAppData = launchParams?.tgWebAppData
+    const webAppData = launchParams?.tgWebAppData;
     const user = webAppData?.user;
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
     return {
       user,
-      authDate: new Date(launchParams.auth_date as any * 1000),
+      authDate: new Date(Number(launchParams.auth_date) * 1000),
       hash: launchParams.hash || "",
       queryId: launchParams.query_id || "",
       chatType: launchParams.chat_type || "",
@@ -114,12 +111,10 @@ export function useTelegramInitData() {
     isError,
     error,
   } = useQuery({
-    // @ts-ignore
     queryKey: [TELEGRAM_INIT_QUERY_KEY, telegramUser?.["id"]],
     queryFn: async () => {
       if (alreadyInitialized.current || !telegramUser) return null;
       alreadyInitialized.current = true;
-      // @ts-ignore
       return await initializeZefeUser(telegramUser);
     },
     enabled: !!telegramUser,

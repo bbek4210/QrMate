@@ -32,28 +32,42 @@ export type TGenerateTelegramLink = {
   title: string;
 };
 
-export function generateTelegramMiniAppLink(payload: TGenerateTelegramLink) {
+
+export function generateTelegramMiniAppLink(payload: TGenerateTelegramLink): string {
   const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME;
+
+  if (!BOT_USERNAME) {
+    throw new Error("VITE_BOT_USERNAME is not defined in your environment variables.");
+  }
+
   const baseUrl = `https://t.me/${BOT_USERNAME}`;
-  const queryString = new URLSearchParams(payload).toString();
-  console.log({ queryString });
+
+  // Filter out undefined/null values
+  const queryObject = Object.entries(payload)
+    .filter(([_, v]) => v !== undefined && v !== null)
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {});
+
+  const queryString = new URLSearchParams(queryObject).toString();
+
+  // console.log({ queryString });
+
   return `${baseUrl}?startapp=${encodeURIComponent(queryString)}`;
 }
 
-export function parseTelegramStartAppData() {
+
+export function parseTelegramStartAppData(): Record<string, string> | null {
   try {
     const searchParams = new URLSearchParams(window.location.search);
     const encodedPayload = searchParams.get("startapp");
 
     if (!encodedPayload) return null;
 
-    // Decode and parse the query string back into an object
-    const payload = Object.fromEntries(
-      new URLSearchParams(decodeURIComponent(encodedPayload))
-    );
+    const decoded = decodeURIComponent(encodedPayload);
+    const payload = Object.fromEntries(new URLSearchParams(decoded).entries());
+
     return payload;
   } catch (err) {
-    console.error("Error parsing Telegram payload:", err);
+    console.error("Error parsing Telegram startapp payload:", err);
     return null;
   }
 }
