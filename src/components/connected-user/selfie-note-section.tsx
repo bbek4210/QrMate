@@ -121,7 +121,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         <Badge className="bg-[#ED2944] text-white text-center mx-auto border-white px-3 py-2 rounded-[29px]">
           Met at <span className="ml-1 font-semibold">{eventTitle}</span>
         </Badge>
-        <button className="w-full flex items-center justify-center gap-2 text-[17px] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
+        <button className="w-full flex items-center justify-center gap-2 text-[1rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
           <CheckedcircleSvg /> Contact saved
         </button>
       </div>
@@ -175,7 +175,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       {photos.length === 0 && (
         <div className="flex flex-col gap-3">
-          <label className="flex items-center justify-center gap-2 px-5 py-3 text-[18px] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
+          <label className="flex items-center justify-center gap-2 px-5 py-3 text-[1.1rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
             <SmallcameraSvg /> Take a selfie
             <input
               type="file"
@@ -238,7 +238,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         <a
           href={telegramAccount}
           target="_blank"
-          className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[18px] font-medium rounded-[29px]"
+          className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[1.1rem] font-medium rounded-[29px]"
         >
           <TelegramIcon /> Message in Telegram
         </a>

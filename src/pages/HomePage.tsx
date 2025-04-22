@@ -25,9 +25,9 @@ import {
   TGenerateTelegramLink,
   parseTelegramStartAppData,
 } from "@/lib/utils";
+import ProfileBanner from "@/components/profile-banner";
 
 export default function Home() {
-  const [isProfileVisible, setIsProfileVisible] = useState(true);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
@@ -55,6 +55,12 @@ export default function Home() {
       navigate(url);
     }
   }, []);
+
+  useEffect(() => {
+    if (zefeUserId) {
+      refetch();
+    }
+  }, [zefeUserId]);
 
   const handleScanSuccess = (parsedText: TGenerateTelegramLink) => {
     setIsScannerOpen(false);
@@ -101,16 +107,13 @@ export default function Home() {
         />
       ) : (
         <>
-          {isProfileVisible && (
-            <div className="bg-[#5A41FF] py-4 px-3 flex items-center justify-between">
-              <TapToCompleteProfile />
-              <CrossIcon onClick={() => setIsProfileVisible(false)} />
-            </div>
-          )}
+          <ProfileBanner />
 
           <div className="px-3 py-2">
-            <p className="text-[#DDCCCC] font-semibold text-[22px]">You are at</p>
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[15px]">
+            <p className="text-[#DDCCCC] font-semibold text-[22px]">
+              You are at
+            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">
               <AddEvent
                 triggerNode={<> + ADD EVENT</>}
                 onEventCreated={handleNewEvent}
@@ -121,7 +124,7 @@ export default function Home() {
                   key={index}
                   variant="red"
                   onClick={() => setSelectedEventId(event.id.toString())}
-                  className={`cursor-pointer text-[15px] ${
+                  className={`cursor-pointer text-[0.9rem] ${
                     selectedEvent?.id === event.id
                       ? "border-[#ffffff] bg-[#E30613]"
                       : "bg-transparent border-[#ffffff]"
@@ -142,7 +145,7 @@ export default function Home() {
                 selectedEvent={selectedEvent}
                 initData={initData}
               />
-              <p className="px-6 py-2 mt-8 text-base font-medium text-[18px] text-white bg-[#ED2944] rounded-[29px] border border-white">
+              <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
                 You are at {selectedEvent.title}
               </p>
             </div>
@@ -152,7 +155,8 @@ export default function Home() {
         </>
       )}
 
-      <div onClick={() => setIsScannerOpen(true)}
+      <div
+        onClick={() => setIsScannerOpen(true)}
         className="fixed bottom-32 rounded-[37px] left-0 right-0 flex items-center justify-center"
       >
         <CameraIcon />

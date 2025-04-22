@@ -127,7 +127,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
 
               return (
                 <div key={category} className="mb-8">
-                  <h4 className="mb-2 text-white text-[20px] font-semibold">
+                  <h4 className="mb-2 text-white text-[1.2rem] font-semibold">
                     {title}
                   </h4>
                   {options.length > 0 ? (

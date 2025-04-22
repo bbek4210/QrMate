@@ -255,7 +255,7 @@ const UpdateUserContainer = () => {
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <p className="font-semibold text-[15px]">Change image</p>
+        <p className="font-semibold text-[0.9rem]">Change image</p>
       </div>
       <div className="my-4">
         <p className="font-semibold text-[32px] mb-6 uppercase">PERSONAL</p>
@@ -358,7 +358,7 @@ const UpdateUserContainer = () => {
                   <Badge
                     key={field.id}
                     onClick={() => !isDisabled && toggleSelectedField(field.id)}
-                    className={`!text-white font-medium text-[15px] px-4 py-2 rounded-full border transition-all duration-200 ${
+                    className={`!text-white font-medium text-[0.9rem] px-4 py-2 rounded-full border transition-all duration-200 ${
                       isSelected
                         ? "!bg-[#E30613] !border-[#ffffff]"
                         : isDisabled
@@ -436,7 +436,7 @@ const UpdateUserContainer = () => {
         />
         <label
           htmlFor="terms"
-          className="text-[15px] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-[0.9rem] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           I agree to receive updates from Zefe team.{" "}
         </label>

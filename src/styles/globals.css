@@ -23,35 +23,35 @@ main {
 /* iPhone 12 Mini, 13 */
 @media (min-width: 330px) and (max-width: 350px) {
   html {
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 
 /* iPhone 11 Pro */
 @media (min-width: 340px) and (max-width: 375px) {
   html {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
 /* iPhone 12, 13, 14 */
 @media (min-width: 350px) and (max-width: 390px) {
   html {
-    font-size: 15px;
+    font-size: 0.85rem;
   }
 }
 
 /* iPhone 12 Pro Max, 14 Pro */
 @media (min-width: 390px) and (max-width: 430px) {
   html {
-    font-size: 16px;
+    font-size: 0.9rem;
   }
 }
 
 /* iPhone 15 Pro, 16 */
 @media (min-width: 400px) {
   html {
-    font-size: 17px;
+    font-size: 16px;
   }
 }
 

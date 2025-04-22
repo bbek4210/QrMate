@@ -83,7 +83,7 @@ const AddEvent = ({
       </DrawerTrigger>
       <DrawerContent className="px-6 min-h-[55vh] py-8 bg-[#232322]">
         <DrawerHeader>
-          <DrawerTitle className="text-center text-[#ffffff] text-[18px] font-medium">
+          <DrawerTitle className="text-center text-[#ffffff] text-[1.1rem] font-medium">
             Enter your event details
           </DrawerTitle>
         </DrawerHeader>
@@ -93,7 +93,7 @@ const AddEvent = ({
           className="flex flex-col gap-4 my-6"
         >
           <div className="flex flex-col gap-2">
-            <Label className="text-[#ffffff] font-semibold text-[14px]">
+            <Label className="text-[#ffffff] font-semibold text-[0.85rem]">
               Event name
             </Label>
             <Input
@@ -107,7 +107,7 @@ const AddEvent = ({
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label className="text-[#ffffff] font-semibold text-[14px]">
+            <Label className="text-[#ffffff] font-semibold text-[0.85rem]">
               City
             </Label>
             <Input
@@ -123,7 +123,7 @@ const AddEvent = ({
 
           <Button
             type="submit"
-            className="rounded-[1rem] py-4 border border-[#ffffff] bg-[#ED2944] text-white text-[18px]"
+            className="rounded-[1rem] py-4 border border-[#ffffff] bg-[#ED2944] text-white text-[1.1rem]"
             disabled={isPending}
           >
             {isPending ? "Creating..." : "Continue"}

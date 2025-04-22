@@ -73,7 +73,7 @@ const ConnectedUserPage = () => {
           {connection.fields.map((field: any, index: any) => (
             <Badge
               key={index}
-              className="text-[15px] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
+              className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
             >
               {field.toUpperCase()}
             </Badge>

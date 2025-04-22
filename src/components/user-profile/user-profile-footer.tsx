@@ -58,7 +58,7 @@ const UserProfileFooter = () => {
       <div className="flex justify-between w-full gap-3 mt-3">
         <Button
           leftIcon={<SendFeedbackIconSvg />}
-          className="w-full py-4 rounded-[29px] text-[15px] font-medium text-white border border-white bg-transparent"
+          className="w-full py-4 rounded-[29px] text-[0.9rem] font-medium text-white border border-white bg-transparent"
           onClick={() => setIsFeedbackDrawerOpen(true)}
         >
           Send feedback
@@ -83,7 +83,7 @@ const UserProfileFooter = () => {
                 Send feedback
               </DrawerTitle>
             </DrawerHeader>
-            <label className=" mt-6 text-[15px] font-semibold text-black">
+            <label className=" mt-6 text-[0.9rem] font-semibold text-black">
               Write feedback for zefe
             </label>
             <textarea

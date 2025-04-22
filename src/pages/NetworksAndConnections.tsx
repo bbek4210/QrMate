@@ -46,7 +46,7 @@ const NetworksAndConnections = () => {
             onClick={() => setIsFilterOpen(true)}
             className="px-0 cursor-pointer"
           >
-            <span className="flex justify-center text-white border rounded-[29px] px-4 border-white items-center gap-2 font-semibold text-[15px] h-[40px]">
+            <span className="flex justify-center text-white border rounded-[29px] px-4 border-white items-center gap-2 font-semibold text-[0.9rem] h-[40px]">
               Filter <FilterButtonSvg />
             </span>
           </Badge>
@@ -54,7 +54,7 @@ const NetworksAndConnections = () => {
           {Object.entries(selectedFilters).map(([key, value]) =>
             value ? (
               <Badge key={key} variant={"red"} className="px-0 mx-0">
-                <span className="flex justify-center bg-[#ED2944] text-white border rounded-[29px] px-3 border-white items-center gap-2 font-semibold text-[14px] h-[35px]">
+                <span className="flex justify-center bg-[#ED2944] text-white border rounded-[29px] px-3 border-white items-center gap-2 font-semibold text-[0.85rem] h-[35px]">
                   {value}{" "}
                   <button
                     onClick={() =>

@@ -40,7 +40,7 @@ const ProfileBox = ({
       <p className="text-sm font-medium text-gray-500">
         {role} | {company}
       </p>
-      <span className="inline-block px-2 py-1 mt-3 text-[13px] font-medium text-gray-800 border border-gray-300 rounded-full">
+      <span className="inline-block px-2 py-1 mt-3 text-[0.8rem] font-medium text-gray-800 border border-gray-300 rounded-full">
         {EventName}
       </span>
     </div>

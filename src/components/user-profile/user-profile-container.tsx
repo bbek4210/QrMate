@@ -34,7 +34,7 @@ const UserProfileContainer = () => {
           {user?.user_profile?.user_fields?.map((field: UserField) => (
             <Badge
               key={field.id}
-              className="text-[15px] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
+              className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
             >
               {field.name.toUpperCase()}
             </Badge>
@@ -42,7 +42,7 @@ const UserProfileContainer = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 text-white text-[14px] font-medium">
+      <div className="flex flex-col gap-2 text-white text-[0.85rem] font-medium">
         {user?.user_profile?.position && (
           <div className="flex items-center gap-3">
             <PositionIcon />
