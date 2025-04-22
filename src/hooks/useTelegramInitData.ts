@@ -83,24 +83,29 @@ const initializeZefeUser = async (user: TelegramUser) => {
 export function useTelegramInitData() {
   const isLocal = import.meta.env.VITE_RUNNING_ENV === "development";
   const alreadyInitialized = useRef(false);
-  const launchParams = useLaunchParams();
+  const launchParams = useLaunchParams(); // Always call hook (safe)
 
   const rawInitData = useMemo(() => {
     if (isLocal) return mockInitData;
-    const webAppData = launchParams?.tgWebAppData;
-    const user = webAppData?.user;
-    if (!user) return null;
 
-    return {
-      user,
-      authDate: new Date(Number(launchParams.auth_date) * 1000),
-      hash: launchParams.hash || "",
-      queryId: launchParams.query_id || "",
-      chatType: launchParams.chat_type || "",
-      chatInstance: launchParams.chat_instance || "",
-      canSendAfter: launchParams.can_send_after ?? null,
-      startParam: launchParams.start_param || "",
-    };
+    try {
+      const user = launchParams?.tgWebAppData?.user;
+      if (!user) return null;
+
+      return {
+        user,
+        authDate: new Date(Number(launchParams.auth_date) * 1000),
+        hash: launchParams.hash || "",
+        queryId: launchParams.query_id || "",
+        chatType: launchParams.chat_type || "",
+        chatInstance: launchParams.chat_instance || "",
+        canSendAfter: launchParams.can_send_after ?? null,
+        startParam: launchParams.start_param || "",
+      };
+    } catch (err) {
+      console.warn("Failed to parse launchParams:", err);
+      return null;
+    }
   }, [launchParams, isLocal]);
 
   const telegramUser = rawInitData?.user ?? null;
@@ -111,7 +116,7 @@ export function useTelegramInitData() {
     isError,
     error,
   } = useQuery({
-    queryKey: [TELEGRAM_INIT_QUERY_KEY, telegramUser?.["id"]],
+    queryKey: [TELEGRAM_INIT_QUERY_KEY, telegramUser?.id],
     queryFn: async () => {
       if (alreadyInitialized.current || !telegramUser) return null;
       alreadyInitialized.current = true;
