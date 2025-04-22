@@ -98,7 +98,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
         onClick={onClose}
       >
         <div
-          className={`w-full h-[85vh] bg-[#232322] rounded-t-2xl shadow-xl transform transition-transform duration-300 ${
+          className={`w-full h-[85dvh] bg-[#232322] rounded-t-2xl shadow-xl transform transition-transform duration-300 ${
             isOpen ? "translate-y-0" : "translate-y-full"
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -180,7 +180,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
 
       {activeCategoryForPopup && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70">
-          <div className="w-full h-[60vh] bg-[#1e1e1e] rounded-t-2xl p-4 flex flex-col">
+          <div className="w-full h-[60dvh] bg-[#1e1e1e] rounded-t-2xl p-4 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white capitalize">
                 Select {activeCategoryForPopup}
