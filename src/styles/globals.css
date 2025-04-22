@@ -10,7 +10,7 @@ body {
 
 main {
   height: 100dvh;
-  overflow-y: auto; /* scroll inside main if needed */
+  overflow-y: auto;  
 }
 
 /* iPhone 15 */

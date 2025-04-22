@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
+import axios from "@/lib/axios"; // update path if different
 
 import toast from "react-hot-toast";
 import {
@@ -24,17 +25,17 @@ import {
 } from "@/lib/utils";
 import ProfileBanner from "@/components/profile-banner";
 import FancyQRCode from "@/components/FancyQRCode";
+import { useHandleScannedConnection } from "@/hooks/use-handle-scanned-connection";
 
 export default function Home() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-
   const initData = useTelegramInitData();
   const navigate = useNavigate();
 
   const zefeUserId = initData?.zefeUser?.id;
   const { data: fetchedEvents, error, refetch } = useGetEvents(zefeUserId);
-
+  console.log({ zefeUserId })
   const eventList = Array.isArray(fetchedEvents) ? fetchedEvents : [];
   const firstEvent = eventList?.[0];
 
@@ -43,17 +44,7 @@ export default function Home() {
     [eventList, selectedEventId]
   );
 
-  useEffect(() => {
-    const parsed = parseTelegramStartAppData();
-    if (parsed?.userId) {
-      let url = `/connected-user/${parsed.userId}`;
-      if (parsed?.eventId) {
-        url += `?event_id=${parsed.eventId}&telegram_user_id=${parsed.telegramUserId}`;
-      }
-      navigate(url);
-    }
-  }, []);
-  const scannerRef = useRef<unknown>(null);
+  useHandleScannedConnection();
 
   useEffect(() => {
     if (zefeUserId) {
@@ -61,13 +52,33 @@ export default function Home() {
     }
   }, [zefeUserId]);
 
-  const handleScanSuccess = (parsedText: TGenerateTelegramLink) => {
+  const handleScanSuccess = async (parsedText: TGenerateTelegramLink) => {
     setIsScannerOpen(false);
-    let urlToReplace = `/connected-user/${parsedText?.userId}`;
-    if (parsedText?.eventId) {
-      urlToReplace = `${urlToReplace}?event_id=${parsedText?.eventId}&telegram_user_id=${parsedText?.telegramUserId}`;
+
+    const {
+      userId: scannedUserId,
+      eventId: baseEventId,
+      telegramUserId,
+    } = parsedText;
+
+    let urlToReplace = `/connected-user/${scannedUserId}`;
+    if (baseEventId) {
+      urlToReplace += `?event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
     }
-    navigate(urlToReplace);
+
+    try {
+      if (baseEventId && scannedUserId) {
+        await axios.post("/create-a-network/", {
+          base_event_id: baseEventId,
+          scanned_user_id: scannedUserId,
+        });
+      }
+
+      navigate(urlToReplace);
+    } catch (err) {
+      console.error("Failed to create network:", err);
+      toast.error("Failed to create connection. Please try again.");
+    }
   };
 
   const { mutateAsync: createEvent } = useCreateEvent();
@@ -91,7 +102,7 @@ export default function Home() {
   if (error) return <p>Error loading events: {error.message}</p>;
 
   return (
-    <main className="bg-[#232223] h-screen">
+    <main className="bg-[#232223]">
       <div className="flex items-center justify-between px-3 py-3">
         <ZefeLogo />
         <Link to="/user">
@@ -101,62 +112,64 @@ export default function Home() {
 
       {isScannerOpen ? (
         <QRCodeScanner
-          ref={scannerRef}
           isScannerOpen={isScannerOpen}
           onScanSuccess={handleScanSuccess}
         />
       ) : (
-        <>
+        <div>
           <ProfileBanner />
 
-          <div className="px-3 py-2">
-            <p className="text-[#DDCCCC] font-semibold text-[22px]">
-              You are at
-            </p>
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">
-              <AddEvent
-                triggerNode={<> + ADD EVENT</>}
-                onEventCreated={handleNewEvent}
-                refetch={refetch}
-              />
-              {eventList.map((event, index) => (
-                <Badge
-                  key={index}
-                  variant="red"
-                  onClick={() => setSelectedEventId(event.id.toString())}
-                  className={`cursor-pointer text-[0.9rem] ${
-                    selectedEvent?.id === event.id
-                      ? "border-[#ffffff] bg-[#E30613]"
-                      : "bg-transparent border-[#ffffff]"
-                  }`}
-                >
-                  {event.title}
-                </Badge>
-              ))}
+          <div className="min-h-[100vh] overflow-scroll">
+            <div className="px-3 py-2">
+              <p className="text-[#DDCCCC] font-semibold text-[22px]">
+                You are at
+              </p>
+              <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">
+                <AddEvent
+                  triggerNode={<> + ADD EVENT</>}
+                  onEventCreated={handleNewEvent}
+                  refetch={refetch}
+                />
+                {eventList.map((event, index) => (
+                  <Badge
+                    key={index}
+                    variant="red"
+                    onClick={() => setSelectedEventId(event.id.toString())}
+                    className={`cursor-pointer text-[0.9rem] ${
+                      selectedEvent?.id === event.id
+                        ? "border-[#ffffff] bg-[#E30613]"
+                        : "bg-transparent border-[#ffffff]"
+                    }`}
+                  >
+                    {event.title}
+                  </Badge>
+                ))}
+              </div>
             </div>
+
+            {selectedEvent && (
+              <div className="flex flex-col items-center justify-center p-4 ">
+                <p className="mb-4 text-lg font-medium text-[#7F7F7F] text-center">
+                  Your QR code
+                </p>
+
+                <FancyQRCode
+                  value={generateTelegramMiniAppLink({
+                    eventId: selectedEvent?.id?.toString() ?? "",
+                    title: selectedEvent?.title ?? "",
+                    userId: initData?.zefeUser?.id?.toString() ?? "",
+                    telegramUserId:
+                      initData?.telegramUser?.id?.toString() ?? "",
+                  })}
+                />
+
+                <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
+                  You are at {selectedEvent.title}
+                </p>
+              </div>
+            )}
           </div>
-
-          {selectedEvent && (
-            <div className="flex flex-col items-center justify-center p-4 ">
-              <p className="mb-4 text-lg font-medium text-[#7F7F7F] text-center">
-                Your QR code
-              </p>
-
-              <FancyQRCode
-                value={generateTelegramMiniAppLink({
-                  eventId: selectedEvent?.id?.toString() ?? "",
-                  title: selectedEvent?.title ?? "",
-                  userId: initData?.zefeUser?.id?.toString() ?? "",
-                  telegramUserId: initData?.telegramUser?.id?.toString() ?? "",
-                })}
-              />
-
-              <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
-                You are at {selectedEvent.title}
-              </p>
-            </div>
-          )}
-        </>
+        </div>
       )}
       <BottomNavbar
         baseOnClick={() => {

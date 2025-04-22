@@ -72,23 +72,3 @@ export function parseTelegramStartAppData(): Record<string, string> | null {
   }
 }
 
-export function getUserProfiles(data: any, telegramId: string) {
-  const event1 = data.user_event1_data;
-  const event2 = data.user_event2_data;
-
-  let loggedInUser = null;
-  let shownUser = null;
-
-  if (event1.userprofile.telegram_account === telegramId) {
-    loggedInUser = event1;
-    shownUser = event2;
-  } else if (event2.userprofile.telegram_account === telegramId) {
-    loggedInUser = event2;
-    shownUser = event1;
-  }
-
-  return {
-    loggedInUser,
-    shownUser,
-  };
-}
