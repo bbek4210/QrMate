@@ -156,7 +156,7 @@ export default function Home() {
 
       <div
         onClick={() => setIsScannerOpen((pre) => !pre)}
-        className="fixed bottom-32 rounded-[37px] left-0 right-0 flex items-center justify-center"
+        className="fixed bottom-28 rounded-[37px] left-0 right-0 flex items-center justify-center"
       >
         <CameraIcon />
       </div>

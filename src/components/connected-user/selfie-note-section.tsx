@@ -32,7 +32,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
-  const [showBadge, setShowBadge] = useState(true);
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
@@ -124,14 +123,13 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   return (
     <div className="mt-10 space-y-4">
       <div className="flex flex-col items-center justify-center gap-4 mb-12">
-        <Badge className="bg-[#ED2944] text-white text-center mx-auto border-white px-3 py-2 rounded-[29px]">
+        <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
           Met at <span className="ml-1 font-semibold">{eventTitle}</span>
         </Badge>
-        {showBadge && (
-          <Badge className="w-full flex items-center justify-center gap-2 text-[1rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20 animate-slide-in-out">
-            <CheckedcircleSvg /> Contact saved
-          </Badge>
-        )}
+
+        <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
+          <CheckedcircleSvg /> Contact saved
+        </Badge>
       </div>
 
       {photos.length > 0 && (
@@ -183,7 +181,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       {photos.length === 0 && (
         <div className="flex flex-col gap-3">
-          <label className="flex items-center justify-center gap-2 px-5 py-3 text-[1.1rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
+          <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
             <SmallcameraSvg /> Take a selfie
             <input
               type="file"
@@ -203,7 +201,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           />
           <Button
             onClick={handleSave}
-            className="w-full text-black py-2 bg-white rounded-[29px] border border-white font-medium hover:bg-[#5A41FF]"
+            className="w-full text-black py-2 bg-white rounded-[29px] border border-white font-medium hover:bg-[#5A41FF] text-[0.8rem]"
           >
             Save
           </Button>
@@ -246,7 +244,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         <a
           href={telegramAccount}
           target="_blank"
-          className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[1.1rem] font-medium rounded-[29px]"
+          className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[0.8rem] font-medium rounded-[29px]"
         >
           <TelegramIcon /> Message in Telegram
         </a>
