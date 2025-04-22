@@ -8,8 +8,8 @@ import { QueryProvider } from "@/components/Provider/QueryClientProvider";
 import { meta } from "@eslint/js";
 import { BrowserRouter } from "react-router-dom";
 
-console.log("Meta env", import.meta.env.NODE_ENV);
-if (import.meta.env.NODE_ENV == "production") {
+console.log("Meta env", import.meta.env.VITE_RUNNING_ENV);
+if (import.meta.env.VITE_RUNNING_ENV == "production") {
   init();
 }
 

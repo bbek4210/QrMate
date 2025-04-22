@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { init } from "@telegram-apps/sdk-react";
 
 export default function TelegramInitWrapper({ children }: any) {
-  const isLocal = import.meta.env.NODE_ENV === "development";
+  const isLocal = import.meta.env.VITE_RUNNING_ENV === "development";
 
   useEffect(() => {
     if (!isLocal) {

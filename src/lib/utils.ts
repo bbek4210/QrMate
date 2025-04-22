@@ -33,7 +33,7 @@ export type TGenerateTelegramLink = {
 };
 
 export function generateTelegramMiniAppLink(payload: TGenerateTelegramLink) {
-  const BOT_USERNAME = import.meta.env.NEXT_PUBLIC_BOT_USERNAME;
+  const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME;
   const baseUrl = `https://t.me/${BOT_USERNAME}`;
   const queryString = new URLSearchParams(payload).toString();
   console.log({ queryString });

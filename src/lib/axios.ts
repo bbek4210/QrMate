@@ -2,7 +2,7 @@ import axios from "axios";
 import { getCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "./constants";
 
-const BASE_URL = `${import.meta.env.NEXT_PUBLIC_SERVER_URL}/api/v1`;
+const BASE_URL = `${import.meta.env.VITE_SERVER_URL}/api/v1`;
 // Create Axios instance
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

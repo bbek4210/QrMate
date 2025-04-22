@@ -81,7 +81,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
 };
 
 export function useTelegramInitData() {
-  const isLocal = import.meta.env.NODE_ENV === "development";
+  const isLocal = import.meta.env.VITE_RUNNING_ENV === "development";
   const alreadyInitialized = useRef(false);
   const launchParams = useLaunchParams();
 
