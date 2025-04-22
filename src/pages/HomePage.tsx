@@ -156,17 +156,24 @@ export default function Home() {
               </p>
             </div>
           )}
-
-          <BottomNavbar />
         </>
       )}
+      <BottomNavbar
+        baseOnClick={() => {
+          if (isScannerOpen) {
+            setIsScannerOpen(false);
+          }
+        }}
+      />
 
-      <div
-        onClick={() => setIsScannerOpen((pre) => !pre)}
-        className="fixed bottom-24 rounded-[37px] left-0 right-0 flex items-center justify-center"
-      >
-        <CameraIcon />
-      </div>
+      {!isScannerOpen && (
+        <div
+          onClick={() => setIsScannerOpen((pre) => !pre)}
+          className="fixed bottom-24 rounded-[37px] left-0 right-0 flex items-center justify-center"
+        >
+          <CameraIcon />
+        </div>
+      )}
     </main>
   );
 }
