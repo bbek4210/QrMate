@@ -34,6 +34,8 @@ export default function Home() {
     setIsProfileVisible(false);
   };
 
+  console.log("this is home page.")
+
   const initData = useTelegramInitData();
 
   const lp = useLaunchParams();
