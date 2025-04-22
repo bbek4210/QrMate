@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   height: 100dvh;
   overflow: hidden;
 }
@@ -12,6 +13,47 @@ main {
   overflow-y: auto; /* scroll inside main if needed */
 }
 
+/* iPhone 15 */
+@media (min-width: 320px) and (max-width: 340px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+/* iPhone 12 Mini, 13 */
+@media (min-width: 330px) and (max-width: 350px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+/* iPhone 11 Pro */
+@media (min-width: 340px) and (max-width: 375px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* iPhone 12, 13, 14 */
+@media (min-width: 350px) and (max-width: 390px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* iPhone 12 Pro Max, 14 Pro */
+@media (min-width: 390px) and (max-width: 430px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* iPhone 15 Pro, 16 */
+@media (min-width: 400px) {
+  html {
+    font-size: 17px;
+  }
+}
 
 @layer base {
   :root {
@@ -83,11 +125,6 @@ main {
   margin-top: 10vh;
   overflow-y: auto;
 }
-
-/* body {
-  background-color: #ffffff;
-  color: BLACK;
-} */
 
 body {
   background-color: #232322;
