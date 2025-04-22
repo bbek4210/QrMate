@@ -21,11 +21,13 @@ const QRCodeScanner = forwardRef(
   ) => {
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [scanning, setScanning] = useState(false);
 
     useEffect(() => {
       if (isScannerOpen) {
-        startScanner();
+        // Delay scanner start until DOM is fully ready
+        requestAnimationFrame(() => {
+          startScanner();
+        });
       } else {
         stopScanner();
       }
@@ -51,6 +53,14 @@ const QRCodeScanner = forwardRef(
       };
 
       try {
+        console.log("Attempting to start QR scanner...");
+
+        // Check camera API support
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          toast.error("Camera API not supported in this browser");
+          return;
+        }
+
         if (!scannerRef.current) {
           scannerRef.current = new Html5Qrcode(qrRegionId);
         } else {
@@ -68,10 +78,9 @@ const QRCodeScanner = forwardRef(
           undefined
         );
 
-        setScanning(true);
       } catch (error: any) {
         console.error("Failed to start QR scanner:", error);
-        if (!error.message?.includes("camera")) return;
+        if (!error.message?.toLowerCase().includes("camera")) return;
         toast.error("Failed to access camera");
       }
     };
@@ -105,7 +114,6 @@ const QRCodeScanner = forwardRef(
       } catch (error) {
         console.error("Error stopping scanner:", error);
       }
-      setScanning(false);
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +138,7 @@ const QRCodeScanner = forwardRef(
           className="w-full h-full"
           style={{ backgroundColor: "transparent" }}
         />
-        {/* Visual scanner frame */}
+        {/* Optional visible scanner frame */}
         {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-green-500 rounded-xl w-56 h-56 z-10 pointer-events-none" /> */}
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
@@ -154,5 +162,5 @@ const QRCodeScanner = forwardRef(
   }
 );
 
-QRCodeScanner.displayName = "QRCodeScanner"
+QRCodeScanner.displayName = "QRCodeScanner";
 export default QRCodeScanner;
