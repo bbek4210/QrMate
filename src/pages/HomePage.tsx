@@ -55,6 +55,7 @@ export default function Home() {
       navigate(url);
     }
   }, []);
+  const scannerRef = useRef<any>(null);
 
   useEffect(() => {
     if (zefeUserId) {
@@ -101,7 +102,7 @@ export default function Home() {
 
       {isScannerOpen ? (
         <QRCodeScanner
-          ref={useRef(null)}
+          ref={scannerRef}
           isScannerOpen={isScannerOpen}
           onScanSuccess={handleScanSuccess}
         />
@@ -156,7 +157,7 @@ export default function Home() {
       )}
 
       <div
-        onClick={() => setIsScannerOpen(true)}
+        onClick={() => setIsScannerOpen((pre) => !pre)}
         className="fixed bottom-32 rounded-[37px] left-0 right-0 flex items-center justify-center"
       >
         <CameraIcon />
