@@ -16,7 +16,7 @@ export const fetchUserData = async (initData: any) => {
   }
 
   const payload = {
-    name: `${user.firstName} ${user.lastName}`,
+    name: `${user.first_name} ${user.last_name}`,
     username: user.username,
     telegram_id: user.id,
   };

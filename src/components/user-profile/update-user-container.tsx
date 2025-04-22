@@ -202,7 +202,7 @@ const UpdateUserContainer = () => {
   useEffect(() => {
     if (telegramInitData?.user) {
       const user = telegramInitData.user;
-      setValue("name", `${user.firstName} ${user.lastName || ""}`.trim());
+      setValue("name", `${user.first_name} ${user.last_name || ""}`.trim());
       setValue("username", user.username || "");
     }
   }, [telegramInitData, setValue]);

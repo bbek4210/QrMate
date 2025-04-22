@@ -40,15 +40,15 @@ const mockInitData: ValidTelegramInitData & { zefeUser: ZefeUser } = {
   startParam: "mock_param",
   user: {
     id: 366361,
-    firstName: "Mock",
-    lastName: "User",
+    first_name: "Mock",
+    last_name: "User",
     username: "tanka1026",
-    photoUrl: "https://via.placeholder.com/50",
-    isBot: false,
-    isPremium: false,
-    languageCode: "en",
-    allowsWriteToPm: true,
-    addedToAttachmentMenu: false,
+    photo_url: "https://via.placeholder.com/50",
+    is_bot: false,
+    is_premium: false,
+    language_code: "en",
+    allows_write_to_pm: true,
+    added_to_attachment_menu: false,
   },
   zefeUser: {
     id: "mock_zefe_id",
@@ -60,7 +60,7 @@ const mockInitData: ValidTelegramInitData & { zefeUser: ZefeUser } = {
 
 const initializeZefeUser = async (user: TelegramUser) => {
   const payload = {
-    name: `${user.firstName} ${user.lastName}`,
+    name: `${user.first_name} ${user.last_name}`,
     username: user.username,
     telegram_id: user.id,
   };
@@ -73,7 +73,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
   const accessToken = response?.data?.data?.access_token;
   if (accessToken) {
     setCookie(ACCESS_TOKEN_KEY, accessToken, {
-      maxAge: 60 * 60 * 24 * 30,
+      expires: 60 * 60 * 24 * 30,
     });
   }
 
@@ -93,13 +93,13 @@ export function useTelegramInitData() {
 
     return {
       user: state.user,
-      authDate: state.authDate,
+      authDate: state.auth_date,
       hash: state.hash || "",
-      queryId: state.queryId || "",
-      chatType: state.chatType || "",
-      chatInstance: state.chatInstance || "",
-      canSendAfter: state.canSendAfter ?? null,
-      startParam: state.startParam || "",
+      queryId: state.query_id || "",
+      chatType: state.chat_type || "",
+      chatInstance: state.chat_instance || "",
+      canSendAfter: state.can_send_after ?? null,
+      startParam: state.start_param || "",
     };
   }, [state, isLocal]);
 
