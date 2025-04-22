@@ -11,24 +11,24 @@ import { BrowserRouter } from "react-router-dom";
 
 console.log("Meta env", import.meta.env.NODE_ENV)
 if (import.meta.env.NODE_ENV == "production") {
-  init();
+init();
 }
 
 if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-  const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
-  tg.setBackgroundColor(tg.themeParams.bg_color ?? "#ffffff");
-  tg.setHeaderColor("secondary_bg_color");
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+tg.setBackgroundColor(tg.themeParams.bg_color ?? "#ffffff");
+tg.setHeaderColor("secondary_bg_color");
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  // <React.StrictMode>
-    <BrowserRouter>
-      <QueryProvider>
-        <App />
-      </QueryProvider>
-      <Toaster />
-    </BrowserRouter>
-  // </React.StrictMode>
+// <React.StrictMode>
+  <BrowserRouter>
+    <QueryProvider>
+      <App />
+    </QueryProvider>
+    <Toaster />
+  </BrowserRouter>
+// </React.StrictMode>
 );
