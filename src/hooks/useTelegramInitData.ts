@@ -109,13 +109,15 @@ export function useTelegramInitData() {
 
   const {
     mutateAsync: fetchZefeUser,
-    data: zefeUser,
+    data: zefeInitializationData,
     isPending: isLoading,
     isError,
     error,
   } = useMutation({
     mutationFn: initializeZefeUser,
   });
+
+  const zefeUser = zefeInitializationData?.data?.data
 
   useEffect(() => {
     if (!telegramUser || alreadyInitialized.current) return;
