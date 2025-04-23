@@ -37,6 +37,7 @@ const UserProfileFooter = () => {
         setFeedback("");
         setImage(null);
         setIsFeedbackDrawerOpen(false);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Error sending feedback");
       }

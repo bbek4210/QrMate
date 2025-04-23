@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 import ZefeLogo from "@/components/svgs/logo";
@@ -21,7 +21,6 @@ import toast from "react-hot-toast";
 import {
   generateTelegramMiniAppLink,
   TGenerateTelegramLink,
-  parseTelegramStartAppData,
 } from "@/lib/utils";
 import ProfileBanner from "@/components/profile-banner";
 import FancyQRCode from "@/components/FancyQRCode";
@@ -35,7 +34,7 @@ export default function Home() {
 
   const zefeUserId = initData?.zefeUser?.id;
   const { data: fetchedEvents, error, refetch } = useGetEvents(zefeUserId);
-  console.log({ zefeUserId })
+  console.log({ zefeUserId });
   const eventList = Array.isArray(fetchedEvents) ? fetchedEvents : [];
   const firstEvent = eventList?.[0];
 
