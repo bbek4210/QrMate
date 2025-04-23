@@ -49,11 +49,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowBadge(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter((f) => f.size > 0);
@@ -62,18 +57,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       const previews = validFiles.map((f) => URL.createObjectURL(f));
       setPhotos((prev) => [...prev, ...previews]);
       setFiles((prev) => [...prev, ...validFiles]);
-    }
-  };
-
-  const handleTelegramMessage = () => {
-    if (telegramAccount) {
-      const formattedUsername = telegramAccount.startsWith("@")
-        ? telegramAccount.slice(1)
-        : telegramAccount;
-      const telegramUrl = `tg://resolve?domain=${formattedUsername}`;
-      window.open(telegramUrl, "_blank");
-    } else {
-      console.error("No Telegram account provided");
     }
   };
 

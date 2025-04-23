@@ -189,11 +189,3 @@ export default function Home() {
     </main>
   );
 }
-
-// const DownloadableQRCode = ({ selectedEvent, initData }: any) => {
-//   const qrValue = generateTelegramMiniAppLink({
-//     eventId: selectedEvent?.id,
-//     title: selectedEvent?.title,
-//     userId: initData?.zefeUser?.id,
-//     telegramUserId: initData?.telegramUser?.id,
-//   });
