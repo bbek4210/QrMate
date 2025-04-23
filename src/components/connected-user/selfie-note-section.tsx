@@ -14,6 +14,7 @@ import GreenCheckedCircle from "@/components/svgs/green-checkedcircle";
 import SmallcameraSvg from "@/components/svgs/smallcamera";
 import { TelegramIcon } from "@/components/svgs/social-icons";
 import { Button } from "../ui/button";
+import { useLocation } from "react-router-dom";
 
 interface SelfieNoteSectionProps {
   networkId: number;
@@ -39,6 +40,9 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const { data: selfieNote } = useGetSelfieNote(networkId);
   const uploadFileMutation = useUploadFile();
   const makeSelfieNote = useMakeSelfieNote();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const showContactSaved = searchParams.get("ref") === "scanner";
 
   useEffect(() => {
     if (selfieNote) {
@@ -105,15 +109,17 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
   return (
     <div className="mt-10 space-y-4">
-      <div className="flex flex-col items-center justify-center gap-4 mb-12">
-        <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
-          Met at <span className="ml-1 font-semibold">{eventTitle}</span>
-        </Badge>
+      {showContactSaved && (
+        <div className="flex flex-col items-center justify-center gap-4 mb-12">
+          <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
+            Met at <span className="ml-1 font-semibold">{eventTitle}</span>
+          </Badge>
 
-        <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
-          <CheckedcircleSvg /> Contact saved
-        </Badge>
-      </div>
+          <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
+            <CheckedcircleSvg /> Contact saved
+          </Badge>
+        </div>
+      )}
 
       {photos.length > 0 && (
         <div className="flex flex-col gap-4">

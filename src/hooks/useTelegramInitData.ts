@@ -134,6 +134,8 @@ export function useTelegramInitData() {
         telegramUser: mockInitData.user,
         zefeUser: mockInitData.zefeUser,
         isLocal,
+        isLoading: false,
+        isError: false,  
         raw: "local",
       };
     }

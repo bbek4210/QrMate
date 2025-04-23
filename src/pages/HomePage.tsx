@@ -31,12 +31,15 @@ export default function Home() {
 
   const initData = useTelegramInitData();
   const navigate = useNavigate();
+
+  const isInitDataReady =
+    !!initData?.zefeUser?.id && !initData?.isLoading && !initData?.isError;
   const zefeUserId = initData?.zefeUser?.id;
 
   const {
     data: fetchedEvents,
     error,
-    isLoading,
+    isLoading: isEventsLoading,
     refetch,
   } = useGetEvents(zefeUserId ?? "");
 
@@ -47,9 +50,7 @@ export default function Home() {
       eventList.find((e) => e.id === Number(selectedEventId)) || eventList[0],
     [eventList, selectedEventId]
   );
-  console.log("initData:", initData);
-  console.log("zefeUserId:", zefeUserId);
-  
+
   useEffect(() => {
     if (!selectedEventId && eventList.length > 0) {
       setSelectedEventId(eventList[0].id.toString());
@@ -104,20 +105,21 @@ export default function Home() {
     }
   };
 
-  // Show loading state if user data or events are not ready
-  if (!zefeUserId || isLoading) {
+  // ✅ Loading state while init or events are not ready
+  if (!isInitDataReady || isEventsLoading) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
-        <p className="text-white text-lg">Loading events...</p>
+        <p className="text-white text-lg">Loading your session...</p>
       </main>
     );
   }
 
-  if (error) {
+  // ❌ Error state for Telegram init failure
+  if (initData?.isError) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
         <p className="text-red-500 text-lg">
-          Error loading events: {error.message}
+          Failed to initialize user. Please restart the app.
         </p>
       </main>
     );
