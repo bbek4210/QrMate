@@ -47,7 +47,9 @@ export default function Home() {
       eventList.find((e) => e.id === Number(selectedEventId)) || eventList[0],
     [eventList, selectedEventId]
   );
-
+  console.log("initData:", initData);
+  console.log("zefeUserId:", zefeUserId);
+  
   useEffect(() => {
     if (!selectedEventId && eventList.length > 0) {
       setSelectedEventId(eventList[0].id.toString());
