@@ -107,7 +107,7 @@ export function useTelegramInitData() {
       return null;
     }
   }, [launchParams, isLocal]);
-
+  console.log({ rawInitData})
   const telegramUser = rawInitData?.user ?? null;
 
   const {
