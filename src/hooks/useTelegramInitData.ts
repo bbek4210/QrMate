@@ -11,7 +11,7 @@ import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY, TELEGRAM_INIT_QUERY_KEY } from "@/lib/constants";
 
 type ZefeUser = {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: string;
@@ -51,7 +51,7 @@ const mockInitData: ValidTelegramInitData & { zefeUser: ZefeUser } = {
   canSendAfter: null,
   startParam: "mock_param",
   zefeUser: {
-    id: "mock_zefe_id",
+    id: 1,
     name: "Mock User",
     email: "mock@zefe.com",
     role: "admin",

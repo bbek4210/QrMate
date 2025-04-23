@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Variable.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Improves performance and user experience */
+}
+
 html,
 body {
   height: 100dvh;
   overflow: hidden;
+  font-family:  'Chillax', sans-serif;
 }
 
 main {

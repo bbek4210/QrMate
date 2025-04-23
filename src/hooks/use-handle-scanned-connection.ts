@@ -16,8 +16,8 @@ export const useHandleScannedConnection = () => {
 
       axios
         .post("/create-a-network/", {
-          base_event_id: baseEventId,
-          scanned_user_id: scannedUserId,
+          base_event_id: parseInt(baseEventId),
+          scanned_user_id: parseInt(scannedUserId),
         })
         .then(() => {
           navigate(url);
