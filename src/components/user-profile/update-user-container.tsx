@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import { useNavigate } from "react-router-dom";
+import useUploadFile from "@/hooks/use-upload-file";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -151,12 +152,13 @@ const fieldOptions = [
 const UpdateUserContainer = () => {
   const navigate = useNavigate();
   const [termsAccepted, setTermsAccepted] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatar, setAvatar] = useState<string | null>(null);
+
   const telegramInitData = useTelegramInitData();
   const { data: userProfile } = useGetUserProfile();
-
   const { mutateAsync } = useUpdateUserProfile();
+  const uploadFileMutation = useUploadFile();
 
   const {
     register,
@@ -172,7 +174,6 @@ const UpdateUserContainer = () => {
       username: "",
       position: "",
       project_name: "",
-
       city: "",
       telegram_account: "",
       twitter_account: "",
@@ -181,11 +182,8 @@ const UpdateUserContainer = () => {
       selected_fields: [],
     },
   });
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.log("Validation errors:", errors);
-    }
-  }, [errors]);
+
+  const selectedFields = watch("selected_fields");
 
   useEffect(() => {
     if (telegramInitData?.user) {
@@ -195,12 +193,9 @@ const UpdateUserContainer = () => {
     }
   }, [telegramInitData, setValue]);
 
-  const selectedFields = watch("selected_fields");
-
   useEffect(() => {
     if (userProfile) {
       const profile = userProfile.user_profile;
-
       setValue("name", userProfile.name || "");
       setValue("username", userProfile.username || "");
       setValue("position", profile.position || "");
@@ -214,6 +209,9 @@ const UpdateUserContainer = () => {
       const selectedFieldIds =
         profile.user_fields?.map((field: { id: number }) => field.id) || [];
       setValue("selected_fields", selectedFieldIds);
+      if (profile.avatar_url) {
+        setAvatar(profile.avatar_url);
+      }
     }
   }, [userProfile, setValue]);
 
@@ -233,17 +231,34 @@ const UpdateUserContainer = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const KEY_PREFIX = "zefe_profile_images";
+
+    const extension = file.name.split(".").pop() || "jpg";
+    const key = `${KEY_PREFIX}/avatar-${Date.now()}.${extension}`;
+
+    try {
+      const result = await uploadFileMutation.mutateAsync({ file, key });
+      setAvatar(result.file_url);
+      toast.success("Profile picture uploaded");
+    } catch (err) {
+      toast.error("Failed to upload profile picture");
+    }
+  };
+
   const onSubmit = async (data: z.infer<typeof profileSchema>) => {
     setIsSubmitting(true);
     const { selected_fields, ...rest } = data;
     const formattedData = {
       ...rest,
       user_fields: selected_fields,
+      avatar_url: avatar || undefined,
     };
 
     try {
       await mutateAsync(formattedData);
-
       toast.success("Profile updated successfully");
       navigate("/user");
     } catch {
@@ -260,52 +275,52 @@ const UpdateUserContainer = () => {
       className="flex flex-col gap-8 pb-8 mt-12 grow"
     >
       <div className="flex flex-col items-center justify-center w-full gap-3">
-        <Avatar className="rounded-[36px] w-[144px] h-[144px]">
-          <AvatarImage src="https://github.com/shadcn.png" />
+        <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
+          <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <p className="font-semibold text-[0.9rem]">Change image</p>
+        <label
+          htmlFor="avatarUpload"
+          className="text-sm text-[#5A41FF] underline cursor-pointer"
+        >
+          Upload new profile picture
+        </label>
+        <input
+          type="file"
+          id="avatarUpload"
+          accept="image/*"
+          onChange={handleAvatarUpload}
+          className="hidden"
+        />
       </div>
+
+      {/* PERSONAL */}
       <div className="my-4">
-        <p className="font-semibold text-[32px] mb-6 uppercase">PERSONAL</p>
+        <p className="font-semibold text-[32px] mb-6 uppercase">Personal</p>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <Label className="text-[#ffffff]">
-              Your name <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...register("name")}
-              className="text-black"
-              placeholder="Satoshi Nakamoto"
-            />
+            <Label>Your name *</Label>
+            <Input {...register("name")} className="text-black" />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Label className="text-ffffff">
-              Username <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...register("username")}
-              className="text-black"
-              placeholder="@bbekbhandari"
-            />
+            <Label>Username *</Label>
+            <Input {...register("username")} className="text-black" />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username.message}</p>
             )}
           </div>
         </div>
       </div>
+
+      {/* PROJECT */}
       <div className="my-4">
-        <p className="font-semibold text-[32px] mb-6 uppercase text-[#ffffff]">
-          PROJECTS
-        </p>
+        <p className="font-semibold text-[32px] mb-6 uppercase">Project</p>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <Label className="text-[#ffffff]">
-              Your position <span className="text-red-500">*</span>
-            </Label>
+            <Label>Position *</Label>
             <Select
               value={watch("position")}
               onValueChange={(val) => setValue("position", val)}
@@ -313,9 +328,9 @@ const UpdateUserContainer = () => {
               <SelectTrigger className="text-black">
                 <SelectValue placeholder="Select position" />
               </SelectTrigger>
-              <SelectContent className="text-black">
+              <SelectContent>
                 {positionOptions.map((pos) => (
-                  <SelectItem className="text-black" key={pos} value={pos}>
+                  <SelectItem key={pos} value={pos}>
                     {pos}
                   </SelectItem>
                 ))}
@@ -325,135 +340,74 @@ const UpdateUserContainer = () => {
               <p className="text-sm text-red-500">{errors.position.message}</p>
             )}
           </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-[#ffffff]">
-              Project name <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...register("project_name")}
-              className="text-black"
-              placeholder="Superfluid"
-            />
-            {errors.project_name && (
-              <p className="text-sm text-red-500">
-                {errors.project_name.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-[#ffffff]">
-              City <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...register("city")}
-              className="text-black"
-              placeholder="Dubai"
-            />
-            {errors.city && (
-              <p className="text-sm text-red-500">{errors.city.message}</p>
-            )}
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-white font-semibold text-[19px]">
-              Select relevant fields (only three){" "}
-              <span className="text-red-500">*</span>
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {fieldOptions.map((field) => {
-                const isSelected = selectedFields.includes(field.id);
-                const isDisabled = selectedFields.length >= 3 && !isSelected;
+          <Input
+            {...register("project_name")}
+            className="text-black"
+            placeholder="Project name"
+          />
+          <Input
+            {...register("city")}
+            className="text-black"
+            placeholder="City"
+          />
+        </div>
+      </div>
 
-                return (
-                  <Badge
-                    key={field.id}
-                    onClick={() => !isDisabled && toggleSelectedField(field.id)}
-                    className={`!text-white font-medium text-[0.9rem] px-4 py-2 rounded-full border transition-all duration-200 ${
-                      isSelected
-                        ? "!bg-[#E30613] !border-[#ffffff]"
-                        : isDisabled
-                        ? "!bg-transparent !border-[#ffffff] !text-[#888] opacity-50 cursor-not-allowed"
-                        : "!bg-transparent !border-white !text-white cursor-pointer"
-                    }`}
-                  >
-                    {field.name}
-                  </Badge>
-                );
-              })}{" "}
-            </div>
-            {errors.selected_fields && (
-              <p className="text-sm text-red-500">
-                {errors.selected_fields.message}
-              </p>
-            )}
-          </div>
+      {/* FIELDS */}
+      <div className="flex flex-col gap-3">
+        <Label>Select up to 3 fields *</Label>
+        <div className="flex flex-wrap gap-2">
+          {fieldOptions.map((field) => {
+            const isSelected = selectedFields.includes(field.id);
+            const isDisabled = selectedFields.length >= 3 && !isSelected;
+            return (
+              <Badge
+                key={field.id}
+                onClick={() => !isDisabled && toggleSelectedField(field.id)}
+                className={`cursor-pointer ${
+                  isSelected
+                    ? "bg-red-500 text-white"
+                    : isDisabled
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-transparent border border-white text-white"
+                }`}
+              >
+                {field.name}
+              </Badge>
+            );
+          })}
         </div>
+        {errors.selected_fields && (
+          <p className="text-sm text-red-500">{errors.selected_fields.message}</p>
+        )}
       </div>
-      <div className="mt-4">
-        <p className="font-semibold text-[32px] mb-6 uppercase">SOCIALS</p>
+
+      {/* SOCIALS */}
+      <div className="my-4">
+        <p className="font-semibold text-[32px] mb-6 uppercase">Socials</p>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <Label className="text-white">
-              Your telegram account <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...register("telegram_account")}
-              className="text-black"
-              placeholder="@telegram"
-            />
-            {errors.telegram_account && (
-              <p className="text-sm text-red-500">
-                {errors.telegram_account.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-white">
-              X (Twitter) username (OPTIONAL)
-            </Label>
-            <Input
-              {...register("twitter_account")}
-              className="text-black"
-              placeholder="@xyz"
-            />
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-white"> Linkedln URL (OPTIONAL)</Label>
-            <Input
-              {...register("linkedin_url")}
-              className="text-black"
-              placeholder="linkedin.com/"
-            />
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-white">Email address (OPTIONAL)</Label>
-            <Input
-              {...register("email")}
-              className="text-black"
-              placeholder="you@example.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
+          <Input {...register("telegram_account")} placeholder="@telegram" />
+          <Input {...register("twitter_account")} placeholder="@twitter" />
+          <Input {...register("linkedin_url")} placeholder="linkedin.com/" />
+          <Input {...register("email")} placeholder="you@example.com" />
         </div>
       </div>
-      <div className="flex items-center space-x-2">
+
+      {/* TERMS + SUBMIT */}
+      <div className="flex items-center gap-2">
         <Checkbox
           id="terms"
           checked={termsAccepted}
           onCheckedChange={(checked) => setTermsAccepted(!!checked)}
         />
-        <label
-          htmlFor="terms"
-          className="text-[0.9rem] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          I agree to receive updates from Zefe team.{" "}
+        <label htmlFor="terms" className="text-sm font-medium">
+          I agree to receive updates from Zefe.
         </label>
       </div>
       <Button
         type="submit"
         disabled={isSubmitting || !termsAccepted}
-        className="rounded-[29px] text-white bg-[#ED2944] border-2 hover:bg-[#5A41FF] border-white py-4"
+        className="rounded-[29px] text-white bg-[#ED2944] border-white py-4"
       >
         {isSubmitting ? "Submitting..." : "Continue"}
       </Button>

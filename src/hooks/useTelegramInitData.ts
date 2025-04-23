@@ -63,6 +63,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
     name: `${user.first_name} ${user.last_name}`,
     username: user.username,
     telegram_id: user.id,
+    photo_url: user?.photo_url
   };
 
   const response = await axiosInstance.post("/init/", payload);
