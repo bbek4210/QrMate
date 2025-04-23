@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   useLaunchParams,
   type User as TelegramUser,
 } from "@telegram-apps/sdk-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
-import { ACCESS_TOKEN_KEY, TELEGRAM_INIT_QUERY_KEY } from "@/lib/constants";
+import { ACCESS_TOKEN_KEY } from "@/lib/constants";
 
 type ZefeUser = {
   id: number;
@@ -65,15 +65,12 @@ const initializeZefeUser = async (user: TelegramUser) => {
     telegram_id: user.id,
   };
 
-  const response = await axiosInstance.post("/init/", payload).catch((err) => {
-    console.error("Failed to initialize user", err);
-    throw new Error("Failed to initialize user");
-  });
-
+  const response = await axiosInstance.post("/init/", payload);
   const accessToken = response?.data?.data?.access_token;
+
   if (accessToken) {
     setCookie(ACCESS_TOKEN_KEY, accessToken, {
-      expires: 60 * 60 * 24 * 30,
+      expires: 60 * 60 * 24 * 30, // 30 days
     });
   }
 
@@ -83,7 +80,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
 export function useTelegramInitData() {
   const isLocal = import.meta.env.VITE_RUNNING_ENV === "development";
   const alreadyInitialized = useRef(false);
-  const launchParams = useLaunchParams(); // Always call hook (safe)
+  const launchParams = useLaunchParams();
 
   const rawInitData = useMemo(() => {
     if (isLocal) return mockInitData;
@@ -107,24 +104,25 @@ export function useTelegramInitData() {
       return null;
     }
   }, [launchParams, isLocal]);
-  console.log({ rawInitData})
+
   const telegramUser = rawInitData?.user ?? null;
 
   const {
+    mutateAsync: fetchZefeUser,
     data: zefeUser,
-    isLoading,
+    isPending: isLoading,
     isError,
     error,
-  } = useQuery({
-    queryKey: [TELEGRAM_INIT_QUERY_KEY, telegramUser?.id],
-    queryFn: async () => {
-      if (alreadyInitialized.current || !telegramUser) return null;
-      alreadyInitialized.current = true;
-      return await initializeZefeUser(telegramUser);
-    },
-    enabled: !!telegramUser,
-    staleTime: 1000 * 60 * 5,
+  } = useMutation({
+    mutationFn: initializeZefeUser,
   });
+
+  useEffect(() => {
+    if (!telegramUser || alreadyInitialized.current) return;
+
+    alreadyInitialized.current = true;
+    fetchZefeUser(telegramUser);
+  }, [telegramUser, fetchZefeUser]);
 
   return useMemo(() => {
     if (isLocal) {
@@ -135,7 +133,7 @@ export function useTelegramInitData() {
         zefeUser: mockInitData.zefeUser,
         isLocal,
         isLoading: false,
-        isError: false,  
+        isError: false,
         raw: "local",
       };
     }

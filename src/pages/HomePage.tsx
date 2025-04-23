@@ -30,6 +30,7 @@ export default function Home() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const initData = useTelegramInitData();
+  console.log({ initial_data: initData })
   const navigate = useNavigate();
 
   const isInitDataReady =

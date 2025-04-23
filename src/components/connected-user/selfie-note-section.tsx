@@ -2,19 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-
-import { QUERY_KEYS } from "@/lib/query-keys";
-import useUploadFile from "@/hooks/use-upload-file";
-import useMakeSelfieNote from "@/hooks/use-make-selfie-note";
-import useGetSelfieNote from "@/hooks/use-get-selfie-note";
+import { Button } from "../ui/button";
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
 import GreenCheckedCircle from "@/components/svgs/green-checkedcircle";
 import SmallcameraSvg from "@/components/svgs/smallcamera";
 import { TelegramIcon } from "@/components/svgs/social-icons";
-import { Button } from "../ui/button";
-import { useLocation } from "react-router-dom";
+
+import { QUERY_KEYS } from "@/lib/query-keys";
+import useUploadFile from "@/hooks/use-upload-file";
+import useMakeSelfieNote from "@/hooks/use-make-selfie-note";
+import useGetSelfieNote from "@/hooks/use-get-selfie-note";
 
 interface SelfieNoteSectionProps {
   networkId: number;
@@ -32,6 +32,10 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   baseEventId,
 }) => {
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isFromScanner = searchParams.get("ref") === "scanner";
+  const canUploadSelfie = isFromScanner;
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -40,9 +44,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const { data: selfieNote } = useGetSelfieNote(networkId);
   const uploadFileMutation = useUploadFile();
   const makeSelfieNote = useMakeSelfieNote();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const showContactSaved = searchParams.get("ref") === "scanner";
 
   useEffect(() => {
     if (selfieNote) {
@@ -52,17 +53,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       setPhotos(existingImgs);
     }
   }, [selfieNote]);
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    const validFiles = selectedFiles.filter((f) => f.size > 0);
-
-    if (validFiles.length) {
-      const previews = validFiles.map((f) => URL.createObjectURL(f));
-      setPhotos((prev) => [...prev, ...previews]);
-      setFiles((prev) => [...prev, ...validFiles]);
-    }
-  };
 
   const handleSave = async () => {
     const currentImages =
@@ -76,7 +66,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       if (files.length > 0 && !uploadFileMutation.isPending) {
         const uploads = files.map((file) => {
-          const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}-${file.name}`;
+          const extension = file.name.split(".").pop() || "jpg";
+          const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}.${extension}`;
           return uploadFileMutation.mutateAsync({ file, key });
         });
 
@@ -99,7 +90,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           queryClient.invalidateQueries({
             queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, networkId],
           });
-          setFiles([]);
+          setFiles([]); // clear uploaded files
         },
       });
     } catch (err) {
@@ -107,9 +98,32 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!canUploadSelfie) return;
+
+    const selectedFiles = Array.from(e.target.files || []);
+    const validFiles = selectedFiles.filter((f) => f.size > 0);
+
+    if (validFiles.length) {
+      const previews = validFiles.map((f) => URL.createObjectURL(f));
+      setPhotos((prev) => [...prev, ...previews]);
+      setFiles((prev) => [...prev, ...validFiles]);
+
+      // Auto-save right after photo selection
+      setTimeout(() => {
+        handleSave();
+      }, 100);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="mt-10 space-y-4">
-      {showContactSaved && (
+      {isFromScanner && (
         <div className="flex flex-col items-center justify-center gap-4 mb-12">
           <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
             Met at <span className="ml-1 font-semibold">{eventTitle}</span>
@@ -127,7 +141,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             {photos.map((src, i) => (
               <div
                 key={i}
-                className="w-full aspect-[3/4] overflow-hidden rounded-lg border border-gray-300"
+                className="relative w-full aspect-[3/4] overflow-hidden rounded-lg border border-gray-300"
               >
                 <img
                   src={src}
@@ -136,20 +150,30 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
                   height={130}
                   className="object-cover w-full h-full"
                 />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(i)}
+                  className="absolute top-1 right-1 bg-white text-black rounded-full p-1 text-xs font-bold shadow-md hover:bg-red-500 hover:text-white transition-all"
+                  aria-label="Remove photo"
+                >
+                  ×
+                </button>
               </div>
-            ))}{" "}
-            {/* + Button */}
-            <label className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] cursor-pointer text-xl font-bold text-gray-600">
-              +
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                capture="user"
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
-            </label>
+            ))}
+
+            {canUploadSelfie && (
+              <label className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] cursor-pointer text-xl font-bold text-gray-600">
+                +
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  capture="user"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
           <textarea
@@ -157,6 +181,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             className="w-full h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            onBlur={handleSave}
           />
 
           <Button
@@ -168,8 +193,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         </div>
       )}
 
-      {photos.length === 0 && (
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        {photos.length === 0 && canUploadSelfie && (
           <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
             <SmallcameraSvg /> Take a selfie
             <input
@@ -181,40 +206,16 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
               className="hidden"
             />
           </label>
+        )}
 
-          <textarea
-            placeholder="Write a short note..."
-            className="w-full h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <Button
-            onClick={handleSave}
-            className="w-full text-black py-2 bg-white rounded-[29px] border border-white font-medium hover:bg-[#5A41FF] text-[0.8rem]"
-          >
-            Save
-          </Button>
-          {/* 
-          <Button
-            onClick={handleTelegramMessage}
-            className="w-full text-white py-2 bg-[#ED2944] rounded-[29px] border border-white font-medium"
-          >
-            <svg
-              width="51"
-              height="50"
-              viewBox="0 0 35 34"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.5012 31.1667C9.6771 31.1667 3.33447 24.824 3.33447 17C3.33447 9.176 9.6771 2.83337 17.5012 2.83337C25.3251 2.83337 31.6678 9.176 31.6678 17C31.6678 24.824 25.3251 31.1667 17.5012 31.1667ZM13.0903 18.657C13.0936 18.6581 13.0972 18.6576 13.1002 18.6557C13.1069 18.6515 13.1158 18.655 13.1181 18.6626C13.8729 21.1546 14.2795 22.4971 14.338 22.6901C14.3431 22.707 14.3484 22.723 14.3546 22.7394C14.5128 23.1573 14.7282 23.2321 14.9884 23.197C15.2536 23.161 15.3944 23.0175 15.5675 22.8505C15.5675 22.8505 15.5675 22.8505 15.5676 22.8504C15.5687 22.8493 15.927 22.5035 16.6425 21.813C16.994 21.4738 17.5395 21.4378 17.9321 21.7283L20.8656 23.8989C21.5241 24.2627 21.9995 24.075 22.163 23.2868L24.5115 12.2066C24.7708 11.1753 24.316 10.7617 23.5163 11.0891L9.72788 16.4151C8.78719 16.7932 8.79174 17.3195 9.55662 17.5541L13.0903 18.657Z"
-                fill="white"
-              />
-            </svg>
-            Message in Telegram
-          </Button> */}
-        </div>
-      )}
+        <textarea
+          placeholder="Write a short note..."
+          className="w-full h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onBlur={handleSave}
+        />
+      </div>
 
       {makeSelfieNote.isSuccess && (
         <p className="text-sm font-medium text-center text-green-500">
