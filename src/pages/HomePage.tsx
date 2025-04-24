@@ -188,7 +188,7 @@ export default function Home() {
               />
 
               <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
-                Yous are at {selectedEvent.title}
+                Youaas are at {selectedEvent.title}
               </p>
             </div>
           )}
