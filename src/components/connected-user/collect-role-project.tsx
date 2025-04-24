@@ -171,7 +171,7 @@ const CompleteProfileDrawer = ({
           <Button
             disabled={isSubmitting}
             type="submit"
-            className="bg-[#ED2944] border border-white text-white rounded-lg py-3 mt-2"
+            className="bg-[#ED2944] border hover:bg-[#5A41FF] border-white text-white rounded-lg py-3 mt-2"
           >
             Save
           </Button>

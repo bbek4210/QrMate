@@ -123,7 +123,7 @@ const AddEvent = ({
 
           <Button
             type="submit"
-            className="rounded-[1rem] py-4 border border-[#ffffff] bg-[#ED2944] text-white text-[1.1rem]"
+            className="rounded-[1rem] py-4 border border-[#ffffff] bg-[#ED2944] hover:bg-[#5A41FF] text-white text-[1.1rem]"
             disabled={isPending}
           >
             {isPending ? "Creating..." : "Continue"}
