@@ -156,7 +156,9 @@ const UpdateUserContainer = () => {
   const [avatar, setAvatar] = useState<string | null>(null);
 
   const telegramInitData = useTelegramInitData();
-  const { data: userProfile } = useGetUserProfile();
+  const { data } = useGetUserProfile();
+  const userProfile = data?.data
+  console.log({ userProfile })
   const { mutateAsync } = useUpdateUserProfile();
   const uploadFileMutation = useUploadFile();
 
@@ -195,22 +197,21 @@ const UpdateUserContainer = () => {
 
   useEffect(() => {
     if (userProfile) {
-      const profile = userProfile.user_profile;
-      setValue("name", userProfile.name || "");
-      setValue("username", userProfile.username || "");
-      setValue("position", profile.position || "");
-      setValue("project_name", profile.project_name || "");
-      setValue("city", profile.city || "");
-      setValue("telegram_account", profile.telegram_account || "");
-      setValue("twitter_account", profile.twitter_account || "");
-      setValue("linkedin_url", profile.linkedin_url || "");
-      setValue("email", profile.email || "");
+      const profile = userProfile?.user_profile;
+      setValue("name", userProfile?.name || "");
+      setValue("username", userProfile?.username || "");
+      setValue("position", profile?.position || "");
+      setValue("project_name", profile?.project_name || "");
+      setValue("city", profile?.city || "");
+      setValue("twitter_account", profile?.twitter_account || "");
+      setValue("linkedin_url", profile?.linkedin_url || "");
+      setValue("email", profile?.email || "");
 
       const selectedFieldIds =
-        profile.user_fields?.map((field: { id: number }) => field.id) || [];
+        profile?.user_fields?.map((field: { id: number }) => field.id) || [];
       setValue("selected_fields", selectedFieldIds);
-      if (profile.avatar_url) {
-        setAvatar(profile.avatar_url);
+      if (profile?.photo_url) {
+        setAvatar(profile?.photo_url);
       }
     }
   }, [userProfile, setValue]);
@@ -386,10 +387,9 @@ const UpdateUserContainer = () => {
       <div className="my-4">
         <p className="font-semibold text-[32px] mb-6 uppercase">Socials</p>
         <div className="flex flex-col gap-6">
-          <Input {...register("telegram_account")} placeholder="@telegram" />
-          <Input {...register("twitter_account")} placeholder="@twitter" />
-          <Input {...register("linkedin_url")} placeholder="linkedin.com/" />
-          <Input {...register("email")} placeholder="you@example.com" />
+          <Input {...register("twitter_account")} className="text-black" placeholder="@twitter" />
+          <Input {...register("linkedin_url")} className="text-black" placeholder="linkedin.com/" />
+          <Input {...register("email")} className="text-black" placeholder="you@example.com" />
         </div>
       </div>
 

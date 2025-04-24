@@ -11,13 +11,15 @@ export interface UserField {
 }
 
 const UserProfileContainer = () => {
-  const { data: user, isLoading, isError, error } = useGetUserProfile();
+  const { data, isLoading, isError, error } = useGetUserProfile();
 
   if (isLoading) return <div></div>;
   if (isError) {
     console.error("Error loading the user profile:", error);
     return <div>Error loading profile. Please try again later.</div>;
   }
+  const user = data?.data
+  console.log({ user })
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mt-12 grow">
