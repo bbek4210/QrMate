@@ -67,8 +67,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
   };
 
   const response = await axiosInstance.post("/init/", payload);
-  const accessToken = response?.data?.data?.access_token;
-
+  const accessToken = response?.data?.data?.data?.access_token;
   if (accessToken) {
     setCookie(ACCESS_TOKEN_KEY, accessToken, {
       expires: 60 * 60 * 24 * 30, // 30 days
