@@ -26,7 +26,7 @@ const TapToCompleteProfile = () => {
       </svg>
 
       <p className="text-white  text-[0.9rem] font-medium cursor-pointer">
-        <Link to="/user/update-profile">Tap to complete your profile.</Link>
+        <Link to="/update-user-profile">Tap to complete your profile.</Link>
       </p>
     </div>
   );

@@ -10,7 +10,7 @@ const App = () => (
       <Route path="/" element={<HomePage />} />
       <Route path="/connected-user/:id" element={<ConnectedUser />} />
       <Route path="/networks-and-connections" element={<NetworksAndConnections />} />
-      <Route path="/user/update-profile" element={<UpdateProfile />} />
+      <Route path="/update-user-profile" element={<UpdateProfile />} />
       <Route path="/user" element={<UserProfile />} />
     </Routes>
 );

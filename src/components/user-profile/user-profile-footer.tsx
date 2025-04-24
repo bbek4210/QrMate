@@ -64,7 +64,7 @@ const UserProfileFooter = () => {
         >
           Send feedback
         </Button>
-        <Link className="w-full" href="/user/update-profile">
+        <Link className="w-full" href="/update-user-profile">
           <Button
             className="rounded-[29px] py-4 text-sm w-full h-[52pz] text-white border hover:bg-[#5A41FF] border-white bg-[#ED2944]"
             leftIcon={<EditProfileIconSvg />}
