@@ -30,7 +30,7 @@ export default function Home() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const initData = useTelegramInitData();
-  console.log({ initial_data: initData })
+  console.log({ initial_data: initData });
   const navigate = useNavigate();
 
   const isInitDataReady =
@@ -39,7 +39,7 @@ export default function Home() {
 
   const {
     data: fetchedEvents,
-    error,
+
     isLoading: isEventsLoading,
     refetch,
   } = useGetEvents(zefeUserId ?? "");
@@ -101,25 +101,24 @@ export default function Home() {
       await createEvent({ ...newEvent });
       toast.success("Event created successfully!");
       refetch();
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       toast.error("Failed to create event. Please try again.");
     }
   };
 
-  // ✅ Loading state while init or events are not ready
   if (!isInitDataReady || isEventsLoading) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
-        <p className="text-white text-lg">Loading your session...</p>
+        <p className="text-lg text-white">Loading your session...</p>
       </main>
     );
   }
 
-  // ❌ Error state for Telegram init failure
   if (initData?.isError) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
-        <p className="text-red-500 text-lg">
+        <p className="text-lg text-red-500">
           Failed to initialize user. Please restart the app.
         </p>
       </main>
@@ -189,7 +188,7 @@ export default function Home() {
               />
 
               <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
-                You are at {selectedEvent.title}
+                Yous are at {selectedEvent.title}
               </p>
             </div>
           )}
