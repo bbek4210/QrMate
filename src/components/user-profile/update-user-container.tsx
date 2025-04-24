@@ -157,8 +157,8 @@ const UpdateUserContainer = () => {
 
   const telegramInitData = useTelegramInitData();
   const { data } = useGetUserProfile();
-  const userProfile = data?.data
-  console.log({ userProfile })
+  const userProfile = data?.data;
+  console.log({ userProfile });
   const { mutateAsync } = useUpdateUserProfile();
   const uploadFileMutation = useUploadFile();
 
@@ -300,14 +300,16 @@ const UpdateUserContainer = () => {
         <p className="font-semibold text-[32px] mb-6 uppercase">Personal</p>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <Label>Your name *</Label>
+            <Label className="text-white">
+              Your name <span className="text-red-500">*</span>
+            </Label>
             <Input {...register("name")} className="text-black" />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Label>Username *</Label>
+            <Label className="text-white">Username *</Label>
             <Input {...register("username")} className="text-black" />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username.message}</p>
@@ -321,7 +323,7 @@ const UpdateUserContainer = () => {
         <p className="font-semibold text-[32px] mb-6 uppercase">Project</p>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <Label>Position *</Label>
+            <Label className="text-white">Position *</Label>
             <Select
               value={watch("position")}
               onValueChange={(val) => setValue("position", val)}
@@ -341,11 +343,13 @@ const UpdateUserContainer = () => {
               <p className="text-sm text-red-500">{errors.position.message}</p>
             )}
           </div>
+          <Label className="text-white">Project name *</Label>
           <Input
             {...register("project_name")}
             className="text-black"
             placeholder="Project name"
           />
+          <Label className="text-white">City *</Label>
           <Input
             {...register("city")}
             className="text-black"
@@ -356,7 +360,7 @@ const UpdateUserContainer = () => {
 
       {/* FIELDS */}
       <div className="flex flex-col gap-3">
-        <Label>Select up to 3 fields *</Label>
+        <Label className="text-white">Select up to 3 fields *</Label>
         <div className="flex flex-wrap gap-2">
           {fieldOptions.map((field) => {
             const isSelected = selectedFields.includes(field.id);
@@ -379,7 +383,9 @@ const UpdateUserContainer = () => {
           })}
         </div>
         {errors.selected_fields && (
-          <p className="text-sm text-red-500">{errors.selected_fields.message}</p>
+          <p className="text-sm text-red-500">
+            {errors.selected_fields.message}
+          </p>
         )}
       </div>
 
@@ -387,9 +393,24 @@ const UpdateUserContainer = () => {
       <div className="my-4">
         <p className="font-semibold text-[32px] mb-6 uppercase">Socials</p>
         <div className="flex flex-col gap-6">
-          <Input {...register("twitter_account")} className="text-black" placeholder="@twitter" />
-          <Input {...register("linkedin_url")} className="text-black" placeholder="linkedin.com/" />
-          <Input {...register("email")} className="text-black" placeholder="you@example.com" />
+          <Label className="text-white">Twitter account </Label>
+          <Input
+            {...register("twitter_account")}
+            className="text-black"
+            placeholder="@twitter"
+          />
+          <Label className="text-white">Linkedin account </Label>
+          <Input
+            {...register("linkedin_url")}
+            className="text-black"
+            placeholder="linkedin.com/"
+          />
+          <Label className="text-white">Email </Label>
+          <Input
+            {...register("email")}
+            className="text-black"
+            placeholder="you@example.com"
+          />
         </div>
       </div>
 
