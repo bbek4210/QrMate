@@ -116,7 +116,7 @@ const NetworksAndConnections = () => {
         }}
       />
 
-      {!isFilterOpen && <BottomNavbar />}
+      {!isFilterOpen && <BottomNavbar baseOnClick={() =>{}} />}
     </>
   );
 };
