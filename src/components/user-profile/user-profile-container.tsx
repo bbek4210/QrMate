@@ -18,8 +18,8 @@ const UserProfileContainer = () => {
     console.error("Error loading the user profile:", error);
     return <div>Error loading profile. Please try again later.</div>;
   }
-  const user = data?.data
-  console.log({ user })
+  const user = data?.data;
+  console.log({ user });
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mt-12 grow">
@@ -29,9 +29,13 @@ const UserProfileContainer = () => {
       </Avatar>
 
       <div className="flex flex-col items-center gap-2">
-        <h1 className="font-semibold text-[32px] text-[#ffffff] uppercase">
+        <h1 className="font-medium text-[26px] text-[#ffffff] uppercase text-center">
           {user?.name || "No Name Provided"}
         </h1>
+
+        <h6 className="font-normal text-[20px] text-[#ffffff] uppercase text-center">
+          @{user?.username}
+        </h6>
         <div className="flex items-center justify-center gap-2">
           {user?.user_profile?.user_fields?.map((field: UserField) => (
             <Badge

@@ -14,7 +14,7 @@ const ProfileBox = ({
   EventName: string;
 }) => {
   return (
-    <div className="w-[194px] p-6 text-center bg-gray-100 shadow-md rounded-[20px]">
+    <div className="w-[194px] h-[250px] p-6 text-center flex flex-col justify-between bg-gray-100 shadow-md rounded-[20px]">
       {imageSrc && imageSrc.startsWith("http") ? (
         <div className="flex justify-center">
           <img
@@ -28,7 +28,7 @@ const ProfileBox = ({
       ) : (
         <div className="flex justify-center">
           <img
-            src={'/default.jpg'}
+            src={"/default.jpg"}
             alt={name}
             width={80}
             height={80}
@@ -36,7 +36,9 @@ const ProfileBox = ({
           />
         </div>
       )}
-      <h2 className="mt-4 text-lg font-semibold text-gray-900">{name}</h2>
+      <h2 className="mt-4 text-lg font-semibold text-gray-900 truncate">
+        {name}
+      </h2>
       <p className="text-sm font-medium text-gray-500">
         {role} | {company}
       </p>

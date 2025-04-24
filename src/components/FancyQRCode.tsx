@@ -6,8 +6,8 @@ const FancyQRCode = ({ value }: { value: string }) => {
 
   const qrCode = useRef(
     new QRCodeStyling({
-      width: 256,
-      height: 256,
+      width: 236,
+      height: 236,
       type: "svg",
       data: value,
       image: "/zefelogo.png",

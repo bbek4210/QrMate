@@ -49,7 +49,7 @@ const UserProfileFooter = () => {
   return (
     <div className="flex flex-col items-center gap-3 mt-auto grow">
       <a
-        href="https://x.com/ZEFExyz"
+        href="https://x.com/zefexyz"
         target="_blank"
         rel="noopener noreferrer"
         className="px-4 py-3 text-center rounded-[29px] h-[42.9px] bg-white text-[#232323] text-sm font-medium shadow-md hover:bg-[#f5f5f5] transition-all cursor-pointer"

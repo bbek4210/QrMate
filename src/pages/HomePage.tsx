@@ -24,8 +24,12 @@ import {
   generateTelegramMiniAppLink,
   TGenerateTelegramLink,
 } from "@/lib/utils";
+import useGetUserProfile from "@/hooks/use-get-user-profile";
+import CompleteProfileDrawer from "@/components/connected-user/collect-role-project";
 
 export default function Home() {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
@@ -43,6 +47,23 @@ export default function Home() {
     isLoading: isEventsLoading,
     refetch,
   } = useGetEvents(zefeUserId ?? "");
+
+  const { data, refetch: refetchUserProfile } = useGetUserProfile();
+
+  const userProfile = data?.data;
+
+  useEffect(() => {
+    if (!userProfile) return;
+
+    const position = userProfile?.user_profile?.position?.trim?.();
+    const project = userProfile?.user_profile?.project_name?.trim?.();
+
+    if (!position || !project) {
+      setIsDrawerOpen(true);
+    } else {
+      setIsDrawerOpen(false);
+    }
+  }, [userProfile]);
 
   const eventList = Array.isArray(fetchedEvents) ? fetchedEvents : [];
 
@@ -187,8 +208,8 @@ export default function Home() {
                 })}
               />
 
-              <p className="px-6 py-2 mt-8 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
-                Youaas are at {selectedEvent.title}
+              <p className="px-6 py-2 mt-4 text-base font-medium text-[1.1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
+                You are at {selectedEvent.title}
               </p>
             </div>
           )}
@@ -210,6 +231,16 @@ export default function Home() {
         >
           <CameraIcon />
         </div>
+      )}
+
+      {isDrawerOpen && (
+        <CompleteProfileDrawer
+          isOpen={true}
+          onComplete={() => {
+            refetchUserProfile();
+            setIsDrawerOpen(false);
+          }}
+        />
       )}
     </main>
   );
