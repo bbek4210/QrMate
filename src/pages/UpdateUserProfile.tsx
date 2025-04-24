@@ -1,7 +1,11 @@
 import BackButtonSvg from "@/components/svgs/back-button";
 import UpdateUserContainer from "@/components/user-profile/update-user-container";
+import { logToDiscord } from "@/lib/axios";
 
 const UpdateUserProfile = () => {
+  const logMessage = "This is a message for Update User Profile";
+  logToDiscord(logMessage);
+
   return (
     <main className="px-4 py-4 h-[100dvh] flex flex-col">
       <div className="flex items-center justify-between">
