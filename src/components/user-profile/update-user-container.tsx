@@ -29,7 +29,7 @@ const profileSchema = z.object({
   position: z.string().min(1, "Position is required"),
   project_name: z.string().min(1, "Project name is required"),
   city: z.string().min(1, "City is required"),
-  telegram_account: z.string().min(1, "Telegram account is required"),
+  // telegram_account: z.string().min(1, "Telegram account is required"),
   twitter_account: z.string().optional(),
   linkedin_url: z.string().optional(),
   email: z
@@ -166,7 +166,7 @@ const UpdateUserContainer = () => {
     register,
     handleSubmit,
     setValue,
-    getValues,
+
     watch,
     formState: { errors },
   } = useForm<z.infer<typeof profileSchema>>({
@@ -177,7 +177,7 @@ const UpdateUserContainer = () => {
       position: "",
       project_name: "",
       city: "",
-      telegram_account: "",
+
       twitter_account: "",
       linkedin_url: "",
       email: "",
@@ -217,7 +217,7 @@ const UpdateUserContainer = () => {
   }, [userProfile, setValue]);
 
   const toggleSelectedField = (fieldId: number) => {
-    const current = getValues("selected_fields");
+    const current = watch("selected_fields");
     if (current.includes(fieldId)) {
       setValue(
         "selected_fields",
@@ -250,6 +250,7 @@ const UpdateUserContainer = () => {
   };
 
   const onSubmit = async (data: z.infer<typeof profileSchema>) => {
+    console.log("Submitting data:", data);
     setIsSubmitting(true);
     const { selected_fields, ...rest } = data;
     const formattedData = {
@@ -282,7 +283,7 @@ const UpdateUserContainer = () => {
         </Avatar>
         <label
           htmlFor="avatarUpload"
-          className="text-sm text-[#5A41FF] underline cursor-pointer"
+          className="text-sm text-#ffffff underline cursor-pointer"
         >
           Upload new profile picture
         </label>
@@ -309,7 +310,9 @@ const UpdateUserContainer = () => {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Label className="text-white">Username *</Label>
+            <Label className="text-white">
+              Username<span className="text-red-500">*</span>
+            </Label>
             <Input {...register("username")} className="text-black" />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username.message}</p>
@@ -323,7 +326,9 @@ const UpdateUserContainer = () => {
         <p className="font-semibold text-[32px] mb-6 uppercase">Project</p>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <Label className="text-white">Position *</Label>
+            <Label className="text-white">
+              Position <span className="text-red-500">*</span>{" "}
+            </Label>
             <Select
               value={watch("position")}
               onValueChange={(val) => setValue("position", val)}
@@ -343,13 +348,17 @@ const UpdateUserContainer = () => {
               <p className="text-sm text-red-500">{errors.position.message}</p>
             )}
           </div>
-          <Label className="text-white">Project name *</Label>
+          <Label className="text-white">
+            Project name <span className="text-red-500">*</span>
+          </Label>
           <Input
             {...register("project_name")}
             className="text-black"
             placeholder="Project name"
           />
-          <Label className="text-white">City *</Label>
+          <Label className="text-white">
+            City <span className="text-red-500">*</span>
+          </Label>
           <Input
             {...register("city")}
             className="text-black"
@@ -360,22 +369,27 @@ const UpdateUserContainer = () => {
 
       {/* FIELDS */}
       <div className="flex flex-col gap-3">
-        <Label className="text-white">Select up to 3 fields *</Label>
+        <Label className="text-white">
+          Select up to 3 fields <span className="text-red-500">*</span>{" "}
+        </Label>
         <div className="flex flex-wrap gap-2">
           {fieldOptions.map((field) => {
             const isSelected = selectedFields.includes(field.id);
             const isDisabled = selectedFields.length >= 3 && !isSelected;
+
             return (
               <Badge
                 key={field.id}
-                onClick={() => !isDisabled && toggleSelectedField(field.id)}
-                className={`cursor-pointer ${
-                  isSelected
-                    ? "bg-red-500 text-white"
-                    : isDisabled
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-transparent border border-white text-white"
-                }`}
+                onClick={(e) => {
+                  if (isDisabled) {
+                    e.preventDefault();
+                    return;
+                  }
+                  toggleSelectedField(field.id);
+                }}
+                variant={
+                  isSelected ? "red" : isDisabled ? "disabled" : "default"
+                }
               >
                 {field.name}
               </Badge>
@@ -428,7 +442,13 @@ const UpdateUserContainer = () => {
       <Button
         type="submit"
         disabled={isSubmitting || !termsAccepted}
-        className="rounded-[29px] text-white bg-[#ED2944] border-white py-4"
+        className={`rounded-[29px] text-white py-4 transition-colors duration-200
+    ${
+      isSubmitting
+        ? "!bg-[#5A41FF] !text-white !cursor-not-allowed"
+        : "bg-[#ED2944] hover:bg-[#cb1f38]"
+    }
+  `}
       >
         {isSubmitting ? "Submitting..." : "Continue"}
       </Button>

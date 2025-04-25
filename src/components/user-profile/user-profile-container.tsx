@@ -2,7 +2,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import PositionIcon from "../svgs/position-icon";
 import PlaceIcon from "../svgs/place-icon";
-import { LinkedinIcon, TelegramIcon, TwitterIcon } from "../svgs/social-icons";
+import {
+  BlackTelegramIcon,
+  LinkedinIcon,
+  TelegramIcon,
+  TwitterIcon,
+} from "../svgs/social-icons";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 
 export interface UserField {
@@ -97,7 +102,7 @@ const UserProfileContainer = () => {
             rel="noopener noreferrer"
             className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
           >
-            <TelegramIcon />
+            <BlackTelegramIcon />
           </a>
         )}
       </div>

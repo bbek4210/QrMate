@@ -7,7 +7,12 @@ import { Badge } from "@/components/ui/badge";
 
 import BackButtonSvg from "@/components/svgs/back-button";
 import UserIconpeople from "@/components/svgs/userIcon";
-import { TwitterIcon, LinkedinIcon } from "@/components/svgs/social-icons";
+import {
+  TwitterIcon,
+  LinkedinIcon,
+  TelegramIcon,
+  BlackTelegramIcon,
+} from "@/components/svgs/social-icons";
 
 import useGetConnectionProfile from "@/hooks/use-get-connected-profile";
 import SelfieNoteSection from "@/components/connected-user/selfie-note-section";
@@ -105,6 +110,17 @@ const ConnectedUserPage = () => {
                 className="bg-white px-4 py-4 rounded-[16px]"
               >
                 <LinkedinIcon />
+              </a>
+            )}
+
+            {connection?.scanned_username && (
+              <a
+                href={`https://t.me/${connection.scanned_username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white px-4 py-4 rounded-[16px]"
+              >
+                <BlackTelegramIcon />
               </a>
             )}
           </div>
