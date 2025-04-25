@@ -5,7 +5,6 @@ import PlaceIcon from "../svgs/place-icon";
 import {
   BlackTelegramIcon,
   LinkedinIcon,
-  TelegramIcon,
   TwitterIcon,
 } from "../svgs/social-icons";
 import useGetUserProfile from "@/hooks/use-get-user-profile";

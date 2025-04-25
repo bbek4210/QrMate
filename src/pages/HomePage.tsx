@@ -26,8 +26,10 @@ import {
 } from "@/lib/utils";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import CompleteProfileDrawer from "@/components/connected-user/collect-role-project";
+import SplashScreen from "@/components/splash-screen";
 
 export default function Home() {
+  const [showSplash, setShowSplash] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -129,9 +131,11 @@ export default function Home() {
   };
 
   if (!isInitDataReady || isEventsLoading) {
-    return (
+    return showSplash ? (
+      <SplashScreen onComplete={() => setShowSplash(false)} />
+    ) : (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
-        <p className="text-lg text-white">Loading your session...</p>
+        <p className="text-lg text-white">Initializing data...</p>
       </main>
     );
   }

@@ -387,9 +387,16 @@ const UpdateUserContainer = () => {
                   }
                   toggleSelectedField(field.id);
                 }}
-                variant={
-                  isSelected ? "red" : isDisabled ? "disabled" : "default"
-                }
+                variant="default"
+                className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem]
+                  ${
+                    isSelected
+                      ? "bg-[#ED2944] text-white"
+                      : "bg-transparent text-white hover:bg-white/10"
+                  }
+                  ${isDisabled ? "opacity-50 pointer-events-none" : ""}
+                  focus:outline-none focus:ring-0 focus-visible:outline-none
+                `}
               >
                 {field.name}
               </Badge>
