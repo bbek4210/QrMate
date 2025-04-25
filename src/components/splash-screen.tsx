@@ -18,9 +18,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       <div className="animate-scale-in">
         <ZefeLogo />
       </div>
-      <h1 className="mt-5 text-2xl font-bold text-white animate-slide-in">
-        Zefe
-      </h1>
+
       <p className="mt-2 text-sm tracking-widest uppercase delay-200 text-white/70 animate-slide-in">
         Empowering Your Web3 Network
       </p>
