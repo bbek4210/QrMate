@@ -14,7 +14,7 @@ const ProfileBox = ({
   EventName: string;
 }) => {
   return (
-    <div className="w-[194px] h-[250px] p-6 text-center flex flex-col justify-between bg-gray-100 shadow-md rounded-[20px]">
+    <div className="w-full max-w-[180px] h-full mx-auto min-h-[250px] p-6 text-center flex flex-col justify-between bg-gray-100 shadow-md rounded-[20px]">
       {imageSrc && imageSrc.startsWith("http") ? (
         <div className="flex justify-center">
           <img

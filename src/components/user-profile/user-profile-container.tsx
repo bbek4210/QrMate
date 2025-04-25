@@ -24,7 +24,7 @@ const UserProfileContainer = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-8 mt-12 grow">
       <Avatar className="rounded-[36px] w-[144px] h-[144px]">
-        <AvatarImage src={user?.avatar || "https://github.com/shadcn.png"} />
+        <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
         <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
       </Avatar>
 

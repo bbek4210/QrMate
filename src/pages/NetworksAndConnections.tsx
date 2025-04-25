@@ -75,7 +75,7 @@ const NetworksAndConnections = () => {
 
         {/* Connections grid */}
         <div className="flex-1 mt-6 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4">
             {connections.length === 0 ? (
               <p className="col-span-2 text-center text-gray-400">
                 No connections found.
@@ -87,13 +87,15 @@ const NetworksAndConnections = () => {
                   to={`/connected-user/${person.id}`}
                   className="block"
                 >
-                  <ProfileBox
-                    EventName={person.event_title}
-                    company={person.project_name || "—"}
-                    imageSrc={person.scanned_photo_url || "/default.jpg"}
-                    name={person.scanned_name}
-                    role={person.position}
-                  />
+                  <div className="flex h-full">
+                    <ProfileBox
+                      EventName={person.event_title}
+                      company={person.project_name || "—"}
+                      imageSrc={person.scanned_photo_url || "/default.jpg"}
+                      name={person.scanned_name}
+                      role={person.position}
+                    />
+                  </div>
                 </Link>
               ))
             )}
@@ -116,7 +118,7 @@ const NetworksAndConnections = () => {
         }}
       />
 
-      {!isFilterOpen && <BottomNavbar baseOnClick={() =>{}} />}
+      {!isFilterOpen && <BottomNavbar baseOnClick={() => {}} />}
     </>
   );
 };
