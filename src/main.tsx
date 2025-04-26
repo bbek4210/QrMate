@@ -4,7 +4,7 @@ import App from "./App";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
 import { QueryProvider } from "@/components/Provider/QueryClientProvider";
-import { meta } from "@eslint/js";
+
 import { BrowserRouter } from "react-router-dom";
 import {
   ensureTelegramSDKDevParams,
