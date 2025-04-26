@@ -81,6 +81,7 @@ const NetworksAndConnections = () => {
                 No connections found.
               </p>
             ) : (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               connections.map((person: any) => (
                 <Link
                   key={person.id}

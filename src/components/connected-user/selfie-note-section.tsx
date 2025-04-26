@@ -49,6 +49,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     if (selfieNote) {
       setNote(selfieNote.summary_note || "");
       const existingImgs =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selfieNote.meeting_images?.map((img: any) => img.image) || [];
       setPhotos(existingImgs);
     }
@@ -56,6 +57,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
   const handleSave = async () => {
     const currentImages =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selfieNote?.meeting_images?.map((img: any) => ({
         note: "",
         image: img.image,
@@ -153,7 +155,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(i)}
-                  className="absolute top-1 right-1 bg-white text-black rounded-full p-1 text-xs font-bold shadow-md hover:bg-red-500 hover:text-white transition-all"
+                  className="absolute p-1 text-xs font-bold text-black transition-all bg-white rounded-full shadow-md top-1 right-1 hover:bg-red-500 hover:text-white"
                   aria-label="Remove photo"
                 >
                   ×

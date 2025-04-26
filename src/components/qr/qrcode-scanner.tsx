@@ -7,6 +7,7 @@ const QRCodeScanner = ({
   onScanSuccess,
 }: {
   isScannerOpen: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onScanSuccess: (data: any) => void;
 }) => {
   const [scanError, setScanError] = useState<string | null>(null);
@@ -45,6 +46,7 @@ const QRCodeScanner = ({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleError = (err: any) => {
     console.error("QR Scan Error", err);
 
@@ -69,7 +71,7 @@ const QRCodeScanner = ({
       />
       {/* Optional visual error message */}
       {scanError && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded">
+        <div className="absolute px-4 py-2 text-white -translate-x-1/2 bg-red-500 rounded bottom-4 left-1/2">
           {scanError}
         </div>
       )}

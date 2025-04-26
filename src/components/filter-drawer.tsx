@@ -57,12 +57,12 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
     }));
   };
 
-  const toggleExpand = (category: FilterCategories) => {
-    setExpandedFilters((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
-  };
+  // const toggleExpand = (category: FilterCategories) => {
+  //   setExpandedFilters((prev) => ({
+  //     ...prev,
+  //     [category]: !prev[category],
+  //   }));
+  // };
 
   const filterConfig: {
     title: string;

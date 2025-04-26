@@ -13,6 +13,7 @@ declare global {
 
   interface TelegramWebApp {
     initData: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initDataUnsafe: any;
     version: string;
     platform: string;

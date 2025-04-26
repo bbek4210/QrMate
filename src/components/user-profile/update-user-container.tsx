@@ -244,6 +244,7 @@ const UpdateUserContainer = () => {
       const result = await uploadFileMutation.mutateAsync({ file, key });
       setAvatar(result.file_url);
       toast.success("Profile picture uploaded");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Failed to upload profile picture");
     }

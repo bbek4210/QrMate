@@ -10,7 +10,6 @@ import UserIconpeople from "@/components/svgs/userIcon";
 import {
   TwitterIcon,
   LinkedinIcon,
-  TelegramIcon,
   BlackTelegramIcon,
 } from "@/components/svgs/social-icons";
 

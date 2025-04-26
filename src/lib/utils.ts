@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchUserData = async (initData: any) => {
   const user = initData?.user as User;
 
@@ -32,19 +32,22 @@ export type TGenerateTelegramLink = {
   title: string;
 };
 
-
-export function generateTelegramMiniAppLink(payload: TGenerateTelegramLink): string {
+export function generateTelegramMiniAppLink(
+  payload: TGenerateTelegramLink
+): string {
   const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME;
 
   if (!BOT_USERNAME) {
-    throw new Error("VITE_BOT_USERNAME is not defined in your environment variables.");
+    throw new Error(
+      "VITE_BOT_USERNAME is not defined in your environment variables."
+    );
   }
 
   const baseUrl = `https://t.me/${BOT_USERNAME}`;
 
   // Filter out undefined/null values
   const queryObject = Object.entries(payload)
-    .filter(([_, v]) => v !== undefined && v !== null)
+    .filter(([v]) => v !== undefined && v !== null)
     .reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {});
 
   const queryString = new URLSearchParams(queryObject).toString();
@@ -53,7 +56,6 @@ export function generateTelegramMiniAppLink(payload: TGenerateTelegramLink): str
 
   return `${baseUrl}?startapp=${encodeURIComponent(queryString)}`;
 }
-
 
 export function parseTelegramStartAppData(): Record<string, string> | null {
   try {
@@ -71,4 +73,3 @@ export function parseTelegramStartAppData(): Record<string, string> | null {
     return null;
   }
 }
-

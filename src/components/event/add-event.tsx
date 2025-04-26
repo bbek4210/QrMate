@@ -1,13 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -15,9 +11,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import axiosInstance from "@/lib/axios";
 import { toast } from "react-hot-toast";
-import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 
 import { z } from "zod";
@@ -39,7 +33,7 @@ interface AddEventInterface {
 
 const AddEvent = ({
   triggerNode,
-  onEventCreated,
+
   refetch,
 }: AddEventInterface) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -66,6 +60,7 @@ const AddEvent = ({
         reset();
         setIsDrawerOpen(false);
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError: (error: any) => {
         const message = error?.message || "Failed to create event.";
         toast.error("❌ " + message);
