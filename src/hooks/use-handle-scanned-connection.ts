@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "@/lib/axios"; // Update path if needed
+import axios, { logToDiscord } from "@/lib/axios"; // Update path if needed
 import { parseTelegramStartAppData } from "@/lib/utils"; // Update path
 import { toast } from "react-hot-toast"; // Assuming react-hot-toast for notifications
 
 async function handleScannedConnection(navigate: (path: string) => void) {
   const parsed = parseTelegramStartAppData();
+  const logMessage = JSON.stringify(parsed)
+  logToDiscord(logMessage);
 
   if (!parsed) return;
 
