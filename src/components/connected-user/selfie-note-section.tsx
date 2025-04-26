@@ -37,6 +37,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const isFromScanner = searchParams.get("ref") === "scanner";
   const canUploadSelfie = isFromScanner;
 
+  console.log({ canUploadSelfie });
+
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
@@ -55,9 +57,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
-  const handleSave = async () => {
+  const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selfieNote?.meeting_images?.map((img: any) => ({
         note: "",
         image: img.image,
@@ -66,18 +67,28 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     try {
       let newImages: { note: string; image: string }[] = [];
 
-      if (files.length > 0 && !uploadFileMutation.isPending) {
-        const uploads = files.map((file) => {
+      const fileList = incomingFiles ?? files; // Prefer incomingFiles if provided, otherwise fallback to state
+
+      console.log({ m: uploadFileMutation.isPending, i: fileList.length });
+
+      if (fileList.length > 0 && !uploadFileMutation.isPending) {
+        const uploads = fileList.map((file) => {
           const extension = file.name.split(".").pop() || "jpg";
           const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}.${extension}`;
+          console.log({ key });
           return uploadFileMutation.mutateAsync({ file, key });
         });
 
         const results = await Promise.all(uploads);
-        newImages = results.map((res) => ({
-          note: "",
-          image: res.file_url,
-        }));
+        newImages = results.map((res) => {
+          console.log({ res });
+          return {
+            note: "",
+            image: res?.data?.file_url,
+          };
+        });
+
+        console.log({ newImages });
       }
 
       const payload = {
@@ -92,7 +103,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           queryClient.invalidateQueries({
             queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, networkId],
           });
-          setFiles([]); // clear uploaded files
+          setFiles([]); // Clear uploaded files after mutation
         },
       });
     } catch (err) {
@@ -106,14 +117,16 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter((f) => f.size > 0);
 
+    console.log({ selectedFiles, validFiles });
+
     if (validFiles.length) {
       const previews = validFiles.map((f) => URL.createObjectURL(f));
       setPhotos((prev) => [...prev, ...previews]);
       setFiles((prev) => [...prev, ...validFiles]);
 
-      // Auto-save right after photo selection
+      // Auto-save immediately, passing the fresh validFiles
       setTimeout(() => {
-        handleSave();
+        handleSave(validFiles);
       }, 100);
     }
   };
@@ -122,6 +135,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     setPhotos((prev) => prev.filter((_, i) => i !== index));
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  console.log({ photos });
 
   return (
     <div className="mt-10 space-y-4">
@@ -137,7 +152,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         </div>
       )}
 
-      {photos.length > 0 && (
+      {/* {photos.length > 0 && (
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-3">
             {photos.map((src, i) => (
@@ -193,10 +208,10 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             Save
           </Button>
         </div>
-      )}
+      )} */}
 
-      <div className="flex flex-col gap-3">
-        {photos.length === 0 && canUploadSelfie && (
+      <div className="flex items-stretch gap-3">
+        {photos.length === 0 && canUploadSelfie ? (
           <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
             <SmallcameraSvg /> Take a selfie
             <input
@@ -208,14 +223,24 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
               className="hidden"
             />
           </label>
+        ) : (
+          <div>
+            {photos.map((i) => {
+              if (!i) {
+                return null;
+              } else {
+                return <img src={i} className="rounded-md" />;
+              }
+            })}
+          </div>
         )}
 
         <textarea
           placeholder="Write a short note..."
-          className="w-full h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
+          className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          onBlur={handleSave}
+          onBlur={() => handleSave()}
         />
       </div>
 

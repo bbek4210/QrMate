@@ -98,7 +98,7 @@ export default function Home() {
           scanned_user_id: parseInt(scannedUserId),
         });
         console.log({ response })
-        const createdNetwork = response?.data?.data?.data
+        const createdNetwork = response?.data?.data
         if(!createdNetwork) {
           toast.error("Please retry connecting, network was not established correctly.")
 
