@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
-import ProfileBox from "@/components/profileBox";
+import ProfileBox from "@/components/connection-box";
 import { Badge } from "@/components/ui/badge";
 import FilterButtonSvg from "@/components/svgs/filter-button";
 import CrossIcon from "@/components/svgs/cross-icon";
 
 import useFetchNetworksAndConnections from "@/hooks/useGetNetworks";
 import FilterDrawer from "@/components/filter-drawer";
+import ConnectionBox from "@/components/connection-box";
 
 const NetworksAndConnections = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -82,19 +83,16 @@ const NetworksAndConnections = () => {
               </p>
             ) : (
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              connections.map((person: any) => (
+              connections.map((conn: any) => (
                 <Link
-                  key={person.id}
-                  to={`/connected-user/${person.id}`}
+                  key={conn?.user?.id}
+                  to={`/connected-user/${conn?.user?.id}`}
                   className="block"
                 >
                   <div className="flex h-full">
-                    <ProfileBox
-                      EventName={person.event_title}
-                      company={person.project_name || "—"}
-                      imageSrc={person.scanned_photo_url || "/default.jpg"}
-                      name={person.scanned_name}
-                      role={person.position}
+                    <ConnectionBox
+                      user={conn?.user}
+                      base_event={conn?.base_event}
                     />
                   </div>
                 </Link>

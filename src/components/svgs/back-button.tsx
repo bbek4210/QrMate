@@ -5,7 +5,7 @@ const BackButtonSvg = () => {
 
   return (
     <svg
-      onClick={() => navigate(-1)} // simulates "go back"
+      onClick={() => navigate("/")} // simulates "go back"
       width="16"
       height="13"
       viewBox="0 0 16 13"

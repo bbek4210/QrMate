@@ -43,7 +43,7 @@ const ConnectedUserPage = () => {
         <div className="flex items-center gap-2 mb-4">
           <BackButtonSvg />
           <h2 className="text-[24px] text-[#F4F4F4] font-medium">
-            @{connection.scanned_username}
+            @{connection.user?.username}
           </h2>
         </div>
 
@@ -53,47 +53,48 @@ const ConnectedUserPage = () => {
             <AvatarImage
               className="object-cover object-center"
               src={
-                connection.scanned_photo_url &&
-                connection.scanned_photo_url.includes("http")
-                  ? connection.scanned_photo_url
+                connection.user?.photo_url &&
+                connection.user?.photo_url.includes("http")
+                  ? connection.user?.photo_url
                   : "/default.jpg"
               }
             />
-            <AvatarFallback>
-              {connection.scanned_name?.[0] || "U"}
-            </AvatarFallback>
+            <AvatarFallback>{connection.user?.name?.[0] || "U"}</AvatarFallback>
           </Avatar>
 
           <h1 className="text-[24px] font-semibold text-white uppercase">
-            {connection.scanned_name || "Unnamed"}
+            {connection.user?.name || "Unnamed"}
           </h1>
 
           <div className="flex items-center justify-center gap-2">
-            {connection.fields.map((field: string, index: number) => (
-              <Badge
-                key={index}
-                className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
-              >
-                {field.toUpperCase()}
-              </Badge>
-            ))}
+            {connection.user?.user_profile?.user_fields.map(
+              (field: any, index: number) => (
+                <Badge
+                  key={index}
+                  className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944]"
+                >
+                  {field?.name.toUpperCase()}
+                </Badge>
+              )
+            )}
           </div>
 
           <div className="flex flex-col items-center gap-1 text-sm font-medium text-white">
             <div className="flex items-center gap-2 uppercase">
-              <UserIconpeople /> {connection.position || "Unknown Position"}
+              <UserIconpeople />{" "}
+              {connection.user?.user_profile?.position || "Unknown Position"}
             </div>
             <div className="flex items-center gap-2 uppercase">
               <ProjectIcon />
-              {connection.project_name || "Unknown Project"}
+              {connection.user?.user_profile?.project_name || "Unknown Project"}
             </div>
           </div>
 
           {/* Socials */}
           <div className="flex gap-3 mt-4">
-            {connection?.twitter_account && (
+            {connection.user?.user_profile?.twitter_account && (
               <a
-                href={connection.twitter_account}
+                href={connection.user?.user_profile?.twitter_account}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white px-4 py-4 rounded-[16px]"
@@ -101,9 +102,9 @@ const ConnectedUserPage = () => {
                 <TwitterIcon />
               </a>
             )}
-            {connection?.linkedin_url && (
+            {connection.user?.user_profile?.linkedin_url && (
               <a
-                href={connection.linkedin_url}
+                href={connection.user?.user_profile?.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white px-4 py-4 rounded-[16px]"
@@ -112,9 +113,9 @@ const ConnectedUserPage = () => {
               </a>
             )}
 
-            {connection?.scanned_username && (
+            {connection?.user?.username && (
               <a
-                href={`https://t.me/${connection.scanned_username}`}
+                href={`https://t.me/${connection?.user?.username}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white px-4 py-4 rounded-[16px]"
@@ -126,18 +127,20 @@ const ConnectedUserPage = () => {
         </div>
 
         {/* Selfie & Note Section */}
-        {connection?.id && (
+        {connection?.user?.id && (
           <SelfieNoteSection
-            networkId={connection?.id}
-            eventTitle={connection.event_title}
-            telegramAccount={`https://t.me/${connection?.scanned_username}`}
-            baseEventId={connection?.["base_event"]?.["id"] || 1}
+            networkId={connection?.network_information?.id}
+            eventTitle={connection?.network_information?.base_event?.name}
+            telegramAccount={`https://t.me/${connection?.user?.username}`}
+            baseEventId={connection?.network_information?.base_event?.id || 1}
           />
         )}
       </main>
-      {connection?.id && (!connection.position || !connection.project_name) && (
-        <CompleteProfileDrawer isOpen={true} onComplete={refetch} />
-      )}
+      {connection.user?.id &&
+        (!connection.user?.user_profile?.position ||
+          !connection.user?.user_profile.project_name) && (
+          <CompleteProfileDrawer isOpen={true} onComplete={refetch} />
+        )}
     </>
   );
 };
