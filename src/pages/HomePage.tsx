@@ -91,20 +91,25 @@ export default function Home() {
       telegramUserId,
     } = parsedText;
 
-    let urlToReplace = `/connected-user/${scannedUserId}?ref=scanner`;
-    if (baseEventId) {
-      urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
-    }
-
     try {
       if (baseEventId && scannedUserId) {
-        await axios.post("/create-a-network/", {
+        const response = await axios.post("/create-a-network/", {
           base_event_id: parseInt(baseEventId),
           scanned_user_id: parseInt(scannedUserId),
         });
-      }
+        console.log({ response })
+        const createdNetwork = response?.data?.data?.data
+        if(!createdNetwork) {
+          toast.error("Please retry connecting, network was not established correctly.")
 
-      navigate(urlToReplace);
+        }
+        let urlToReplace = `/connected-user/${createdNetwork?.id}?ref=scanner`;
+        if (baseEventId) {
+          urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
+        }
+
+        navigate(urlToReplace);
+      }
     } catch (err) {
       console.error("Failed to create network:", err);
       toast.error("Failed to create connection. Please try again.");
