@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
-import { handleScannedConnection } from "@/hooks/use-handle-scanned-connection";
+import { handleScannedConnection } from "@/lib/handle-scanned-connection";
 
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
@@ -81,12 +81,6 @@ export default function Home() {
       setSelectedEventId(eventList[0].id.toString());
     }
   }, [eventList, selectedEventId]);
-
-  useEffect(() => {
-    if (zefeUserId) {
-      handleScannedConnection(navigate); // void to explicitly ignore returned promise
-    }
-  }, [navigate, isInitDataReady, zefeUserId]);
 
   const handleScanSuccess = async (parsedText: TGenerateTelegramLink) => {
     setIsScannerOpen(false);
