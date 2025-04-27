@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import axiosInstance, { logToDiscord } from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants";
+import { base64UrlDecode } from "@/lib/utils";
 
 type ZefeUser = {
   id: number;
@@ -78,14 +79,10 @@ const initializeZefeUser = async (user: TelegramUser) => {
 };
 
 function parseStartParam(startParam: string) {
-  const decoded = decodeURIComponent(startParam);
-  const params = new URLSearchParams(decoded);
+  const decoded = base64UrlDecode(startParam);
+  const parsed = JSON.parse(decoded);
 
-  return {
-    eventId: params.get('eventId'),
-    userId: params.get('userId'),
-    title: params.get('title'),
-  };
+  return parsed; // eventId, userId, title
 }
 
 export function useTelegramInitData() {
@@ -99,7 +96,7 @@ export function useTelegramInitData() {
     try {
       const user = launchParams?.tgWebAppData?.user;
       if (!user) return null;
-      logToDiscord(JSON.stringify(launchParams))
+      logToDiscord("Launch params" + JSON.stringify(launchParams))
 
       return {
         startParam: launchParams?.start_param || "",

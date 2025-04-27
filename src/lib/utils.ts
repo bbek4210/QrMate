@@ -31,6 +31,21 @@ export type TGenerateTelegramLink = {
   telegramUserId: string;
 };
 
+export function base64UrlEncode(input: string): string {
+  return btoa(input)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, ''); // Remove padding
+}
+
+export function base64UrlDecode(input: string): string {
+  input = input.replace(/-/g, '+').replace(/_/g, '/');
+  while (input.length % 4) {
+    input += '=';
+  }
+  return atob(input);
+}
+
 export function generateTelegramMiniAppLink(
   payload: TGenerateTelegramLink
 ): string {
@@ -49,11 +64,12 @@ export function generateTelegramMiniAppLink(
     .filter(([v]) => v !== undefined && v !== null)
     .reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {});
 
-  const queryString = new URLSearchParams(queryObject).toString();
+  const queryString = JSON.stringify(queryObject)
+  const encodedStartParam = base64UrlEncode(queryString);
 
   // console.log({ queryString });
 
-  const url = `${baseUrl}/?startapp=${encodeURIComponent(queryString)}`;
+  const url = `${baseUrl}/?startapp=${encodedStartParam}`;
   logToDiscord(url)
   return url
 }
