@@ -32,7 +32,7 @@ const NetworksAndConnections = () => {
 
   return (
     <>
-      <main className="flex flex-col gap-2 px-4 py-4 mt-4">
+      <main className="flex flex-col gap-2 px-4 py-4 pt-24 mt-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[#FFFFF] text-3xl font-semibold">
             My network ({data?.connections?.count || 0})

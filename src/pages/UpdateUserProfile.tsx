@@ -7,7 +7,7 @@ const UpdateUserProfile = () => {
   logToDiscord(logMessage);
 
   return (
-    <main className="px-4 py-4 h-[100dvh] flex flex-col">
+    <main className="px-4 py-4 h-[100dvh] flex flex-col pt-24">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BackButtonSvg to="/" />

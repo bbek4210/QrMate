@@ -15,18 +15,16 @@ const App = () => {
   }, []);
 
   return (
-    <div className="mt-[100rem] ">
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/connected-user/:id" element={<ConnectedUser />} />
-        <Route
-          path="/networks-and-connections"
-          element={<NetworksAndConnections />}
-        />
-        <Route path="/update-user-profile" element={<UpdateProfile />} />
-        <Route path="/user" element={<UserProfile />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/connected-user/:id" element={<ConnectedUser />} />
+      <Route
+        path="/networks-and-connections"
+        element={<NetworksAndConnections />}
+      />
+      <Route path="/update-user-profile" element={<UpdateProfile />} />
+      <Route path="/user" element={<UserProfile />} />
+    </Routes>
   );
 };
 

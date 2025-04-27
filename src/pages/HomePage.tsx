@@ -159,7 +159,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bg-[#232223] min-h-screen">
+    <main className="bg-[#232223] min-h-screen pt-24">
       <div className="flex items-center justify-between px-3 py-3">
         <ZefeLogo />
         <Link to="/user">
@@ -192,7 +192,9 @@ export default function Home() {
                 <Badge
                   key={index}
                   variant="red"
-                  onClick={() => setSelectedEventId(event?.base_event?.id.toString())}
+                  onClick={() =>
+                    setSelectedEventId(event?.base_event?.id.toString())
+                  }
                   className={`cursor-pointer text-[0.9rem] ${
                     selectedEvent?.base_event?.id === event?.base_event?.id
                       ? "border-[#ffffff] bg-[#E30613]"

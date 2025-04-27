@@ -40,7 +40,7 @@ const ConnectedUserPage = () => {
   const userProfile = data?.data?.user_profile;
   return (
     <>
-      <main className="max-w-md p-4 mx-auto">
+      <main className="max-w-md p-4 pt-24 mx-auto">
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
           <BackButtonSvg to="/networks-and-connections" />
