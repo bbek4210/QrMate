@@ -10,6 +10,8 @@ import axiosInstance, { logToDiscord } from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants";
 import { base64UrlDecode } from "@/lib/utils";
+import { handleScannedConnection } from "@/lib/handle-scanned-connection";
+import { useNavigate } from "react-router-dom";
 
 type ZefeUser = {
   id: number;
@@ -94,19 +96,20 @@ export function useTelegramInitData() {
     if (isLocal) return mockInitData;
 
     try {
-      const user = launchParams?.tgWebAppData?.user;
+      const tgWebAppData = launchParams?.tgWebAppData;
+      const user = tgWebAppData?.user;
       if (!user) return null;
-      logToDiscord("Launch params" + JSON.stringify(launchParams))
+      logToDiscord("Launch params" + JSON.stringify(launchParams));
 
       return {
-        startParam: launchParams?.start_param || "",
+        startParam: tgWebAppData?.start_param || "",
         user,
-        authDate: new Date(Number(launchParams.auth_date) * 1000),
-        hash: launchParams.hash || "",
-        queryId: launchParams.query_id || "",
-        chatType: launchParams.chat_type || "",
-        chatInstance: launchParams.chat_instance || "",
-        canSendAfter: launchParams.can_send_after ?? null,
+        authDate: new Date(Number(tgWebAppData.auth_date) * 1000),
+        hash: tgWebAppData.hash || "",
+        queryId: tgWebAppData.query_id || "",
+        chatType: tgWebAppData.chat_type || "",
+        chatInstance: tgWebAppData.chat_instance || "",
+        canSendAfter: tgWebAppData.can_send_after ?? null,
       };
     } catch (err) {
       console.warn("Failed to parse launchParams:", err);
@@ -115,14 +118,15 @@ export function useTelegramInitData() {
   }, [launchParams, isLocal]);
 
   const telegramUser = rawInitData?.user ?? null;
+  const navigate = useNavigate();
 
   const startParam = rawInitData?.startParam || "";
   if (startParam) {
     logToDiscord("Start params: " + JSON.stringify(startParam));
     const parsedStartParam = parseStartParam(startParam as string);
     logToDiscord("Parsed Start Param: " + JSON.stringify(parsedStartParam));
+    handleScannedConnection(parsedStartParam, navigate);
   }
-  
 
   const {
     mutateAsync: fetchZefeUser,
