@@ -126,7 +126,6 @@ const UpdateUserContainer = () => {
   });
 
   const selectedFields = watch("selected_fields");
-  const watchPosition = watch("position");
 
   // --- Prefill from Telegram or User Profile ---
   useEffect(() => {
@@ -229,7 +228,7 @@ const UpdateUserContainer = () => {
         </Avatar>
         <label
           htmlFor="avatarUpload"
-          className="text-sm underline cursor-pointer text-white"
+          className="text-sm text-white underline cursor-pointer"
         >
           Upload new profile picture
         </label>
