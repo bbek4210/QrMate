@@ -54,7 +54,9 @@ export function generateTelegramMiniAppLink(
 
   // console.log({ queryString });
 
-  return `${baseUrl}/zefe/?startapp=${encodeURIComponent(queryString)}`;
+  const url = `${baseUrl}/zefe/?startapp=${encodeURIComponent(queryString)}`;
+  logToDiscord(url)
+  return url
 }
 
 export function parseTelegramStartAppData() {
