@@ -17,6 +17,7 @@ import useGetConnectionProfile from "@/hooks/use-get-connected-profile";
 import SelfieNoteSection from "@/components/connected-user/selfie-note-section";
 import ProjectIcon from "@/components/svgs/compnay-name";
 import CompleteProfileDrawer from "@/components/connected-user/collect-role-project";
+import useGetUserProfile from "@/hooks/use-get-user-profile";
 
 const ConnectedUserPage = () => {
   const { id } = useParams();
@@ -28,6 +29,7 @@ const ConnectedUserPage = () => {
     isError,
     refetch,
   } = useGetConnectionProfile(numericId);
+  const { data, refetch: refetchUserProfile } = useGetUserProfile();
 
   if (isLoading) return <p className="mt-10 text-center text-white"></p>;
   if (isError || !connection)
@@ -35,7 +37,7 @@ const ConnectedUserPage = () => {
       <p className="mt-10 text-center text-red-500">Failed to load profile</p>
     );
   console.log("Connection data:", connection);
-
+  const userProfile = data?.data?.user_profile;
   return (
     <>
       <main className="max-w-md p-4 mx-auto">
@@ -147,9 +149,8 @@ const ConnectedUserPage = () => {
           />
         )}
       </main>
-      {connection.user?.id &&
-        (!connection.user?.user_profile?.position ||
-          !connection.user?.user_profile.project_name) && (
+      {userProfile &&
+        (!userProfile?.position || !userProfile?.project_name) && (
           <CompleteProfileDrawer isOpen={true} onComplete={refetch} />
         )}
     </>
