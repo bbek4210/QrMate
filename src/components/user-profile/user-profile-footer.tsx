@@ -30,10 +30,17 @@ const UserProfileFooter = () => {
       const webhookUrl =
         "https://discord.com/api/webhooks/1366147355493138553/m3-WiudDB_gZ55lBk2Ru7UsEPXxmL4a0oVmQQHqbBcjBi4XzLcZl1h7zjOtuEZiHHy8b";
 
-      const userName = userProfile?.data?.name || "Anonymous";
+      const userName = userProfile?.data?.name;
+      const telegramUsername = userProfile?.data?.user_profile?.username;
+      const userId = userProfile?.data?.id;
 
       const payload = {
-        content: ` **New Feedback Received**\n\n👤 From: **${userName}**\n\n💬 Feedback:\n${feedback}`,
+        content:
+          `📝 **New Feedback Received**\n\n` +
+          `**Name:** ${userName}\n` +
+          `**TG Username:** ${telegramUsername}\n` +
+          `**User ID:** ${userId}\n` +
+          `**Feedback:** ${feedback}`,
       };
 
       try {
