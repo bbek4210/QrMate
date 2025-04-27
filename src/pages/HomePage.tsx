@@ -159,7 +159,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bg-[#232223] min-h-screen pt-24">
+    <main className="bg-[#232223] min-h-screen pt-20">
       <div className="flex items-center justify-between px-3 py-3">
         <ZefeLogo />
         <Link to="/user">
