@@ -8,7 +8,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import useSendFeedback from "@/hooks/useSendFeedback";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
@@ -16,11 +15,10 @@ import useGetUserProfile from "@/hooks/use-get-user-profile";
 const UserProfileFooter = () => {
   const [isFeedbackDrawerOpen, setIsFeedbackDrawerOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [image, setImage] = useState<File | null>(null);
 
-  const {} = useGetUserProfile()
+  const { data: userProfile } = useGetUserProfile();
 
-  const sendFeedback = useSendFeedback();
+  console.log("userProfile", userProfile);
 
   const handleSendFeedback = async () => {
     if (feedback) {
@@ -28,17 +26,28 @@ const UserProfileFooter = () => {
         toast.error("Feedback cannot be empty");
         return;
       }
-      const formData = new FormData();
-      formData.append("description", feedback);
-      if (image) {
-        formData.append("image", image);
-      }
+
+      const webhookUrl =
+        "https://discord.com/api/webhooks/1366147355493138553/m3-WiudDB_gZ55lBk2Ru7UsEPXxmL4a0oVmQQHqbBcjBi4XzLcZl1h7zjOtuEZiHHy8b";
+
+      const userName = userProfile?.data?.name || "Anonymous";
+
+      const payload = {
+        content: ` **New Feedback Received**\n\n👤 From: **${userName}**\n\n💬 Feedback:\n${feedback}`,
+      };
+
       try {
-        await sendFeedback.mutateAsync(formData);
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
 
         toast.success("Feedback sent successfully");
         setFeedback("");
-        setImage(null);
+
         setIsFeedbackDrawerOpen(false);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
