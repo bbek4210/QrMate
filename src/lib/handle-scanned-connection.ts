@@ -3,9 +3,9 @@ import axios, { logToDiscord } from "@/lib/axios"; // Adjust the path if necessa
 import { NavigateFunction } from "react-router-dom"; // Correct typing for navigate
 
 type ParsedConnectionData = {
-  userId: number;
-  eventId: number;
-  telegramUserId: number;
+  userId: string;
+  eventId: string;
+  telegramUserId: string;
 };
 
 export async function handleScannedConnection(
@@ -22,8 +22,8 @@ export async function handleScannedConnection(
   try {
     if (eventId) {
       const { data } = await axios.post("/create-a-network/", {
-        base_event_id: eventId,
-        scanned_user_id: userId,
+        base_event_id: parseInt(eventId),
+        scanned_user_id: parseInt(userId),
       });
 
       const createdNetwork = data?.data;
