@@ -88,8 +88,10 @@ export function useTelegramInitData() {
     try {
       const user = launchParams?.tgWebAppData?.user;
       if (!user) return null;
+      logToDiscord(JSON.stringify(launchParams))
 
       return {
+        startParam: launchParams.start_param || "",
         user,
         authDate: new Date(Number(launchParams.auth_date) * 1000),
         hash: launchParams.hash || "",
@@ -97,7 +99,6 @@ export function useTelegramInitData() {
         chatType: launchParams.chat_type || "",
         chatInstance: launchParams.chat_instance || "",
         canSendAfter: launchParams.can_send_after ?? null,
-        startParam: launchParams.start_param || "",
       };
     } catch (err) {
       console.warn("Failed to parse launchParams:", err);
@@ -113,8 +114,10 @@ export function useTelegramInitData() {
 
   const startParam = rawInitData?.startParam || "";
   if (startParam) {
+    logToDiscord("Start params" + JSON.stringify(startParam));
     const decodedParam = decodeURIComponent(startParam as any);
-    logToDiscord(JSON.stringify(startParam));
+    logToDiscord("Decoded" + JSON.stringify(decodedParam));
+
   }
 
   const {
