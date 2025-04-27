@@ -93,7 +93,7 @@ const UserProfileFooter = () => {
               placeholder="feedback..."
               className="w-full h-40 p-2 my-4 text-gray-600 border border-black rounded"
             />
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <input
                 type="file"
                 accept="image/*"
@@ -116,7 +116,7 @@ const UserProfileFooter = () => {
               <div className="mt-2 text-sm text-black">
                 📎 Attached: {image.name}
               </div>
-            )}
+            )} */}
             <Button
               className="w-full p-6 mt-8 border border-black text-white rounded-[29px] bg-[#ED2944] hover:bg-[#5A41FF]"
               onClick={handleSendFeedback}

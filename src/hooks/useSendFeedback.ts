@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios";
+import axiosInstance, { logToDiscord } from "@/lib/axios";
 import { getCookie } from "@/lib/cookies";
 import { useMutation } from "@tanstack/react-query";
 
