@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
-import { handleScannedConnection } from "@/lib/handle-scanned-connection";
 
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
