@@ -73,13 +73,14 @@ export default function Home() {
 
   const selectedEvent = useMemo(
     () =>
-      eventList.find((e) => e.id === Number(selectedEventId)) || eventList[0],
+      eventList.find((e) => e?.base_event?.id === Number(selectedEventId)) ||
+      eventList[0],
     [eventList, selectedEventId]
   );
 
   useEffect(() => {
     if (!selectedEventId && eventList.length > 0) {
-      setSelectedEventId(eventList[0].id.toString());
+      setSelectedEventId(eventList[0]?.base_event?.id.toString());
     }
   }, [eventList, selectedEventId]);
 
@@ -193,7 +194,7 @@ export default function Home() {
                   variant="red"
                   onClick={() => setSelectedEventId(event.id.toString())}
                   className={`cursor-pointer text-[0.9rem] ${
-                    selectedEvent?.id === event.id
+                    selectedEvent?.base_event?.id === event?.base_event?.id
                       ? "border-[#ffffff] bg-[#E30613]"
                       : "bg-transparent border-[#ffffff]"
                   }`}
@@ -212,7 +213,7 @@ export default function Home() {
 
               <FancyQRCode
                 value={generateTelegramMiniAppLink({
-                  eventId: selectedEvent?.id?.toString() ?? "",
+                  eventId: selectedEvent?.base_event?.id?.toString() ?? "",
                   userId: zefeUserId?.toString() ?? "",
                   telegramUserId: initData?.telegramUser?.id?.toString() ?? "",
                 })}
