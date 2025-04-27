@@ -56,27 +56,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
-  useEffect(() => {
-    const onViewportResize = () => {
-      if (window.visualViewport) {
-        const viewportHeight = window.visualViewport.height;
-        const documentHeight = window.innerHeight;
-        const keyboardVisible = documentHeight - viewportHeight > 100; // Arbitrary threshold
-
-        if (keyboardVisible) {
-          document.body.style.paddingBottom = "300px"; // Add extra space for keyboard
-        } else {
-          document.body.style.paddingBottom = "0px";
-        }
-      }
-    };
-
-    window.visualViewport?.addEventListener("resize", onViewportResize);
-    return () => {
-      window.visualViewport?.removeEventListener("resize", onViewportResize);
-    };
-  }, []);
-
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -261,7 +240,9 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
           value={note}
           onFocus={(e) => {
-            e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => {
+              e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 300);
           }}
           onChange={(e) => setNote(e.target.value)}
           onBlur={() => handleSave()}
