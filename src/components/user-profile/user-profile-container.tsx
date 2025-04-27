@@ -37,9 +37,9 @@ const UserProfileContainer = () => {
           {user?.name || "No Name Provided"}
         </h1>
 
-        <h6 className="font-normal text-[20px] text-[#ffffff] uppercase text-center">
+        {/* <h6 className="font-normal text-[20px] text-[#ffffff] uppercase text-center">
           @{user?.username}
-        </h6>
+        </h6> */}
         <div className="flex items-center justify-center gap-2">
           {user?.user_profile?.user_fields?.map((field: UserField) => (
             <Badge
@@ -76,7 +76,11 @@ const UserProfileContainer = () => {
       <div className="flex items-center justify-center gap-2">
         {user?.user_profile?.twitter_account && (
           <a
-            href={user.user_profile?.twitter_account}
+            href={
+              user.user_profile?.twitter_account?.includes("http")
+                ? user?.user_profile?.twitter_account
+                : `https://x.com/${user?.user_profile?.twitter_account}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
@@ -94,7 +98,7 @@ const UserProfileContainer = () => {
             <LinkedinIcon />
           </a>
         )}
-        {user?.user_profile?.telegram_account && (
+        {user?.username && (
           <a
             href={`https://t.me/${user.username}`}
             target="_blank"

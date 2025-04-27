@@ -103,7 +103,7 @@ export default function Home() {
           toast.error("Please retry connecting, network was not established correctly.")
 
         }
-        let urlToReplace = `/connected-user/${createdNetwork?.id}?ref=scanner`;
+        let urlToReplace = `/connected-user/${scannedUserId}?ref=scanner`;
         if (baseEventId) {
           urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
         }

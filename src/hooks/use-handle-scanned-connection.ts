@@ -27,7 +27,7 @@ async function handleScannedConnection(navigate: (path: string) => void) {
         return;
       }
 
-      let url = `/connected-user/${createdNetwork.id}?ref=scanner`;
+      let url = `/connected-user/${userId}?ref=scanner`;
 
       if (eventId) {
         url += `&event_id=${eventId}&telegram_user_id=${telegramUserId}`;

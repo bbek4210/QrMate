@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,17 +34,59 @@ const profileSchema = z.object({
   city: z.string().min(1, "City is required"),
   twitter_account: z.string().optional(),
   linkedin_url: z.string().optional(),
-  email: z.string().email("Invalid email").or(z.literal("").transform(() => undefined)).optional(),
-  selected_fields: z.array(z.number()).min(1, "Select at least 1 field").max(3, "Select up to 3 fields only"),
+  email: z
+    .string()
+    .email("Invalid email")
+    .or(z.literal("").transform(() => undefined))
+    .optional(),
+  selected_fields: z
+    .array(z.number())
+    .min(1, "Select at least 1 field")
+    .max(3, "Select up to 3 fields only"),
 });
 
 // --- Options ---
 const positionOptions = [
-  "FOUNDER", "CO-FOUNDER", "INVESTOR", "CEO", "CTO", "CFO", "FINANCE MANAGER", "GENERAL MANAGER", "EVENT MANAGER",
-  "PRODUCT MANAGER", "BLOCKCHAIN DEVELOPER", "SOLIDITY DEVELOPER", "DEVELOPER", "ENGINEER", "MARKETING", "INFLUENCER",
-  "INTERN", "COMMUNITY MOD", "PRODUCT DESIGNER", "SALES MANAGER", "RESEARCHER", "SPACEHOST", "TRADER", "GAMING",
-  "EDUCATOR", "ARTIST", "COLLAB MANAGER", "JOB SEEKING", "SUBCOMMUNITY", "CONTENT CREATOR", "TOKEN", "METAVERSE",
-  "COMMUNITY", "HIRING", "BRANDING", "VALIDATOR", "INCUBATOR", "ACCELERATOR", "MEDIA", "BUSINESS DEVELOPMENT OFFICER",
+  "FOUNDER",
+  "CO-FOUNDER",
+  "INVESTOR",
+  "CEO",
+  "CTO",
+  "CFO",
+  "FINANCE MANAGER",
+  "GENERAL MANAGER",
+  "EVENT MANAGER",
+  "PRODUCT MANAGER",
+  "BLOCKCHAIN DEVELOPER",
+  "SOLIDITY DEVELOPER",
+  "DEVELOPER",
+  "ENGINEER",
+  "MARKETING",
+  "INFLUENCER",
+  "INTERN",
+  "COMMUNITY MOD",
+  "PRODUCT DESIGNER",
+  "SALES MANAGER",
+  "RESEARCHER",
+  "SPACEHOST",
+  "TRADER",
+  "GAMING",
+  "EDUCATOR",
+  "ARTIST",
+  "COLLAB MANAGER",
+  "JOB SEEKING",
+  "SUBCOMMUNITY",
+  "CONTENT CREATOR",
+  "TOKEN",
+  "METAVERSE",
+  "COMMUNITY",
+  "HIRING",
+  "BRANDING",
+  "VALIDATOR",
+  "INCUBATOR",
+  "ACCELERATOR",
+  "MEDIA",
+  "BUSINESS DEVELOPMENT OFFICER",
   "OTHER",
 ];
 
@@ -66,6 +108,7 @@ const UpdateUserContainer = () => {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -104,32 +147,32 @@ const UpdateUserContainer = () => {
     setValue("city", profile.city ?? "");
     setValue("twitter_account", profile.twitter_account ?? "");
     setValue("linkedin_url", profile.linkedin_url ?? "");
-    setValue("email", profile.email ?? "");
+    setValue("email", user.email ?? "");
 
-    const selectedFieldIds = profile.user_fields?.map((f: { id: number }) => f.id) || [];
+    const selectedFieldIds =
+      profile.user_fields?.map((f: { id: number }) => f.id) || [];
     setValue("selected_fields", selectedFieldIds);
     if (user.photo_url) setAvatar(profile.photo_url);
   }, [user, setValue]);
-
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const extension = file.name.split(".").pop() || "jpg";
     const key = `zefe_profile_images/avatar-${Date.now()}.${extension}`;
-  
+
     try {
       const result = await uploadFileMutation.mutateAsync({ file, key });
       const uploadedUrl = result?.data?.file_url;
       if (!uploadedUrl) throw new Error("No URL returned");
-  
+
       setAvatar(uploadedUrl);
       toast.success("Profile picture uploaded");
-  
+
       // 🚀 Immediately save photo_url
       await mutateAsync({ photo_url: uploadedUrl });
       toast.success("Profile picture saved");
-  
+
       // 🔥 NOW: Refetch user profile to sync form again
       await refetch();
     } catch (error) {
@@ -137,13 +180,15 @@ const UpdateUserContainer = () => {
       toast.error("Failed to upload/save profile picture");
     }
   };
-  
 
   // --- Handle Field Selection ---
   const toggleSelectedField = (fieldId: number) => {
     const current = selectedFields;
     if (current.includes(fieldId)) {
-      setValue("selected_fields", current.filter((id) => id !== fieldId));
+      setValue(
+        "selected_fields",
+        current.filter((id) => id !== fieldId)
+      );
     } else if (current.length < 3) {
       setValue("selected_fields", [...current, fieldId]);
     } else {
@@ -171,18 +216,30 @@ const UpdateUserContainer = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 pb-8 mt-12 grow" noValidate>
-
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-8 pb-8 mt-12 grow"
+      noValidate
+    >
       {/* --- Avatar Upload --- */}
       <div className="flex flex-col items-center gap-3">
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
           <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <label htmlFor="avatarUpload" className="text-sm underline cursor-pointer text-white">
+        <label
+          htmlFor="avatarUpload"
+          className="text-sm underline cursor-pointer text-white"
+        >
           Upload new profile picture
         </label>
-        <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+        <input
+          id="avatarUpload"
+          type="file"
+          accept="image/*"
+          onChange={handleAvatarUpload}
+          className="hidden"
+        />
       </div>
 
       {/* --- Personal Info --- */}
@@ -197,19 +254,29 @@ const UpdateUserContainer = () => {
 
       {/* --- Project Info --- */}
       <Section title="Project">
-        <FormField label="Position" required error={errors.position?.message}>
-          <Select value={watchPosition || ""} onValueChange={(val) => setValue("position", val)}>
-            <SelectTrigger className="text-black">
-              <SelectValue placeholder="Select position" />
-            </SelectTrigger>
-            <SelectContent>
-              {positionOptions.map((pos) => (
-                <SelectItem key={pos} value={pos}>{pos}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormField>
-        <FormField label="Project name" required error={errors.project_name?.message}>
+        <Controller
+          name="position"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value || ""} onValueChange={field.onChange}>
+              <SelectTrigger className="text-black">
+                <SelectValue placeholder="Select position" />
+              </SelectTrigger>
+              <SelectContent>
+                {positionOptions.map((pos) => (
+                  <SelectItem key={pos} value={pos}>
+                    {pos}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <FormField
+          label="Project name"
+          required
+          error={errors.project_name?.message}
+        >
           <Input {...register("project_name")} className="text-black" />
         </FormField>
         <FormField label="City" required error={errors.city?.message}>
@@ -219,7 +286,9 @@ const UpdateUserContainer = () => {
 
       {/* --- Fields --- */}
       <Section title="Fields">
-        <Label className="text-white">Select up to 3 fields <span className="text-red-500">*</span></Label>
+        <Label className="text-white">
+          Select up to 3 fields <span className="text-red-500">*</span>
+        </Label>
         <div className="flex flex-wrap gap-2">
           {fieldOptions.map((field) => {
             const isSelected = selectedFields.includes(field.id);
@@ -229,7 +298,11 @@ const UpdateUserContainer = () => {
                 key={field.id}
                 onClick={() => toggleSelectedField(field.id)}
                 className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem]
-                  ${isSelected ? "bg-[#ED2944] text-white" : "bg-transparent text-white hover:bg-white/10"}
+                  ${
+                    isSelected
+                      ? "bg-[#ED2944] text-white"
+                      : "bg-transparent text-white hover:bg-white/10"
+                  }
                   ${isDisabled ? "opacity-50 pointer-events-none" : ""}
                 `}
               >
@@ -239,26 +312,44 @@ const UpdateUserContainer = () => {
           })}
         </div>
         {errors.selected_fields && (
-          <p className="text-sm text-red-500">{errors.selected_fields.message}</p>
+          <p className="text-sm text-red-500">
+            {errors.selected_fields.message}
+          </p>
         )}
       </Section>
 
       {/* --- Socials --- */}
       <Section title="Socials">
         <FormField label="Twitter account">
-          <Input {...register("twitter_account")} className="text-black" placeholder="@twitter" />
+          <Input
+            {...register("twitter_account")}
+            className="text-black"
+            placeholder="@twitter"
+          />
         </FormField>
         <FormField label="Linkedin account">
-          <Input {...register("linkedin_url")} className="text-black" placeholder="linkedin.com/" />
+          <Input
+            {...register("linkedin_url")}
+            className="text-black"
+            placeholder="linkedin.com/"
+          />
         </FormField>
         <FormField label="Email">
-          <Input {...register("email")} className="text-black" placeholder="you@example.com" />
+          <Input
+            {...register("email")}
+            className="text-black"
+            placeholder="you@example.com"
+          />
         </FormField>
       </Section>
 
       {/* --- Terms Acceptance and Submit --- */}
       <div className="flex items-center gap-2">
-        <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(!!checked)} />
+        <Checkbox
+          id="terms"
+          checked={termsAccepted}
+          onCheckedChange={(checked) => setTermsAccepted(!!checked)}
+        />
         <label htmlFor="terms" className="text-sm font-medium">
           I agree to receive updates from Zefe.
         </label>
@@ -266,9 +357,11 @@ const UpdateUserContainer = () => {
 
       <Button
         type="submit"
-        disabled={isSubmitting || !termsAccepted}
+        disabled={isSubmitting}
         className={`rounded-[29px] text-white py-4 transition-colors duration-200 ${
-          isSubmitting ? "!bg-[#5A41FF] !text-white !cursor-not-allowed" : "bg-[#ED2944] hover:bg-[#cb1f38]"
+          isSubmitting
+            ? "!bg-[#5A41FF] !text-white !cursor-not-allowed"
+            : "bg-[#ED2944] hover:bg-[#cb1f38]"
         }`}
       >
         {isSubmitting ? "Submitting..." : "Continue"}
@@ -278,7 +371,13 @@ const UpdateUserContainer = () => {
 };
 
 // --- Small Components ---
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <div className="my-4">
     <p className="font-semibold text-[32px] mb-6 uppercase">{title}</p>
     <div className="flex flex-col gap-6">{children}</div>
