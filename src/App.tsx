@@ -15,7 +15,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="p-4 ">
+    <div className="pt-4 ">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/connected-user/:id" element={<ConnectedUser />} />
