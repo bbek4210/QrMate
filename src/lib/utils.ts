@@ -54,7 +54,7 @@ export function generateTelegramMiniAppLink(
 
   // console.log({ queryString });
 
-  return `${baseUrl}/startapp?startapp=${encodeURIComponent(queryString)}`;
+  return `${baseUrl}?startapp=${encodeURIComponent(queryString)}`;
 }
 
 export function parseTelegramStartAppData(): Record<string, string> | null {
