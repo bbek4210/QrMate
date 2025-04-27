@@ -59,29 +59,54 @@ export function generateTelegramMiniAppLink(
   return url
 }
 
+
 export function parseTelegramStartAppData() {
-  logToDiscord(JSON.stringify({ location: window.location }));
-  logToDiscord(JSON.stringify({ ts: window.Telegram }));
-
-  if (typeof window === "undefined" || !window.Telegram?.WebApp) return null;
-
-  const startParam = window.Telegram.WebApp.initDataUnsafe?.start_param;
-  logToDiscord(JSON.stringify({ startParam }));
-
-  if (!startParam) {
+  if (typeof window === "undefined" || !window.Telegram?.WebApp) {
+    logToDiscord("❌ Window undefined or Telegram WebApp not available.");
     return null;
   }
 
-  // You can customize parsing based on how you encode the payload
-  // Example: if you sent "user123_event456"
-  const [userIdPart, eventIdPart] = startParam.split("_");
+  try {
+    const initData = window.Telegram.WebApp.initDataUnsafe;
+    logToDiscord(`ℹ️ Retrieved initDataUnsafe: ${JSON.stringify(initData)}`);
 
-  const userId = userIdPart?.replace("user", "");
-  const eventId = eventIdPart?.replace("event", "");
+    const startParam = initData?.start_param;
+    logToDiscord(`ℹ️ Retrieved start_param: ${startParam}`);
 
-  return {
-    userId,
-    eventId,
-    telegramUserId: window.Telegram.WebApp.initDataUnsafe?.user?.id,
-  };
+    if (!startParam) {
+      logToDiscord("⚠️ No start_param found in Telegram initData.");
+      return null;
+    }
+
+    const decodedParam = decodeURIComponent(startParam);
+    logToDiscord(`ℹ️ Decoded start_param: ${decodedParam}`);
+
+    const params = new URLSearchParams(decodedParam);
+
+    const eventId = params.get("eventId");
+    const title = params.get("title");
+    const userId = params.get("userId");
+    const telegramUserId = params.get("telegramUserId") || initData?.user?.id;
+
+    logToDiscord(`ℹ️ Parsed fields: eventId=${eventId}, title=${title}, userId=${userId}, telegramUserId=${telegramUserId}`);
+
+    if (!eventId || !userId) {
+      logToDiscord(`❌ Missing required fields. eventId=${eventId}, userId=${userId}`);
+      return null;
+    }
+
+    const parsedData = {
+      eventId,
+      title,
+      userId,
+      telegramUserId,
+    };
+
+    logToDiscord(`✅ Successfully parsed Telegram Start App Data: ${JSON.stringify(parsedData)}`);
+    return parsedData;
+
+  } catch (error) {
+    logToDiscord(`❌ Error parsing Telegram Start App Data: ${error}`);
+    return null;
+  }
 }
