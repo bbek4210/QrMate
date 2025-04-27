@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
-import ProfileBox from "@/components/connection-box";
 import { Badge } from "@/components/ui/badge";
 import FilterButtonSvg from "@/components/svgs/filter-button";
 import CrossIcon from "@/components/svgs/cross-icon";

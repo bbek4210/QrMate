@@ -14,6 +14,7 @@ import { QUERY_KEYS } from "@/lib/query-keys";
 import useUploadFile from "@/hooks/use-upload-file";
 import useMakeSelfieNote from "@/hooks/use-make-selfie-note";
 import useGetSelfieNote from "@/hooks/use-get-selfie-note";
+import loadImage from "blueimp-load-image";
 
 interface SelfieNoteSectionProps {
   networkId: number;
@@ -120,11 +121,27 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     console.log({ selectedFiles, validFiles });
 
     if (validFiles.length) {
-      const previews = validFiles.map((f) => URL.createObjectURL(f));
-      setPhotos((prev) => [...prev, ...previews]);
+      const correctedImages = await Promise.all(
+        validFiles.map((file) => {
+          return new Promise<string>((resolve, reject) => {
+            loadImage(
+              file,
+              (img: { toDataURL: () => string | PromiseLike<string> }) => {
+                if (img instanceof HTMLCanvasElement) {
+                  resolve(img.toDataURL());
+                } else {
+                  reject("Could not load image");
+                }
+              },
+              { orientation: true, canvas: true }
+            );
+          });
+        })
+      );
+
+      setPhotos((prev) => [...prev, ...correctedImages]);
       setFiles((prev) => [...prev, ...validFiles]);
 
-      // Auto-save immediately, passing the fresh validFiles
       setTimeout(() => {
         handleSave(validFiles);
       }, 100);

@@ -26,6 +26,7 @@
     "@tma.js/sdk-react": "^2.2.8",
     "@tonconnect/ui-react": "^2.0.5",
     "axios": "^1.8.2",
+    "blueimp-load-image": "^5.16.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "eruda": "^3.0.1",

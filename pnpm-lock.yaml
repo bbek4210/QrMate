@@ -56,6 +56,9 @@ importers:
       axios:
         specifier: ^1.8.2
         version: 1.8.4
+      blueimp-load-image:
+        specifier: ^5.16.0
+        version: 5.16.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1501,6 +1504,9 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  blueimp-load-image@5.16.0:
+    resolution: {integrity: sha512-3DUSVdOtlfNRk7moRZuTwDmA3NnG8KIJuLcq3c0J7/BIr6X3Vb/EpX3kUH1joxUhmoVF4uCpDfz7wHkz8pQajA==}
 
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -4431,6 +4437,8 @@ snapshots:
       error-kid: 0.0.7
 
   binary-extensions@2.3.0: {}
+
+  blueimp-load-image@5.16.0: {}
 
   brace-expansion@1.1.11:
     dependencies:

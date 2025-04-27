@@ -1,11 +1,25 @@
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
-const BackButtonSvg = () => {
+interface BackButtonSvgProps {
+  to?: string;
+  fallback?: number;
+}
+
+const BackButtonSvg: React.FC<BackButtonSvgProps> = ({ to, fallback = -1 }) => {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    } else {
+      navigate(fallback);
+    }
+  };
 
   return (
     <svg
-      onClick={() => navigate("/")} // simulates "go back"
+      onClick={handleClick}
       width="16"
       height="13"
       viewBox="0 0 16 13"
