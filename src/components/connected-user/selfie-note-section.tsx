@@ -57,6 +57,33 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
+  useEffect(() => {
+    function adjustTextareaPosition() {
+      const textarea = document.getElementById("summary_note_textarea");
+      const viewportHeight =
+        window.visualViewport?.height || window.innerHeight;
+
+      if (textarea) {
+        const rect = textarea.getBoundingClientRect();
+        const bottomSpace = viewportHeight - rect.bottom;
+
+        if (bottomSpace < 100) {
+          // Moins de 100px d'espace = textarea trop bas
+          textarea.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    }
+
+    window.visualViewport?.addEventListener("resize", adjustTextareaPosition);
+
+    return () => {
+      window.visualViewport?.removeEventListener(
+        "resize",
+        adjustTextareaPosition
+      );
+    };
+  }, []);
+
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -156,14 +183,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   console.log({ photos });
 
   return (
-    <div
-      id="scroll-container"
-      style={{
-        overflowY: "auto",
-        maxHeight: "100vh",
-        padding: "16px",
-      }}
-    >
+    <div>
       <div className="mt-10 space-y-4">
         {isFromScanner && (
           <div className="flex flex-col items-center justify-center gap-4 mb-12">
@@ -261,6 +281,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           )}
 
           <textarea
+            id="summary_note_textarea"
             placeholder="Write a short note..."
             className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
             value={note}
