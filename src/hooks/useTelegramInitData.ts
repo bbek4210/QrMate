@@ -6,7 +6,7 @@ import {
   type User as TelegramUser,
 } from "@telegram-apps/sdk-react";
 import { useMutation } from "@tanstack/react-query";
-import axiosInstance from "@/lib/axios";
+import axiosInstance, { logToDiscord } from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants";
 
@@ -63,7 +63,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
     name: `${user.first_name} ${user.last_name}`,
     username: user.username,
     telegram_id: user.id,
-    photo_url: user?.photo_url
+    photo_url: user?.photo_url,
   };
 
   const response = await axiosInstance.post("/init/", payload);
@@ -107,6 +107,16 @@ export function useTelegramInitData() {
 
   const telegramUser = rawInitData?.user ?? null;
 
+  if(telegramUser) {
+    logToDiscord(JSON.stringify(rawInitData))
+  }
+
+  const startParam = rawInitData?.startParam || "";
+  if (startParam) {
+    const decodedParam = decodeURIComponent(startParam as any);
+    logToDiscord(JSON.stringify(startParam));
+  }
+
   const {
     mutateAsync: fetchZefeUser,
     data: zefeInitializationData,
@@ -117,7 +127,7 @@ export function useTelegramInitData() {
     mutationFn: initializeZefeUser,
   });
 
-  const zefeUser = zefeInitializationData?.data?.data
+  const zefeUser = zefeInitializationData?.data?.data;
 
   useEffect(() => {
     if (!telegramUser || alreadyInitialized.current) return;
