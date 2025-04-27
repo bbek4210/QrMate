@@ -94,7 +94,13 @@ const ConnectedUserPage = () => {
           <div className="flex gap-3 mt-4">
             {connection.user?.user_profile?.twitter_account && (
               <a
-                href={connection.user?.user_profile?.twitter_account}
+                href={
+                  connection.user?.user_profile?.twitter_account?.includes(
+                    "http"
+                  )
+                    ? connection.user?.user_profile?.twitter_account
+                    : `https://x.com/${connection.user?.user_profile?.twitter_account}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white px-4 py-4 rounded-[16px]"
@@ -104,7 +110,11 @@ const ConnectedUserPage = () => {
             )}
             {connection.user?.user_profile?.linkedin_url && (
               <a
-                href={connection.user?.user_profile?.linkedin_url}
+                href={
+                  connection.user?.user_profile?.linkedin_url?.includes("http")
+                    ? connection.user?.user_profile?.linkedin_url
+                    : `https://linkedin.com/${connection.user?.user_profile?.linkedin_url}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white px-4 py-4 rounded-[16px]"
