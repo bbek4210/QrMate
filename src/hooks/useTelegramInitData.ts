@@ -116,10 +116,6 @@ export function useTelegramInitData() {
 
   const telegramUser = rawInitData?.user ?? null;
 
-  if(telegramUser) {
-    logToDiscord(JSON.stringify(rawInitData))
-  }
-
   const startParam = rawInitData?.startParam || "";
   if (startParam) {
     logToDiscord("Start params: " + JSON.stringify(startParam));
