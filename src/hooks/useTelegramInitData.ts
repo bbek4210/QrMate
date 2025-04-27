@@ -6,7 +6,7 @@ import {
   type User as TelegramUser,
 } from "@telegram-apps/sdk-react";
 import { useMutation } from "@tanstack/react-query";
-import axiosInstance from "@/lib/axios";
+import axiosInstance, { logToDiscord } from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants";
 
@@ -63,7 +63,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
     name: `${user.first_name} ${user.last_name}`,
     username: user.username,
     telegram_id: user.id,
-    photo_url: user?.photo_url
+    photo_url: user?.photo_url,
   };
 
   const response = await axiosInstance.post("/init/", payload);
@@ -88,8 +88,10 @@ export function useTelegramInitData() {
     try {
       const user = launchParams?.tgWebAppData?.user;
       if (!user) return null;
+      logToDiscord(JSON.stringify(launchParams))
 
       return {
+        startParam: launchParams.start_param || "",
         user,
         authDate: new Date(Number(launchParams.auth_date) * 1000),
         hash: launchParams.hash || "",
@@ -97,7 +99,6 @@ export function useTelegramInitData() {
         chatType: launchParams.chat_type || "",
         chatInstance: launchParams.chat_instance || "",
         canSendAfter: launchParams.can_send_after ?? null,
-        startParam: launchParams.start_param || "",
       };
     } catch (err) {
       console.warn("Failed to parse launchParams:", err);
@@ -106,6 +107,18 @@ export function useTelegramInitData() {
   }, [launchParams, isLocal]);
 
   const telegramUser = rawInitData?.user ?? null;
+
+  if(telegramUser) {
+    logToDiscord(JSON.stringify(rawInitData))
+  }
+
+  const startParam = rawInitData?.startParam || "";
+  if (startParam) {
+    logToDiscord("Start params" + JSON.stringify(startParam));
+    const decodedParam = decodeURIComponent(startParam as any);
+    logToDiscord("Decoded" + JSON.stringify(decodedParam));
+
+  }
 
   const {
     mutateAsync: fetchZefeUser,
@@ -117,7 +130,7 @@ export function useTelegramInitData() {
     mutationFn: initializeZefeUser,
   });
 
-  const zefeUser = zefeInitializationData?.data?.data
+  const zefeUser = zefeInitializationData?.data?.data;
 
   useEffect(() => {
     if (!telegramUser || alreadyInitialized.current) return;
