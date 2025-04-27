@@ -31,7 +31,7 @@ const UserProfileFooter = () => {
         "https://discord.com/api/webhooks/1366147355493138553/m3-WiudDB_gZ55lBk2Ru7UsEPXxmL4a0oVmQQHqbBcjBi4XzLcZl1h7zjOtuEZiHHy8b";
 
       const userName = userProfile?.data?.name;
-      const telegramUsername = userProfile?.data?.user_profile?.username;
+      const telegramUsername = userProfile?.data?.username;
       const userId = userProfile?.data?.id;
 
       const payload = {
