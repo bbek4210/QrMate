@@ -56,6 +56,27 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
+  useEffect(() => {
+    const onViewportResize = () => {
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const documentHeight = window.innerHeight;
+        const keyboardVisible = documentHeight - viewportHeight > 100; // Arbitrary threshold
+
+        if (keyboardVisible) {
+          document.body.style.paddingBottom = "300px"; // Add extra space for keyboard
+        } else {
+          document.body.style.paddingBottom = "0px";
+        }
+      }
+    };
+
+    window.visualViewport?.addEventListener("resize", onViewportResize);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", onViewportResize);
+    };
+  }, []);
+
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -213,7 +234,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       <div className="flex items-stretch gap-3">
         {photos.length === 0 && canUploadSelfie ? (
           <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
-            <SmallcameraSvg /> Take a selfie
+            <SmallcameraSvg /> Take an selfie
             <input
               type="file"
               accept="image/*"
