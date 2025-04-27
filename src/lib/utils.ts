@@ -29,7 +29,6 @@ export type TGenerateTelegramLink = {
   eventId: string;
   userId: string;
   telegramUserId: string;
-  title: string;
 };
 
 export function generateTelegramMiniAppLink(
@@ -54,7 +53,7 @@ export function generateTelegramMiniAppLink(
 
   // console.log({ queryString });
 
-  const url = `${baseUrl}/zefe/?startapp=${encodeURIComponent(queryString)}`;
+  const url = `${baseUrl}/?startapp=${encodeURIComponent(queryString)}`;
   logToDiscord(url)
   return url
 }
