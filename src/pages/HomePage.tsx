@@ -82,7 +82,7 @@ export default function Home() {
 
   useEffect(() => {
     if (zefeUserId) {
-      void handleScannedConnection(navigate); // void to explicitly ignore returned promise
+      handleScannedConnection(navigate); // void to explicitly ignore returned promise
     }
   }, [navigate, isInitDataReady, zefeUserId]);
 
