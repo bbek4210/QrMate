@@ -28,8 +28,10 @@ import useGetUserProfile from "@/hooks/use-get-user-profile";
 import CompleteProfileDrawer from "@/components/connected-user/collect-role-project";
 import SplashScreen from "@/components/splash-screen";
 
+let hasAppInitialized = false;
+
 export default function Home() {
-  const [isFirstLoading, setIsFirstLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(!hasAppInitialized);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -143,11 +145,12 @@ export default function Home() {
 
   useEffect(() => {
     if (isInitDataReady && !isEventsLoading) {
-      setIsFirstLoading(false);
+      hasAppInitialized = true;
+      setShowSplash(false);
     }
   }, [isInitDataReady, isEventsLoading]);
 
-  if (isFirstLoading) {
+  if (showSplash) {
     return <SplashScreen />;
   }
 
