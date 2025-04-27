@@ -192,7 +192,7 @@ export default function Home() {
                 <Badge
                   key={index}
                   variant="red"
-                  onClick={() => setSelectedEventId(event.id.toString())}
+                  onClick={() => setSelectedEventId(event?.base_event?.id.toString())}
                   className={`cursor-pointer text-[0.9rem] ${
                     selectedEvent?.base_event?.id === event?.base_event?.id
                       ? "border-[#ffffff] bg-[#E30613]"
