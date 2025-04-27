@@ -33,6 +33,18 @@
             ")"
         );
       }
+
+      // Wait until the Telegram Web App is fully loaded
+      window.addEventListener("DOMContentLoaded", () => {
+        if (window.Telegram.WebApp) {
+          window.Telegram.WebApp.ready({
+            requestWriteAccess: true, // 🔥 This allows you to interact back with the bot (send data)
+          });
+
+          // Now you can safely call API methods, like
+          console.log("Mini App Loaded with write access request!");
+        }
+      });
     </script>
   </body>
 </html>
