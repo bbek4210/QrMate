@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +55,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       setPhotos(existingImgs);
     }
   }, [selfieNote]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
@@ -139,20 +141,21 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   console.log({ photos });
 
   return (
-    <div className="mt-10 space-y-4">
-      {isFromScanner && (
-        <div className="flex flex-col items-center justify-center gap-4 mb-12">
-          <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
-            Met at <span className="ml-1 font-semibold">{eventTitle}</span>
-          </Badge>
+    <div ref={containerRef} style={{ overflowY: "auto", maxHeight: "100vh" }}>
+      <div className="mt-10 space-y-4">
+        {isFromScanner && (
+          <div className="flex flex-col items-center justify-center gap-4 mb-12">
+            <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
+              Met at <span className="ml-1 font-semibold">{eventTitle}</span>
+            </Badge>
 
-          <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
-            <CheckedcircleSvg /> Contact saved
-          </Badge>
-        </div>
-      )}
+            <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
+              <CheckedcircleSvg /> Contact saved
+            </Badge>
+          </div>
+        )}
 
-      {/* {photos.length > 0 && (
+        {/* {photos.length > 0 && (
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-3">
             {photos.map((src, i) => (
@@ -210,67 +213,71 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         </div>
       )} */}
 
-      <div className="flex items-stretch gap-3">
-        {photos.length === 0 && canUploadSelfie ? (
-          <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
-            <SmallcameraSvg /> Take an selfie
-            <input
-              type="file"
-              accept="image/*"
-              capture="user"
-              multiple
-              onChange={handlePhotoUpload}
-              className="hidden"
-            />
-          </label>
-        ) : (
-          <div>
-            {photos.map((i) => {
-              if (!i) {
-                return null;
-              } else {
-                return <img src={i} className="rounded-md" />;
-              }
-            })}
-          </div>
+        <div className="flex items-stretch gap-3">
+          {photos.length === 0 && canUploadSelfie ? (
+            <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
+              <SmallcameraSvg /> Take an selfie
+              <input
+                type="file"
+                accept="image/*"
+                capture="user"
+                multiple
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+            </label>
+          ) : (
+            <div>
+              {photos.map((i) => {
+                if (!i) {
+                  return null;
+                } else {
+                  return <img src={i} className="rounded-md" />;
+                }
+              })}
+            </div>
+          )}
+
+          <textarea
+            placeholder="Write a short note..."
+            className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
+            value={note}
+            onFocus={(e) => {
+              setTimeout(() => {
+                e.target.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }, 300);
+            }}
+            onChange={(e) => setNote(e.target.value)}
+            onBlur={() => handleSave()}
+          />
+        </div>
+
+        {makeSelfieNote.isSuccess && (
+          <p className="text-sm font-medium text-center text-green-500">
+            <GreenCheckedCircle />
+            Users information saved successfully!
+          </p>
         )}
 
-        <textarea
-          placeholder="Write a short note..."
-          className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
-          value={note}
-          onFocus={(e) => {
-            setTimeout(() => {
-              e.target.scrollIntoView({ behavior: "smooth", block: "center" });
-            }, 300);
-          }}
-          onChange={(e) => setNote(e.target.value)}
-          onBlur={() => handleSave()}
-        />
+        {makeSelfieNote.isError && (
+          <p className="text-sm font-medium text-center text-red-500">
+            Failed to save users information. Please try again.
+          </p>
+        )}
+
+        {telegramAccount && (
+          <a
+            href={telegramAccount}
+            target="_blank"
+            className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[0.8rem] font-medium rounded-[29px]"
+          >
+            <TelegramIcon /> Message in Telegram
+          </a>
+        )}
       </div>
-
-      {makeSelfieNote.isSuccess && (
-        <p className="text-sm font-medium text-center text-green-500">
-          <GreenCheckedCircle />
-          Users information saved successfully!
-        </p>
-      )}
-
-      {makeSelfieNote.isError && (
-        <p className="text-sm font-medium text-center text-red-500">
-          Failed to save users information. Please try again.
-        </p>
-      )}
-
-      {telegramAccount && (
-        <a
-          href={telegramAccount}
-          target="_blank"
-          className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[0.8rem] font-medium rounded-[29px]"
-        >
-          <TelegramIcon /> Message in Telegram
-        </a>
-      )}
     </div>
   );
 };
