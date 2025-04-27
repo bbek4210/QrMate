@@ -225,9 +225,7 @@ const UpdateUserContainer = () => {
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
           <AvatarImage
             src={
-              avatar ||
-              user?.user_profile?.photo_url ||
-              "https://github.com/shadcn.png"
+              avatar || user?.data?.photo_url || "https://github.com/shadcn.png"
             }
           />
           <AvatarFallback>CN</AvatarFallback>
