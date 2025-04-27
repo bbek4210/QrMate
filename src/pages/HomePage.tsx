@@ -209,7 +209,6 @@ export default function Home() {
               <FancyQRCode
                 value={generateTelegramMiniAppLink({
                   eventId: selectedEvent?.id?.toString() ?? "",
-                  title: selectedEvent?.title ?? "",
                   userId: zefeUserId?.toString() ?? "",
                   telegramUserId: initData?.telegramUser?.id?.toString() ?? "",
                 })}

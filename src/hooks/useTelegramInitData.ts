@@ -77,6 +77,17 @@ const initializeZefeUser = async (user: TelegramUser) => {
   return response.data;
 };
 
+function parseStartParam(startParam: string) {
+  const decoded = decodeURIComponent(startParam);
+  const params = new URLSearchParams(decoded);
+
+  return {
+    eventId: params.get('eventId'),
+    userId: params.get('userId'),
+    title: params.get('title'),
+  };
+}
+
 export function useTelegramInitData() {
   const isLocal = import.meta.env.VITE_RUNNING_ENV === "development";
   const alreadyInitialized = useRef(false);
@@ -91,7 +102,7 @@ export function useTelegramInitData() {
       logToDiscord(JSON.stringify(launchParams))
 
       return {
-        startParam: launchParams.start_param || "",
+        startParam: launchParams?.start_param || "",
         user,
         authDate: new Date(Number(launchParams.auth_date) * 1000),
         hash: launchParams.hash || "",
@@ -114,11 +125,11 @@ export function useTelegramInitData() {
 
   const startParam = rawInitData?.startParam || "";
   if (startParam) {
-    logToDiscord("Start params" + JSON.stringify(startParam));
-    const decodedParam = decodeURIComponent(startParam as any);
-    logToDiscord("Decoded" + JSON.stringify(decodedParam));
-
+    logToDiscord("Start params: " + JSON.stringify(startParam));
+    const parsedStartParam = parseStartParam(startParam as string);
+    logToDiscord("Parsed Start Param: " + JSON.stringify(parsedStartParam));
   }
+  
 
   const {
     mutateAsync: fetchZefeUser,
