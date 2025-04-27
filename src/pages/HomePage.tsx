@@ -29,6 +29,8 @@ import CompleteProfileDrawer from "@/components/connected-user/collect-role-proj
 import SplashScreen from "@/components/splash-screen";
 
 export default function Home() {
+  const [isFirstLoading, setIsFirstLoading] = useState(true);
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -139,7 +141,13 @@ export default function Home() {
     }
   };
 
-  if (!isInitDataReady || isEventsLoading) {
+  useEffect(() => {
+    if (isInitDataReady && !isEventsLoading) {
+      setIsFirstLoading(false);
+    }
+  }, [isInitDataReady, isEventsLoading]);
+
+  if (isFirstLoading) {
     return <SplashScreen />;
   }
 
