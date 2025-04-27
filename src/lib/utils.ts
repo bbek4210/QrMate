@@ -58,7 +58,7 @@ export function generateTelegramMiniAppLink(
 }
 
 export function parseTelegramStartAppData() {
-  logToDiscord(JSON.stringify({ tg: window?.Telegram }));
+  logToDiscord(JSON.stringify({ tg: window?.Telegram, location: window.location }));
   if (typeof window === "undefined" || !window.Telegram?.WebApp) return null;
 
   const startParam = window.Telegram.WebApp.initDataUnsafe?.start_param;
