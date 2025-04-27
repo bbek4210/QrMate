@@ -80,7 +80,7 @@ const initializeZefeUser = async (user: TelegramUser) => {
   return response.data;
 };
 
-function parseStartParam(startParam: string) {
+export function parseStartParam(startParam: string) {
   const decoded = base64UrlDecode(startParam);
   const parsed = JSON.parse(decoded);
 

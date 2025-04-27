@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 import toast from "react-hot-toast";
+import { parseStartParam } from "@/hooks/useTelegramInitData";
 
 const QRCodeScanner = ({
   isScannerOpen,
@@ -27,9 +28,7 @@ const QRCodeScanner = ({
         const startapp = url.searchParams.get("startapp");
 
         if (startapp) {
-          const parsed = Object.fromEntries(
-            new URLSearchParams(decodeURIComponent(startapp))
-          );
+          const parsed = parseStartParam(startapp)
           setHasShownInvalidToast(false); // Reset for future invalids
           onScanSuccess(parsed);
         } else if (!hasShownInvalidToast) {
