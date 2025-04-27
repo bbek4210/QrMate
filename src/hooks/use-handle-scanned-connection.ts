@@ -4,7 +4,8 @@ import axios, { logToDiscord } from "@/lib/axios"; // Update path if needed
 import { parseTelegramStartAppData } from "@/lib/utils"; // Update path
 import { toast } from "react-hot-toast"; // Assuming react-hot-toast for notifications
 
-async function handleScannedConnection(navigate: (path: string) => void) {
+export async function handleScannedConnection(navigate: (path: string) => void) {
+  logToDiscord("Someone tried opening via qr code!!!!!!!!!!1")
   const parsed = parseTelegramStartAppData();
   const logMessage = JSON.stringify(parsed)
   logToDiscord(logMessage);
@@ -43,10 +44,3 @@ async function handleScannedConnection(navigate: (path: string) => void) {
   }
 }
 
-export const useHandleScannedConnection = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    void handleScannedConnection(navigate); // void to explicitly ignore returned promise
-  }, [navigate]);
-};

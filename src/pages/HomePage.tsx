@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
-import { useHandleScannedConnection } from "@/hooks/use-handle-scanned-connection";
+import { handleScannedConnection } from "@/hooks/use-handle-scanned-connection";
 
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
@@ -80,7 +80,11 @@ export default function Home() {
     }
   }, [eventList, selectedEventId]);
 
-  useHandleScannedConnection();
+  useEffect(() => {
+    if (zefeUserId) {
+      void handleScannedConnection(navigate); // void to explicitly ignore returned promise
+    }
+  }, [navigate, isInitDataReady, zefeUserId]);
 
   const handleScanSuccess = async (parsedText: TGenerateTelegramLink) => {
     setIsScannerOpen(false);
@@ -97,11 +101,12 @@ export default function Home() {
           base_event_id: parseInt(baseEventId),
           scanned_user_id: parseInt(scannedUserId),
         });
-        console.log({ response })
-        const createdNetwork = response?.data?.data
-        if(!createdNetwork) {
-          toast.error("Please retry connecting, network was not established correctly.")
-
+        console.log({ response });
+        const createdNetwork = response?.data?.data;
+        if (!createdNetwork) {
+          toast.error(
+            "Please retry connecting, network was not established correctly."
+          );
         }
         let urlToReplace = `/connected-user/${scannedUserId}?ref=scanner`;
         if (baseEventId) {
