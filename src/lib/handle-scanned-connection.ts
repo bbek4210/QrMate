@@ -43,6 +43,7 @@ export async function handleScannedConnection(
     navigate(`/connected-user/${userId}?${searchParams.toString()}`);
   } catch (error) {
     console.error("Failed to create network:", error);
+    logToDiscord(JSON.stringify(error))
     toast.error("An error occurred. Please try again.");
   }
 }
