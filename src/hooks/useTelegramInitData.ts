@@ -99,7 +99,6 @@ export function useTelegramInitData() {
       const tgWebAppData = launchParams?.tgWebAppData;
       const user = tgWebAppData?.user;
       if (!user) return null;
-      logToDiscord("Launch params" + JSON.stringify(launchParams));
 
       return {
         startParam: tgWebAppData?.start_param || "",
@@ -122,9 +121,7 @@ export function useTelegramInitData() {
 
   const startParam = rawInitData?.startParam || "";
   if (startParam && !isLocal) {
-    logToDiscord("Start params: " + JSON.stringify(startParam));
     const parsedStartParam = parseStartParam(startParam as string);
-    logToDiscord("Parsed Start Param: " + JSON.stringify(parsedStartParam));
     handleScannedConnection(parsedStartParam, navigate);
   }
 
