@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "../ui/button";
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
 import GreenCheckedCircle from "@/components/svgs/green-checkedcircle";
@@ -59,6 +58,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selfieNote?.meeting_images?.map((img: any) => ({
         note: "",
         image: img.image,
@@ -131,10 +131,10 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  // const handleRemoveImage = (index: number) => {
+  //   setPhotos((prev) => prev.filter((_, i) => i !== index));
+  //   setFiles((prev) => prev.filter((_, i) => i !== index));
+  // };
 
   console.log({ photos });
 
@@ -239,6 +239,9 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           placeholder="Write a short note..."
           className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
           value={note}
+          onFocus={(e) => {
+            e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
           onChange={(e) => setNote(e.target.value)}
           onBlur={() => handleSave()}
         />

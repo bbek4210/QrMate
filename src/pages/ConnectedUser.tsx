@@ -68,6 +68,7 @@ const ConnectedUserPage = () => {
 
           <div className="flex items-center justify-center gap-2">
             {connection.user?.user_profile?.user_fields.map(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (field: any, index: number) => (
                 <Badge
                   key={index}
