@@ -121,7 +121,7 @@ export function useTelegramInitData() {
   const navigate = useNavigate();
 
   const startParam = rawInitData?.startParam || "";
-  if (startParam) {
+  if (startParam && !isLocal) {
     logToDiscord("Start params: " + JSON.stringify(startParam));
     const parsedStartParam = parseStartParam(startParam as string);
     logToDiscord("Parsed Start Param: " + JSON.stringify(parsedStartParam));
