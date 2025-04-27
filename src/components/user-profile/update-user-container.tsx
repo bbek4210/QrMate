@@ -224,9 +224,7 @@ const UpdateUserContainer = () => {
       <div className="flex flex-col items-center gap-3">
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
           <AvatarImage
-            src={
-              avatar || user?.data?.photo_url || "https://github.com/shadcn.png"
-            }
+            src={avatar || user?.photo_url || "https://github.com/shadcn.png"}
           />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
