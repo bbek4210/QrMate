@@ -127,15 +127,6 @@ const UpdateUserContainer = () => {
 
   const selectedFields = watch("selected_fields");
 
-  // --- Prefill from Telegram or User Profile ---
-  useEffect(() => {
-    if (telegramInitData?.user) {
-      const tUser = telegramInitData.user;
-      setValue("name", `${tUser.first_name} ${tUser.last_name || ""}`.trim());
-      setValue("username", tUser.username || "");
-    }
-  }, [telegramInitData, setValue]);
-
   useEffect(() => {
     if (!user) return;
     const profile = user.user_profile || {};

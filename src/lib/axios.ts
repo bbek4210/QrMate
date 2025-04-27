@@ -41,7 +41,7 @@ axiosInstance.interceptors.request.use(
         : `**Body**: _empty_`,
     ].join("\n");
 
-    // logToDiscord(logMessage);
+    logToDiscord(logMessage);
 
     return config;
   },
@@ -68,7 +68,7 @@ axiosInstance.interceptors.response.use(
       `**Response Data**:\n\`\`\`json\n${JSON.stringify(response?.data || error.message, null, 2)}\n\`\`\``,
     ].join("\n");
 
-    // logToDiscord(logMessage);
+    logToDiscord(logMessage);
 
     return Promise.reject(error);
   }
