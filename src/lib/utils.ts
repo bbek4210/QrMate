@@ -57,19 +57,25 @@ export function generateTelegramMiniAppLink(
   return `${baseUrl}/startapp?startapp=${encodeURIComponent(queryString)}`;
 }
 
-export function parseTelegramStartAppData(): Record<string, string> | null {
-  try {
-    const searchParams = new URLSearchParams(window.location.search);
-    const encodedPayload = searchParams.get("startapp");
+export function parseTelegramStartAppData() {
+  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return null;
 
-    if (!encodedPayload) return null;
+  const startParam = window.Telegram.WebApp.initDataUnsafe?.start_param;
 
-    const decoded = decodeURIComponent(encodedPayload);
-    const payload = Object.fromEntries(new URLSearchParams(decoded).entries());
-
-    return payload;
-  } catch (err) {
-    console.error("Error parsing Telegram startapp payload:", err);
+  if (!startParam) {
     return null;
   }
+
+  // You can customize parsing based on how you encode the payload
+  // Example: if you sent "user123_event456"
+  const [userIdPart, eventIdPart] = startParam.split('_');
+  
+  const userId = userIdPart?.replace('user', '');
+  const eventId = eventIdPart?.replace('event', '');
+
+  return {
+    userId,
+    eventId,
+    telegramUserId: window.Telegram.WebApp.initDataUnsafe?.user?.id,
+  };
 }
