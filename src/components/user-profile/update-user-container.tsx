@@ -220,7 +220,6 @@ const UpdateUserContainer = () => {
       className="flex flex-col gap-8 pb-8 mt-12 grow"
       noValidate
     >
-      {/* --- Avatar Upload --- */}
       <div className="flex flex-col items-center gap-3">
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
           <AvatarImage
