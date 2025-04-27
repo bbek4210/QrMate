@@ -151,7 +151,6 @@ const UpdateUserContainer = () => {
     const selectedFieldIds =
       profile.user_fields?.map((f: { id: number }) => f.id) || [];
     setValue("selected_fields", selectedFieldIds);
-    if (user.photo_url) setAvatar(profile.photo_url);
   }, [user, setValue]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,6 +165,7 @@ const UpdateUserContainer = () => {
       if (!uploadedUrl) throw new Error("No URL returned");
 
       setAvatar(uploadedUrl);
+
       toast.success("Profile picture uploaded");
 
       // 🚀 Immediately save photo_url
@@ -223,7 +223,13 @@ const UpdateUserContainer = () => {
       {/* --- Avatar Upload --- */}
       <div className="flex flex-col items-center gap-3">
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
-          <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
+          <AvatarImage
+            src={
+              avatar ||
+              user?.user_profile?.photo_url ||
+              "https://github.com/shadcn.png"
+            }
+          />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <label
