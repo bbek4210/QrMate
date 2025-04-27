@@ -5,7 +5,7 @@ const UserProfileHeader = () => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <BackButtonSvg />
+        <BackButtonSvg to="/" />
         <h2 className="text-[#ffffff] text-[24px] font-medium">Your profile</h2>
       </div>
       {/* <LogoutButtonSvg /> */}

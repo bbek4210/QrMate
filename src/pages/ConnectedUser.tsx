@@ -29,7 +29,7 @@ const ConnectedUserPage = () => {
     isError,
     refetch,
   } = useGetConnectionProfile(numericId);
-  const { data, refetch: refetchUserProfile } = useGetUserProfile();
+  const { data } = useGetUserProfile();
 
   if (isLoading) return <p className="mt-10 text-center text-white"></p>;
   if (isError || !connection)
