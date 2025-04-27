@@ -11,11 +11,14 @@ import {
 import useSendFeedback from "@/hooks/useSendFeedback";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import useGetUserProfile from "@/hooks/use-get-user-profile";
 
 const UserProfileFooter = () => {
   const [isFeedbackDrawerOpen, setIsFeedbackDrawerOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [image, setImage] = useState<File | null>(null);
+
+  const {} = useGetUserProfile()
 
   const sendFeedback = useSendFeedback();
 

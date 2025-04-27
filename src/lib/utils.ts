@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import axiosInstance from "./axios";
+import axiosInstance, { logToDiscord } from "./axios";
 import { User } from "@telegram-apps/sdk-react";
 
 export function cn(...inputs: ClassValue[]) {
@@ -54,13 +54,15 @@ export function generateTelegramMiniAppLink(
 
   // console.log({ queryString });
 
-  return `${baseUrl}/zefe?startapp=${encodeURIComponent(queryString)}`;
+  return `${baseUrl}/zefe/?startapp=${encodeURIComponent(queryString)}`;
 }
 
 export function parseTelegramStartAppData() {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return null;
+  logToDiscord(JSON.stringify({ tg: window?.Telegram }));
+  if (typeof window === "undefined" || !window.Telegram?.WebApp) return null;
 
   const startParam = window.Telegram.WebApp.initDataUnsafe?.start_param;
+  logToDiscord(JSON.stringify({ startParam}));
 
   if (!startParam) {
     return null;
@@ -68,10 +70,10 @@ export function parseTelegramStartAppData() {
 
   // You can customize parsing based on how you encode the payload
   // Example: if you sent "user123_event456"
-  const [userIdPart, eventIdPart] = startParam.split('_');
-  
-  const userId = userIdPart?.replace('user', '');
-  const eventId = eventIdPart?.replace('event', '');
+  const [userIdPart, eventIdPart] = startParam.split("_");
+
+  const userId = userIdPart?.replace("user", "");
+  const eventId = eventIdPart?.replace("event", "");
 
   return {
     userId,
