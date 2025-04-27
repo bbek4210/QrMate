@@ -173,7 +173,7 @@ export default function Home() {
 
           <div className="px-3 py-2">
             <p className="text-[#DDCCCC] font-semibold text-[22px]">
-              You are att
+              You are at
             </p>
 
             <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">

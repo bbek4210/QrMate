@@ -56,7 +56,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     }
   }, [selfieNote]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSave = async (incomingFiles?: File[]) => {
     const currentImages =
@@ -141,7 +141,14 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   console.log({ photos });
 
   return (
-    <div ref={containerRef} style={{ overflowY: "auto", maxHeight: "100vh" }}>
+    <div
+      id="scroll-container"
+      style={{
+        overflowY: "auto",
+        maxHeight: "100vh",
+        padding: "16px",
+      }}
+    >
       <div className="mt-10 space-y-4">
         {isFromScanner && (
           <div className="flex flex-col items-center justify-center gap-4 mb-12">
@@ -239,16 +246,24 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           )}
 
           <textarea
+            ref={textareaRef}
             placeholder="Write a short note..."
             className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
             value={note}
-            onFocus={(e) => {
+            onFocus={() => {
+              const container = document.getElementById("scroll-container");
               setTimeout(() => {
-                e.target.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                });
-              }, 300);
+                if (textareaRef.current && container) {
+                  textareaRef.current.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                  container.scrollTo({
+                    top: textareaRef.current.offsetTop - 100,
+                    behavior: "smooth",
+                  });
+                }
+              }, 400);
             }}
             onChange={(e) => setNote(e.target.value)}
             onBlur={() => handleSave()}
