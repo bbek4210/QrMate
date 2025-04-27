@@ -5,7 +5,7 @@ import UserProfileHeader from "@/components/user-profile/user-profile-header";
 
 const UserProfilePage = () => {
   return (
-    <main className="px-4 py-3 h-[100dvh] flex flex-col pt-24">
+    <main className="px-4 py-3 h-[100dvh] flex flex-col pt-[105px]">
       <UserProfileHeader />
       <UserProfileContainer />
       <UserProfileFooter />
