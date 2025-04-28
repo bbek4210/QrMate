@@ -1,6 +1,6 @@
 import { toast } from "react-hot-toast";
-import axios, { logToDiscord } from "@/lib/axios"; // Adjust the path if necessary
-import { NavigateFunction } from "react-router-dom"; // Correct typing for navigate
+import axios, { logToDiscord } from "@/lib/axios"; // Adjust path if needed
+import { NavigateFunction } from "react-router-dom";
 
 type ParsedConnectionData = {
   userId: string;
@@ -13,26 +13,41 @@ export async function handleScannedConnection(
   navigate: NavigateFunction
 ): Promise<void> {
   const { userId, eventId, telegramUserId } = parsed;
-  const locallyScannedUserIds: number[] =
-    JSON.parse(localStorage.getItem("locallyScannedUserIds") || "") || [];
 
   if (!userId) {
     toast.error("User ID is missing. Cannot continue.");
     return;
   }
 
-  if (locallyScannedUserIds.includes(parseInt(userId))) {
+  let locallyScannedUserIds: number[] = [];
+  try {
+    const stored = localStorage.getItem("locallyScannedUserIds");
+    if (stored) {
+      const parsedStored = JSON.parse(stored);
+      if (Array.isArray(parsedStored)) {
+        locallyScannedUserIds = parsedStored;
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to parse locallyScannedUserIds:", error);
+  }
+
+  const parsedUserId = parseInt(userId, 10);
+
+  if (locallyScannedUserIds.includes(parsedUserId)) {
+    console.info(`User ID ${parsedUserId} already scanned.`);
     return;
   }
 
   try {
     if (eventId) {
-      const { data } = await axios.post("/create-a-network/", {
-        base_event_id: parseInt(eventId),
-        scanned_user_id: parseInt(userId),
+      const response = await axios.post("/create-a-network/", {
+        base_event_id: parseInt(eventId, 10),
+        scanned_user_id: parsedUserId,
       });
 
-      const createdNetwork = data?.data;
+      const createdNetwork = response?.data?.data;
+
       if (!createdNetwork) {
         toast.error("Connection failed. Please retry.");
         return;
@@ -41,19 +56,30 @@ export async function handleScannedConnection(
       // Build the navigation URL
       const searchParams = new URLSearchParams({
         ref: "scanner",
-        ...(eventId && { event_id: eventId.toString() }),
-        ...(telegramUserId && { telegram_user_id: telegramUserId.toString() }),
+        ...(eventId && { event_id: eventId }),
+        ...(telegramUserId && { telegram_user_id: telegramUserId }),
       });
 
       await navigate(`/connected-user/${userId}?${searchParams.toString()}`);
+
+      // Update localStorage to mark as scanned
+      const updatedUserIds = Array.from(
+        new Set([...locallyScannedUserIds, parsedUserId])
+      );
       localStorage.setItem(
         "locallyScannedUserIds",
-        JSON.stringify([...locallyScannedUserIds, parseInt(userId)])
+        JSON.stringify(updatedUserIds)
       );
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to create network:", error);
-    logToDiscord(JSON.stringify(error));
-    toast.error("An error occurred. Please try again.");
+    logToDiscord(
+      JSON.stringify({
+        error: error?.message || "Unknown error",
+        stack: error?.stack,
+        context: { userId, eventId, telegramUserId },
+      })
+    );
+    toast.error("An unexpected error occurred. Please try again.");
   }
 }
