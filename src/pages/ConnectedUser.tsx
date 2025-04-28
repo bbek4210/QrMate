@@ -42,7 +42,7 @@ const ConnectedUserPage = () => {
     <>
       <main className="max-w-md p-4 pt-28 mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2">
           <BackButtonSvg to="/networks-and-connections" />
           {/* <h2 className="text-[24px] text-[#F4F4F4] font-medium">
             @{connection.user?.username}
