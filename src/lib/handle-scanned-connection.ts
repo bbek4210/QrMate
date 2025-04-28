@@ -61,15 +61,6 @@ export async function handleScannedConnection(
       });
 
       await navigate(`/connected-user/${userId}?${searchParams.toString()}`);
-
-      // Update localStorage to mark as scanned
-      const updatedUserIds = Array.from(
-        new Set([...locallyScannedUserIds, parsedUserId])
-      );
-      localStorage.setItem(
-        "locallyScannedUserIds",
-        JSON.stringify(updatedUserIds)
-      );
     }
   } catch (error: any) {
     console.error("Failed to create network:", error);

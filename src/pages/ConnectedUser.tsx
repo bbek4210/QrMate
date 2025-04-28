@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,28 +31,28 @@ const ConnectedUserPage = () => {
     refetch,
   } = useGetConnectionProfile(data?.data?.id, numericId as number);
 
-  // useEffect(() => {
-  //   let locallyScannedUserIds = [];
-  //   try {
-  //     const storedData = localStorage.getItem("locallyScannedUserIds");
-  //     if (storedData) {
-  //       locallyScannedUserIds = JSON.parse(storedData);
-  //       if (!Array.isArray(locallyScannedUserIds)) {
-  //         locallyScannedUserIds = [];
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to parse locallyScannedUserIds:", error);
-  //     locallyScannedUserIds = [];
-  //   }
+  useEffect(() => {
+    let locallyScannedUserIds = [];
+    try {
+      const storedData = localStorage.getItem("locallyScannedUserIds");
+      if (storedData) {
+        locallyScannedUserIds = JSON.parse(storedData);
+        if (!Array.isArray(locallyScannedUserIds)) {
+          locallyScannedUserIds = [];
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse locallyScannedUserIds:", error);
+      locallyScannedUserIds = [];
+    }
 
-  //   console.log({ locallyScannedUserIds });
+    console.log({ locallyScannedUserIds });
 
-  //   if (id && data) {
-  //     const updatedUserIds = Array.from(new Set([...locallyScannedUserIds, parseInt(id)]));
-  //     localStorage.setItem("locallyScannedUserIds", JSON.stringify(updatedUserIds));
-  //   }
-  // }, [data]);
+    if (id && data?.data) {
+      const updatedUserIds = Array.from(new Set([...locallyScannedUserIds, parseInt(id)]));
+      localStorage.setItem("locallyScannedUserIds", JSON.stringify(updatedUserIds));
+    }
+  }, [data?.data]);
 
   if (isLoading) return <p className="mt-10 text-center text-white"></p>;
   if (isError || !connection)
