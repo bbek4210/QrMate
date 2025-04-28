@@ -340,6 +340,7 @@ const UpdateUserContainer = () => {
           id="terms"
           checked={termsAccepted}
           onCheckedChange={(checked) => setTermsAccepted(!!checked)}
+          className="data-[state=checked]:bg-[#5A41FF] data-[state=checked]:border-[#5A41FF]"
         />
         <label htmlFor="terms" className="text-sm font-medium">
           I agree to receive updates from Zefe.
