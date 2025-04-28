@@ -22,14 +22,14 @@ import useGetUserProfile from "@/hooks/use-get-user-profile";
 const ConnectedUserPage = () => {
   const { id } = useParams();
   const numericId = typeof id === "string" ? parseInt(id, 10) : undefined;
+  const { data } = useGetUserProfile();
 
   const {
     data: connection,
     isLoading,
     isError,
     refetch,
-  } = useGetConnectionProfile(numericId);
-  const { data } = useGetUserProfile();
+  } = useGetConnectionProfile(data?.data?.id, numericId as number);
 
   // useEffect(() => {  
   //   let locallyScannedUserIds = [];
