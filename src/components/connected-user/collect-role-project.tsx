@@ -75,7 +75,7 @@ const profileUpdateSchema = z.object({
 interface CompleteProfileDrawerProps {
   isOpen: boolean;
   onComplete: () => void;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const CompleteProfileDrawer = ({

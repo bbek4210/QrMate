@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,7 @@ const ConnectedUserPage = () => {
     refetch,
   } = useGetConnectionProfile(data?.data?.id, numericId as number);
 
-  // useEffect(() => {  
+  // useEffect(() => {
   //   let locallyScannedUserIds = [];
   //   try {
   //     const storedData = localStorage.getItem("locallyScannedUserIds");
@@ -45,15 +45,14 @@ const ConnectedUserPage = () => {
   //     console.error("Failed to parse locallyScannedUserIds:", error);
   //     locallyScannedUserIds = [];
   //   }
-  
+
   //   console.log({ locallyScannedUserIds });
-  
+
   //   if (id && data) {
   //     const updatedUserIds = Array.from(new Set([...locallyScannedUserIds, parseInt(id)]));
   //     localStorage.setItem("locallyScannedUserIds", JSON.stringify(updatedUserIds));
   //   }
   // }, [data]);
-  
 
   if (isLoading) return <p className="mt-10 text-center text-white"></p>;
   if (isError || !connection)
@@ -174,7 +173,11 @@ const ConnectedUserPage = () => {
       </main>
       {userProfile &&
         (!userProfile?.position || !userProfile?.project_name) && (
-          <CompleteProfileDrawer isOpen={true} onComplete={refetch} />
+          <CompleteProfileDrawer
+            onOpenChange={() => {}}
+            isOpen={true}
+            onComplete={refetch}
+          />
         )}
     </>
   );
