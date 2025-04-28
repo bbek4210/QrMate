@@ -249,9 +249,14 @@ export default function Home() {
         <CompleteProfileDrawer
           isOpen={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
-          onComplete={() => {
-            refetchUserProfile();
-            setIsDrawerOpen(false);
+          onComplete={async () => {
+            const result = await refetchUserProfile();
+            const updatedProfile = result.data?.data?.user_profile;
+            if (updatedProfile?.position && updatedProfile?.project_name) {
+              setIsDrawerOpen(false);
+            } else {
+              setIsDrawerOpen(true);
+            }
           }}
         />
       )}
