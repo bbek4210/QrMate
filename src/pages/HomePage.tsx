@@ -221,7 +221,7 @@ export default function Home() {
                 })}
               />
 
-              <p className="px-4 py-2 mt-4 text-base font-medium text-[1rem] text-white bg-[#ED2944] rounded-[29px] border border-white">
+              <p className="px-4 py-2 mt-4 text-base font-medium text-[14px] text-white bg-[#ED2944] rounded-[29px] border border-white">
                 You are at {selectedEvent.title}
               </p>
             </div>
