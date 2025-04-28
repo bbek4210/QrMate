@@ -36,8 +36,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const isFromScanner = searchParams.get("ref") === "scanner";
   const canUploadSelfie = isFromScanner;
 
-  console.log({ canUploadSelfie });
-
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
@@ -96,19 +94,16 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       const fileList = incomingFiles ?? files; // Prefer incomingFiles if provided, otherwise fallback to state
 
-      console.log({ m: uploadFileMutation.isPending, i: fileList.length });
 
       if (fileList.length > 0 && !uploadFileMutation.isPending) {
         const uploads = fileList.map((file) => {
           const extension = file.name.split(".").pop() || "jpg";
           const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}.${extension}`;
-          console.log({ key });
           return uploadFileMutation.mutateAsync({ file, key });
         });
 
         const results = await Promise.all(uploads);
         newImages = results.map((res) => {
-          console.log({ res });
           return {
             note: "",
             image: res?.data?.file_url,
@@ -144,7 +139,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter((f) => f.size > 0);
 
-    console.log({ selectedFiles, validFiles });
 
     if (validFiles.length) {
       const correctedImages = await Promise.all(
@@ -178,8 +172,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   //   setPhotos((prev) => prev.filter((_, i) => i !== index));
   //   setFiles((prev) => prev.filter((_, i) => i !== index));
   // };
-
-  console.log({ photos });
 
   return (
     <div>
