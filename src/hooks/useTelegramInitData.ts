@@ -137,6 +137,7 @@ export function useTelegramInitData() {
     alreadyInitialized.current = true;
     await fetchZefeUser(telegramUser);
 
+
     const startParam = rawInitData?.startParam || "";
     if (startParam && !isLocal) {
       const parsedStartParam = parseStartParam(startParam as string);

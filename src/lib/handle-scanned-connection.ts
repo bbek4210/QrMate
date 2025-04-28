@@ -13,9 +13,15 @@ export async function handleScannedConnection(
   navigate: NavigateFunction
 ): Promise<void> {
   const { userId, eventId, telegramUserId } = parsed;
+  const locallyScannedUserIds: number[] =
+    JSON.parse(localStorage.getItem("locallyScannedUserIds") || "") || [];
 
   if (!userId) {
     toast.error("User ID is missing. Cannot continue.");
+    return;
+  }
+
+  if (locallyScannedUserIds.includes(parseInt(userId))) {
     return;
   }
 
@@ -31,19 +37,23 @@ export async function handleScannedConnection(
         toast.error("Connection failed. Please retry.");
         return;
       }
+
+      localStorage.setItem(
+        "locallyScannedUserIds",
+        JSON.stringify([...locallyScannedUserIds, parseInt(userId)])
+      );
+      // Build the navigation URL
+      const searchParams = new URLSearchParams({
+        ref: "scanner",
+        ...(eventId && { event_id: eventId.toString() }),
+        ...(telegramUserId && { telegram_user_id: telegramUserId.toString() }),
+      });
+
+      navigate(`/connected-user/${userId}?${searchParams.toString()}`);
     }
-
-    // Build the navigation URL
-    const searchParams = new URLSearchParams({
-      ref: "scanner",
-      ...(eventId && { event_id: eventId.toString() }),
-      ...(telegramUserId && { telegram_user_id: telegramUserId.toString() }),
-    });
-
-    navigate(`/connected-user/${userId}?${searchParams.toString()}`);
   } catch (error) {
     console.error("Failed to create network:", error);
-    logToDiscord(JSON.stringify(error))
+    logToDiscord(JSON.stringify(error));
     toast.error("An error occurred. Please try again.");
   }
 }
