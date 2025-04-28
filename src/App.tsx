@@ -12,7 +12,7 @@ const App = () => {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
-  }, []);
+  }, [window.Telegram, window.Telegram?.WebApp]);
 
   return (
     <Routes>

@@ -119,12 +119,6 @@ export function useTelegramInitData() {
   const telegramUser = rawInitData?.user ?? null;
   const navigate = useNavigate();
 
-  const startParam = rawInitData?.startParam || "";
-  if (startParam && !isLocal) {
-    const parsedStartParam = parseStartParam(startParam as string);
-    handleScannedConnection(parsedStartParam, navigate);
-  }
-
   const {
     mutateAsync: fetchZefeUser,
     data: zefeInitializationData,
@@ -137,11 +131,21 @@ export function useTelegramInitData() {
 
   const zefeUser = zefeInitializationData?.data?.data;
 
-  useEffect(() => {
+  const handleAppInitialization = async () => {
     if (!telegramUser || alreadyInitialized.current) return;
 
     alreadyInitialized.current = true;
-    fetchZefeUser(telegramUser);
+    await fetchZefeUser(telegramUser);
+
+    const startParam = rawInitData?.startParam || "";
+    if (startParam && !isLocal) {
+      const parsedStartParam = parseStartParam(startParam as string);
+      await handleScannedConnection(parsedStartParam, navigate);
+    }
+  };
+
+  useEffect(() => {
+    handleAppInitialization()
   }, [telegramUser, fetchZefeUser]);
 
   return useMemo(() => {
