@@ -38,10 +38,6 @@ export async function handleScannedConnection(
         return;
       }
 
-      localStorage.setItem(
-        "locallyScannedUserIds",
-        JSON.stringify([...locallyScannedUserIds, parseInt(userId)])
-      );
       // Build the navigation URL
       const searchParams = new URLSearchParams({
         ref: "scanner",
@@ -49,7 +45,11 @@ export async function handleScannedConnection(
         ...(telegramUserId && { telegram_user_id: telegramUserId.toString() }),
       });
 
-      navigate(`/connected-user/${userId}?${searchParams.toString()}`);
+      await navigate(`/connected-user/${userId}?${searchParams.toString()}`);
+      localStorage.setItem(
+        "locallyScannedUserIds",
+        JSON.stringify([...locallyScannedUserIds, parseInt(userId)])
+      );
     }
   } catch (error) {
     console.error("Failed to create network:", error);
