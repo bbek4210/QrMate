@@ -44,9 +44,9 @@ const ConnectedUserPage = () => {
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
           <BackButtonSvg to="/networks-and-connections" />
-          <h2 className="text-[24px] text-[#F4F4F4] font-medium">
+          {/* <h2 className="text-[24px] text-[#F4F4F4] font-medium">
             @{connection.user?.username}
-          </h2>
+          </h2> */}
         </div>
 
         {/* Profile Info */}
