@@ -35,7 +35,7 @@ axiosInstance.interceptors.request.use(
       `🔄 **API REQUEST**`,
       `**Method**: ${config.method?.toUpperCase()}`,
       `**URL**: ${config.baseURL}${config.url}`,
-      `**Headers**:\n\`\`\`json\n${JSON.stringify(config.headers, null, 2)}\n\`\`\``,
+      `**Headers**:\n\`\`\`json\n${JSON.stringify(config.headers.Authorization, null, 2)}\n\`\`\``,
       config.data
         ? `**Body**:\n\`\`\`json\n${JSON.stringify(config.data, null, 2)}\n\`\`\``
         : `**Body**: _empty_`,
@@ -58,6 +58,7 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     const { config, response } = error;
+    console.log({ response })
 
     const logMessage = [
       `❌ **API ERROR**`,
