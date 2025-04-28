@@ -36,7 +36,6 @@ const ConnectedUserPage = () => {
     return (
       <p className="mt-10 text-center text-red-500">Failed to load profile</p>
     );
-  console.log("Connection data:", connection);
   const userProfile = data?.data?.user_profile;
   return (
     <>

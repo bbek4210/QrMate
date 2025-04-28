@@ -1,4 +1,3 @@
-// hooks/useGetSelfieNote.ts
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { QUERY_KEYS } from "@/lib/query-keys";
