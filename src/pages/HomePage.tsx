@@ -248,7 +248,8 @@ export default function Home() {
 
       {isDrawerOpen && (
         <CompleteProfileDrawer
-          isOpen={true}
+          isOpen={isDrawerOpen}
+          onOpenChange={setIsDrawerOpen}
           onComplete={() => {
             refetchUserProfile();
             setIsDrawerOpen(false);

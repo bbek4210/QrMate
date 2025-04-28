@@ -75,11 +75,13 @@ const profileUpdateSchema = z.object({
 interface CompleteProfileDrawerProps {
   isOpen: boolean;
   onComplete: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 const CompleteProfileDrawer = ({
   isOpen,
   onComplete,
+  onOpenChange,
 }: CompleteProfileDrawerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -114,7 +116,7 @@ const CompleteProfileDrawer = ({
   if (!isOpen) return null;
 
   return (
-    <Drawer open={isOpen}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
       <DrawerContent className="px-6 py-8 bg-[#232322]">
         <DrawerHeader>
           <DrawerTitle className="text-lg font-semibold text-center text-white">
