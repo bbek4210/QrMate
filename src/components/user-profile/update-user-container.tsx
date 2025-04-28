@@ -21,7 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import useUpdateUserProfile from "@/hooks/useUpdateUserProfile";
 import useUploadFile from "@/hooks/use-upload-file";
 import { useFieldOptions } from "@/hooks/use-field-options";
-import { useTelegramInitData } from "@/hooks/useTelegramInitData";
+// import { useTelegramInitData } from "@/hooks/useTelegramInitData";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import { Button } from "../ui/button";
 
@@ -98,7 +98,7 @@ const UpdateUserContainer = () => {
 
   const { data, refetch } = useGetUserProfile();
   const user = data?.data;
-  const telegramInitData = useTelegramInitData();
+  // const telegramInitData = useTelegramInitData();
   const { fieldOptions } = useFieldOptions();
   const { mutateAsync } = useUpdateUserProfile();
   const uploadFileMutation = useUploadFile();
