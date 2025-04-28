@@ -40,11 +40,11 @@ const fetchConnectionProfile = async (id: number) => {
   return response.data.data as DetailedNetworkConnection;
 };
 
-const useGetConnectionProfile = (id?: number) => {
+const useGetConnectionProfile = (currentUserId: number, connectedUserId: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_CONNECTION_PROFILE, id],
-    queryFn: () => fetchConnectionProfile(id!),
-    enabled: !!id,
+    queryKey: [QUERY_KEYS.GET_CONNECTION_PROFILE, connectedUserId],
+    queryFn: () => fetchConnectionProfile(connectedUserId),
+    enabled: !!connectedUserId && !!currentUserId,
   });
 };
 
