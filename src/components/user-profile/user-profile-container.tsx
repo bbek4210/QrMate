@@ -27,12 +27,12 @@ const UserProfileContainer = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mt-12 grow">
-      <Avatar className="rounded-[36px] w-[100px] h-[100px]">
+      <Avatar className="rounded-[36px] w-[100px] h-[100px] mb-3">
         <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
         <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 mb-2">
         <h1 className="font-medium text-[26px] text-[#ffffff] uppercase text-center">
           {user?.name || "No Name Provided"}
         </h1>

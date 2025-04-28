@@ -21,8 +21,8 @@ const BackButtonSvg: React.FC<BackButtonSvgProps> = ({ to, fallback = -1 }) => {
     <svg
       onClick={handleClick}
       xmlns="http://www.w3.org/2000/svg"
-      width="48"
-      height="48"
+      width="42"
+      height="42"
       viewBox="0 0 48 48"
     >
       <defs>
