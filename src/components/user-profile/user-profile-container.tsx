@@ -27,7 +27,7 @@ const UserProfileContainer = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mt-12 grow">
-      <Avatar className="rounded-[36px] w-[144px] h-[144px]">
+      <Avatar className="rounded-[36px] w-[100px] h-[100px]">
         <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
         <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
       </Avatar>
@@ -52,7 +52,7 @@ const UserProfileContainer = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 text-white text-[0.85rem] font-medium">
+      <div className="flex flex-col gap-2 text-white text-[0.85rem] font-medium pt-4">
         {user?.user_profile?.position && (
           <div className="flex items-center gap-3">
             <PositionIcon />
@@ -73,7 +73,7 @@ const UserProfileContainer = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 pt-4">
         {user?.user_profile?.twitter_account && (
           <a
             href={
