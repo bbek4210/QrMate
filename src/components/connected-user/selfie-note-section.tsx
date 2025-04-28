@@ -6,7 +6,6 @@ import { useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
-import GreenCheckedCircle from "@/components/svgs/green-checkedcircle";
 import SmallcameraSvg from "@/components/svgs/smallcamera";
 import { TelegramIcon } from "@/components/svgs/social-icons";
 
@@ -290,12 +289,12 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           />
         </div>
 
-        {makeSelfieNote.isSuccess && (
+        {/* {makeSelfieNote.isSuccess && (
           <p className="text-sm font-medium text-center text-green-500">
             <GreenCheckedCircle />
             Users information saved successfully!
           </p>
-        )}
+        )} */}
 
         {makeSelfieNote.isError && (
           <p className="text-sm font-medium text-center text-red-500">
