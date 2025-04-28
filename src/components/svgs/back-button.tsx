@@ -23,7 +23,7 @@ const BackButtonSvg: React.FC<BackButtonSvgProps> = ({ to, fallback = -1 }) => {
       alt="Back"
       onClick={handleClick}
       className="cursor-pointer"
-      style={{ width: "16px", height: "13px" }}
+      style={{ width: "36px", height: "36px" }}
     />
   );
 };
