@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
@@ -91,14 +91,14 @@ const positionOptions = [
 ];
 
 const UpdateUserContainer = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
 
   const { data, refetch } = useGetUserProfile();
   const user = data?.data;
-  // const telegramInitData = useTelegramInitData();
+  // User authentication data will be handled differently in web version
   const { fieldOptions } = useFieldOptions();
   const { mutateAsync } = useUpdateUserProfile();
   const uploadFileMutation = useUploadFile();
@@ -197,7 +197,7 @@ const UpdateUserContainer = () => {
         photo_url: avatar || undefined,
       });
       toast.success("Profile updated successfully");
-      navigate("/user");
+      router.push("/user");
     } catch {
       toast.error("Failed to update profile");
     } finally {

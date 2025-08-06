@@ -1,24 +1,21 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import axiosInstance, { logToDiscord } from "./axios";
-import { User } from "@telegram-apps/sdk-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const fetchUserData = async (initData: any) => {
-  const user = initData?.user as User;
-
-  if (!user) {
-    throw new Error("Telegram user data not found.");
+export const fetchUserData = async (userData: any) => {
+  if (!userData) {
+    throw new Error("User data not found.");
   }
 
   const payload = {
-    name: `${user.first_name} ${user.last_name}`,
-    username: user.username,
-    telegram_id: user.id,
+    name: userData.name,
+    username: userData.username,
+    user_id: userData.id,
   };
 
   const response = await axiosInstance.post("/init/", payload);
@@ -49,15 +46,7 @@ export function base64UrlDecode(input: string): string {
 export function generateTelegramMiniAppLink(
   payload: TGenerateTelegramLink
 ): string {
-  const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME;
-
-  if (!BOT_USERNAME) {
-    throw new Error(
-      "VITE_BOT_USERNAME is not defined in your environment variables."
-    );
-  }
-
-  const baseUrl = `https://t.me/${BOT_USERNAME}`;
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   // Filter out undefined/null values
   const queryObject = Object.entries(payload)
@@ -69,59 +58,55 @@ export function generateTelegramMiniAppLink(
 
   // console.log({ queryString });
 
-  const url = `${baseUrl}/?startapp=${encodedStartParam}`;
+  const url = `${APP_URL}/scan?startapp=${encodedStartParam}`;
   logToDiscord(url)
   return url
 }
 
 
-export function parseTelegramStartAppData() {
-  if (typeof window === "undefined" || !window.Telegram?.WebApp) {
-    logToDiscord("❌ Window undefined or Telegram WebApp not available.");
+export function parseWebStartAppData() {
+  if (typeof window === "undefined") {
+    logToDiscord("❌ Window undefined.");
     return null;
   }
 
   try {
-    const initData = window.Telegram.WebApp.initDataUnsafe;
-    logToDiscord(`ℹ️ Retrieved initDataUnsafe: ${JSON.stringify(initData)}`);
-
-    const startParam = initData?.start_param;
+    const urlParams = new URLSearchParams(window.location.search);
+    const startParam = urlParams.get("startapp");
     logToDiscord(`ℹ️ Retrieved start_param: ${startParam}`);
 
     if (!startParam) {
-      logToDiscord("⚠️ No start_param found in Telegram initData.");
+      logToDiscord("⚠️ No start_param found in URL.");
       return null;
     }
 
-    const decodedParam = decodeURIComponent(startParam);
+    const decodedParam = base64UrlDecode(startParam);
     logToDiscord(`ℹ️ Decoded start_param: ${decodedParam}`);
 
-    const params = new URLSearchParams(decodedParam);
+    const parsedData = JSON.parse(decodedParam);
 
-    const eventId = params.get("eventId");
-    const title = params.get("title");
-    const userId = params.get("userId");
-    const telegramUserId = params.get("telegramUserId") || initData?.user?.id;
+    const eventId = parsedData.eventId;
+    const userId = parsedData.userId;
+    const telegramUserId = parsedData.telegramUserId;
 
-    logToDiscord(`ℹ️ Parsed fields: eventId=${eventId}, title=${title}, userId=${userId}, telegramUserId=${telegramUserId}`);
+    logToDiscord(`ℹ️ Parsed fields: eventId=${eventId}, userId=${userId}, telegramUserId=${telegramUserId}`);
 
     if (!eventId || !userId) {
       logToDiscord(`❌ Missing required fields. eventId=${eventId}, userId=${userId}`);
       return null;
     }
 
-    const parsedData = {
+    const result = {
       eventId,
-      title,
       userId,
       telegramUserId,
     };
 
-    logToDiscord(`✅ Successfully parsed Telegram Start App Data: ${JSON.stringify(parsedData)}`);
-    return parsedData;
+    logToDiscord(`✅ Successfully parsed Web Start App Data: ${JSON.stringify(result)}`);
+    return result;
 
   } catch (error) {
-    logToDiscord(`❌ Error parsing Telegram Start App Data: ${error}`);
+    logToDiscord(`❌ Error parsing Web Start App Data: ${error}`);
     return null;
   }
 }

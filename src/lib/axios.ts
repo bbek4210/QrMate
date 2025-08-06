@@ -15,7 +15,7 @@ export async function logToDiscord(message: string) {
   }
 }
 
-const BASE_URL = `${import.meta.env.VITE_SERVER_URL}/api/v1`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1`;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

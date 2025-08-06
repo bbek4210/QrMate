@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+"use client";
+
+import { useRouter } from "next/navigation";
 import React from "react";
 
 interface BackButtonSvgProps {
@@ -7,13 +9,13 @@ interface BackButtonSvgProps {
 }
 
 const BackButtonSvg: React.FC<BackButtonSvgProps> = ({ to, fallback = -1 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleClick = () => {
     if (to) {
-      navigate(to);
+      router.push(to);
     } else {
-      navigate(fallback);
+      router.back();
     }
   };
 

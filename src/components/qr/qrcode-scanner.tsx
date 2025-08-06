@@ -1,7 +1,30 @@
 import React, { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 import toast from "react-hot-toast";
-import { parseStartParam } from "@/hooks/useTelegramInitData";
+
+// Simple QR code parser function
+const parseQRCode = (data: string) => {
+  try {
+    const url = new URL(data);
+    const startapp = url.searchParams.get("startapp");
+    
+    if (startapp) {
+      // Parse the startapp parameter - this could be JSON or any format
+      try {
+        return JSON.parse(startapp);
+      } catch {
+        // If not JSON, return as is
+        return { data: startapp };
+      }
+    }
+    
+    // If no startapp, try to parse the entire URL data
+    return { url: data };
+  } catch {
+    // If not a URL, return as plain text
+    return { text: data };
+  }
+};
 
 const QRCodeScanner = ({
   isScannerOpen,
@@ -24,20 +47,12 @@ const QRCodeScanner = ({
   const handleScan = (result: string | null) => {
     if (result) {
       try {
-        const url = new URL(result);
-        const startapp = url.searchParams.get("startapp");
-
-        if (startapp) {
-          const parsed = parseStartParam(startapp)
-          setHasShownInvalidToast(false); // Reset for future invalids
-          onScanSuccess(parsed);
-        } else if (!hasShownInvalidToast) {
-          toast.error("Invalid QR code (missing startapp param)");
-          setHasShownInvalidToast(true);
-        }
+        const parsed = parseQRCode(result);
+        setHasShownInvalidToast(false); // Reset for future invalids
+        onScanSuccess(parsed);
       } catch (e) {
         if (!hasShownInvalidToast) {
-          toast.error("Invalid QR format");
+          toast.error("Invalid QR code format");
           setHasShownInvalidToast(true);
         }
         console.error(e);

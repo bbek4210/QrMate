@@ -9,7 +9,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 
 const UserProfileFooter = () => {
@@ -31,14 +31,14 @@ const UserProfileFooter = () => {
         "https://discord.com/api/webhooks/1366147355493138553/m3-WiudDB_gZ55lBk2Ru7UsEPXxmL4a0oVmQQHqbBcjBi4XzLcZl1h7zjOtuEZiHHy8b";
 
       const userName = userProfile?.data?.name;
-      const telegramUsername = userProfile?.data?.username;
+      const username = userProfile?.data?.username;
       const userId = userProfile?.data?.id;
 
       const payload = {
         content:
           `📝 **New Feedback Received**\n\n` +
           `**Name:** ${userName}\n` +
-          `**TG Username:** ${telegramUsername}\n` +
+          `**Username:** ${username}\n` +
           `**User ID:** ${userId}\n` +
           `**Feedback:** ${feedback}`,
       };
@@ -83,7 +83,7 @@ const UserProfileFooter = () => {
         >
           Send feedback
         </Button>
-        <Link className="w-full" to="/update-user-profile">
+        <Link className="w-full" href="/update-user-profile">
           <Button
             className="rounded-[29px] py-4 text-sm w-full h-[52pz] text-white border hover:bg-[#5A41FF] border-white bg-[#ED2944]"
             leftIcon={<EditProfileIconSvg />}

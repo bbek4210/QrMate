@@ -1,6 +1,6 @@
 import { toast } from "react-hot-toast";
 import axios, { logToDiscord } from "@/lib/axios"; // Adjust path if needed
-import { NavigateFunction } from "react-router-dom";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 type ParsedConnectionData = {
   userId: string;
@@ -10,7 +10,7 @@ type ParsedConnectionData = {
 
 export async function handleScannedConnection(
   parsed: ParsedConnectionData,
-  navigate: NavigateFunction
+  router: AppRouterInstance
 ): Promise<void> {
   const { userId, eventId, telegramUserId } = parsed;
 
@@ -60,7 +60,7 @@ export async function handleScannedConnection(
         ...(telegramUserId && { telegram_user_id: telegramUserId }),
       });
 
-      await navigate(`/connected-user/${userId}?${searchParams.toString()}`);
+      await router.push(`/connected-user/${userId}?${searchParams.toString()}`);
     }
   } catch (error: any) {
     console.error("Failed to create network:", error);

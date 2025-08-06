@@ -69,7 +69,7 @@ const positionOptions = [
 
 // Form validation schema
 const profileUpdateSchema = z.object({
-  telegram_id: z.number(),
+  user_id: z.number(),
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
   username: z.string().min(1, "Username is required"),
@@ -99,7 +99,7 @@ const CompleteProfileDrawer = ({
   } = useForm<z.infer<typeof profileUpdateSchema>>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
-      telegram_id: 123456789, // Replace with dynamic values if available
+      user_id: 123456789, // Replace with dynamic values if available
       first_name: "Shooman",
       last_name: "Khatri",
       username: "shoomankhatri",
@@ -111,10 +111,10 @@ const CompleteProfileDrawer = ({
   const onSubmit = (formData: z.infer<typeof profileUpdateSchema>) => {
     setIsSubmitting(true);
 
-    const { telegram_id, first_name, last_name, username } = formData;
+    const { user_id, first_name, last_name, username } = formData;
 
     initUser(
-      { telegram_id, first_name, last_name, username },
+      { user_id, first_name, last_name, username },
       {
         onSuccess: () => {
           toast.success("User initialized successfully");

@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "react-router-dom";
+"use client";
+
+import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
@@ -31,8 +33,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   baseEventId,
 }) => {
   const queryClient = useQueryClient();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const searchParams = useSearchParams();
   const isFromScanner = searchParams.get("ref") === "scanner";
   const canUploadSelfie = isFromScanner;
 
@@ -300,7 +301,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             target="_blank"
             className="flex items-center justify-center gap-2 mt-6 w-full h-[64px] text-white bg-[#ED2944] border border-white text-[0.8rem] font-medium rounded-[29px]"
           >
-            <TelegramIcon /> Message in Telegram
+            <TelegramIcon /> Message
           </a>
         )}
       </div>

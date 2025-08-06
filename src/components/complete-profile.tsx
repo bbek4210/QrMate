@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 
 const TapToCompleteProfile = () => {
   return (
@@ -26,7 +28,7 @@ const TapToCompleteProfile = () => {
       </svg>
 
       <p className="text-white  text-[0.9rem] font-medium cursor-pointer">
-        <Link to="/update-user-profile">Tap to complete your profile.</Link>
+        <Link href="/update-user-profile">Tap to complete your profile.</Link>
       </p>
     </div>
   );

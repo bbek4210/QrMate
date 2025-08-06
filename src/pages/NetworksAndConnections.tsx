@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
 import { Badge } from "@/components/ui/badge";
@@ -85,7 +87,7 @@ const NetworksAndConnections = () => {
               connections.map((conn: any) => (
                 <Link
                   key={conn?.user?.id}
-                  to={`/connected-user/${conn?.user?.id}`}
+                  href={`/connected-user/${conn?.user?.id}`}
                   className="block"
                 >
                   <div className="flex h-full">

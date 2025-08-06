@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import ZefeLogo from "@/components/svgs/logo";
 import UserIcon from "@/components/svgs/user-icon";
@@ -13,7 +14,7 @@ import ProfileBanner from "@/components/profile-banner";
 import FancyQRCode from "@/components/FancyQRCode";
 
 import { Badge } from "@/components/ui/badge";
-import { useTelegramInitData } from "@/hooks/useTelegramInitData";
+import { useAuth } from "@/contexts/AuthContext";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
 
@@ -37,19 +38,18 @@ export default function Home() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-  const initData = useTelegramInitData();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const isInitDataReady =
-    !!initData?.zefeUser?.id && !initData?.isLoading && !initData?.isError;
-  const zefeUserId = initData?.zefeUser?.id;
+  const isInitDataReady = !!user?.id;
+  const zefeUserId = user?.id;
 
   const {
     data: fetchedEvents,
 
     isLoading: isEventsLoading,
     refetch,
-  } = useGetEvents(zefeUserId ?? "");
+  } = useGetEvents(zefeUserId?.toString() ?? "");
 
   const { data, refetch: refetchUserProfile } = useGetUserProfile();
 
@@ -110,7 +110,7 @@ export default function Home() {
           urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
         }
 
-        navigate(urlToReplace);
+        router.push(urlToReplace);
       }
     } catch (err) {
       console.error("Failed to create network:", err);
@@ -147,11 +147,11 @@ export default function Home() {
     return <SplashScreen />;
   }
 
-  if (initData?.isError) {
+  if (!user) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-[#232223]">
         <p className="text-lg text-red-500">
-          Failed to initialize user. Please restart the app.
+          Please log in to continue.
         </p>
       </main>
     );
@@ -161,7 +161,7 @@ export default function Home() {
     <main className="bg-[#232223] min-h-screen pt-[90px]">
       <div className="flex items-center justify-between px-3 py-3">
         <ZefeLogo />
-        <Link to="/user">
+        <Link href="/user">
           <UserIcon />
         </Link>
       </div>
@@ -216,7 +216,7 @@ export default function Home() {
                 value={generateTelegramMiniAppLink({
                   eventId: selectedEvent?.base_event?.id?.toString() ?? "",
                   userId: zefeUserId?.toString() ?? "",
-                  telegramUserId: initData?.telegramUser?.id?.toString() ?? "",
+                  telegramUserId: user?.id?.toString() ?? "",
                 })}
               />
 

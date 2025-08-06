@@ -100,7 +100,7 @@ const UserProfileContainer = () => {
         )}
         {user?.username && (
           <a
-            href={`https://t.me/${user.username}`}
+            href={`mailto:${user.username}@example.com`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
