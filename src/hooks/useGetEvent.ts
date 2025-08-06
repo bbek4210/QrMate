@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-import { getCookie } from "@/lib/cookies";
 
 export type EventDetails = {
   id: number;

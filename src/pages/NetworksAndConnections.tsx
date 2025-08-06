@@ -39,7 +39,7 @@ const NetworksAndConnections = () => {
           </h2>
         </div>
 
-        {/* Filter badges */}
+      
         <div className="flex flex-wrap gap-2 mt-3">
           <Badge
             variant={"outline"}

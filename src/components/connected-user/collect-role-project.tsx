@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import useUpdateUserProfile from "@/hooks/useUpdateUserProfile";
 import {
   Select,
   SelectContent,
@@ -22,6 +21,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import useInitUser from "@/hooks/useUpdateUserProfile";
 
 const positionOptions = [
   "FOUNDER",
@@ -67,7 +67,12 @@ const positionOptions = [
   "OTHER",
 ];
 
+// Form validation schema
 const profileUpdateSchema = z.object({
+  telegram_id: z.number(),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  username: z.string().min(1, "Username is required"),
   position: z.string().min(1, "Position is required"),
   project_name: z.string().min(1, "Project name is required"),
 });
@@ -93,24 +98,36 @@ const CompleteProfileDrawer = ({
     formState: { errors },
   } = useForm<z.infer<typeof profileUpdateSchema>>({
     resolver: zodResolver(profileUpdateSchema),
+    defaultValues: {
+      telegram_id: 123456789, // Replace with dynamic values if available
+      first_name: "Shooman",
+      last_name: "Khatri",
+      username: "shoomankhatri",
+    },
   });
 
-  const { mutate: updateProfile } = useUpdateUserProfile();
+  const { mutate: initUser } = useInitUser();
 
-  const onSubmit = (data: { position: string; project_name: string }) => {
-    updateProfile(data, {
-      onSuccess: () => {
-        toast.success("Profile updated successfully");
-        onComplete();
-      },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onError: () => {
-        toast.error("Failed to update profile");
-      },
-      onSettled: () => {
-        setIsSubmitting(false);
-      },
-    });
+  const onSubmit = (formData: z.infer<typeof profileUpdateSchema>) => {
+    setIsSubmitting(true);
+
+    const { telegram_id, first_name, last_name, username } = formData;
+
+    initUser(
+      { telegram_id, first_name, last_name, username },
+      {
+        onSuccess: () => {
+          toast.success("User initialized successfully");
+          onComplete();
+        },
+        onError: () => {
+          toast.error("Initialization failed");
+        },
+        onSettled: () => {
+          setIsSubmitting(false);
+        },
+      }
+    );
   };
 
   if (!isOpen) return null;
@@ -128,6 +145,44 @@ const CompleteProfileDrawer = ({
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-5 mt-4"
         >
+          <div>
+            <Label className="text-sm font-medium text-white">First Name</Label>
+            <Input
+              {...register("first_name")}
+              placeholder="Shooman"
+              className="mt-2 text-black"
+            />
+            {errors.first_name && (
+              <p className="text-sm text-red-500">
+                {errors.first_name.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-white">Last Name</Label>
+            <Input
+              {...register("last_name")}
+              placeholder="Khatri"
+              className="mt-2 text-black"
+            />
+            {errors.last_name && (
+              <p className="text-sm text-red-500">{errors.last_name.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-white">Username</Label>
+            <Input
+              {...register("username")}
+              placeholder="shoomankhatri"
+              className="mt-2 text-black"
+            />
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
+            )}
+          </div>
+
           <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium text-white">
               Your position
@@ -141,7 +196,7 @@ const CompleteProfileDrawer = ({
               </SelectTrigger>
               <SelectContent className="text-black">
                 {positionOptions.map((pos) => (
-                  <SelectItem className="text-black" key={pos} value={pos}>
+                  <SelectItem key={pos} value={pos} className="text-black">
                     {pos}
                   </SelectItem>
                 ))}
@@ -157,9 +212,7 @@ const CompleteProfileDrawer = ({
               Project Name
             </Label>
             <Input
-              {...register("project_name", {
-                required: "Project name is required",
-              })}
+              {...register("project_name")}
               placeholder="Zefe"
               className="mt-3 text-black"
             />

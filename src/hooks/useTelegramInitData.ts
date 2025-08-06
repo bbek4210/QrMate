@@ -6,7 +6,7 @@ import {
   type User as TelegramUser,
 } from "@telegram-apps/sdk-react";
 import { useMutation } from "@tanstack/react-query";
-import axiosInstance, { logToDiscord } from "@/lib/axios";
+import axiosInstance from "@/lib/axios";
 import { setCookie } from "@/lib/cookies";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants";
 import { base64UrlDecode } from "@/lib/utils";
@@ -137,7 +137,6 @@ export function useTelegramInitData() {
     alreadyInitialized.current = true;
     await fetchZefeUser(telegramUser);
 
-
     const startParam = rawInitData?.startParam || "";
     if (startParam && !isLocal) {
       const parsedStartParam = parseStartParam(startParam as string);
@@ -146,7 +145,7 @@ export function useTelegramInitData() {
   };
 
   useEffect(() => {
-    handleAppInitialization()
+    handleAppInitialization();
   }, [telegramUser, fetchZefeUser]);
 
   return useMemo(() => {
