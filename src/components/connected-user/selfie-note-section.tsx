@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
 import SmallcameraSvg from "@/components/svgs/smallcamera";
@@ -42,22 +42,48 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const [photos, setPhotos] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalNote, setOriginalNote] = useState("");
+  const [originalPhotos, setOriginalPhotos] = useState<string[]>([]);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
 
-  const { data: selfieNote } = useGetSelfieNote(networkId);
+  const { data: selfieNote, isLoading } = useGetSelfieNote(networkId);
   const uploadFileMutation = useUploadFile();
   const makeSelfieNote = useMakeSelfieNote();
 
   useEffect(() => {
     console.log("SelfieNote data received:", selfieNote);
     if (selfieNote) {
-      setNote(selfieNote.summary_note || "");
-      const existingImgs =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        selfieNote.meeting_images?.map((img: any) => img.image) || [];
-      console.log("Setting existing images:", existingImgs);
+      const newNote = selfieNote.summary_note || "";
+      const existingImgs = selfieNote.meeting_images?.map((img: any) => img.image) || [];
+      
+      console.log("Setting note:", newNote);
+      console.log("Setting images:", existingImgs);
+      
+      setNote(newNote);
+      setOriginalNote(newNote);
       setPhotos(existingImgs);
+      setOriginalPhotos(existingImgs);
+      setHasChanges(false);
+      
+      // Check if there's existing data
+      const hasData = newNote.trim() !== "" || existingImgs.length > 0;
+      setHasExistingData(hasData);
+      setIsReadOnly(hasData); // Make read-only if there's existing data
     }
   }, [selfieNote]);
+
+  // Check for changes whenever note or photos change
+  useEffect(() => {
+    if (isReadOnly) return; // Don't check changes if read-only
+    
+    const noteChanged = note !== originalNote;
+    const photosChanged = photos.length !== originalPhotos.length || 
+      photos.some((photo, index) => photo !== originalPhotos[index]);
+    
+    setHasChanges(noteChanged || photosChanged);
+  }, [note, photos, originalNote, originalPhotos, isReadOnly]);
 
   useEffect(() => {
     function adjustTextareaPosition() {
@@ -99,7 +125,6 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       const fileList = incomingFiles ?? files; // Prefer incomingFiles if provided, otherwise fallback to state
 
-
       if (fileList.length > 0 && !uploadFileMutation.isPending) {
         const uploads = fileList.map((file) => {
           const extension = file.name.split(".").pop() || "jpg";
@@ -131,6 +156,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, networkId],
           });
           setFiles([]); // Clear uploaded files after mutation
+          setHasChanges(false); // Reset changes flag
+          setOriginalNote(note); // Update original note
+          setOriginalPhotos([...photos, ...newImages.map(img => img.image)]); // Update original photos
+          setIsReadOnly(true); // Make read-only after save
+          setHasExistingData(true); // Mark as having existing data
           // Call the onSaved callback to refresh parent component data
           onSaved?.();
         },
@@ -141,11 +171,10 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!canUploadSelfie) return;
+    if (!canUploadSelfie || isReadOnly) return;
 
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter((f) => f.size > 0);
-
 
     if (validFiles.length) {
       const correctedImages = await Promise.all(
@@ -168,93 +197,49 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
       setPhotos((prev) => [...prev, ...correctedImages]);
       setFiles((prev) => [...prev, ...validFiles]);
-
-      setTimeout(() => {
-        handleSave(validFiles);
-      }, 100);
     }
   };
 
-  // const handleRemoveImage = (index: number) => {
-  //   setPhotos((prev) => prev.filter((_, i) => i !== index));
-  //   setFiles((prev) => prev.filter((_, i) => i !== index));
-  // };
+  const handleRemoveImage = (index: number) => {
+    if (isReadOnly) return;
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ED2944]"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div className="mt-10 space-y-4">
+      <div className="mt-1 space-y-4">
         {isFromScanner && (
-          <div className="flex flex-col items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col items-center justify-center gap-4 mb-4">
             <Badge className="bg-[#ED2944] text-white text-[0.8rem] text-center mx-auto border-white px-3 py-2 rounded-[29px]">
               Met at <span className="ml-1 font-semibold">{eventTitle}</span>
             </Badge>
 
-            <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-20">
+            <Badge className="w-full flex items-center justify-center gap-2 text-[0.8rem] font-medium bg-green-500 text-black py-3 rounded-full mb-4">
               <CheckedcircleSvg /> Contact saved
             </Badge>
           </div>
         )}
 
-        {/* {photos.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 gap-3">
-            {photos.map((src, i) => (
-              <div
-                key={i}
-                className="relative w-full aspect-[3/4] overflow-hidden rounded-lg border border-gray-300"
-              >
-                <img
-                  src={src}
-                  alt={`selfie-${i}`}
-                  width={100}
-                  height={130}
-                  className="object-cover w-full h-full"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(i)}
-                  className="absolute p-1 text-xs font-bold text-black transition-all bg-white rounded-full shadow-md top-1 right-1 hover:bg-red-500 hover:text-white"
-                  aria-label="Remove photo"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-
-            {canUploadSelfie && (
-              <label className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] cursor-pointer text-xl font-bold text-gray-600">
-                +
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  capture="user"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                />
-              </label>
-            )}
+        {/* Show existing data message if read-only */}
+        {isReadOnly && hasExistingData && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-blue-800 text-sm font-medium">
+              📝 Meeting information has been saved and is now read-only
+            </p>
           </div>
-
-          <textarea
-            placeholder="Write a short note..."
-            className="w-full h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onBlur={handleSave}
-          />
-
-          <Button
-            onClick={handleSave}
-            className="w-full text-white py-2 bg-[#ED2944] rounded-[29px] font-medium "
-          >
-            Save
-          </Button>
-        </div>
-      )} */}
+        )}
 
         <div className="flex items-stretch gap-3">
-          {photos.length === 0 && canUploadSelfie ? (
+          {photos.length === 0 && canUploadSelfie && !isReadOnly ? (
             <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
               <SmallcameraSvg /> Take an selfie
               <input
@@ -267,26 +252,66 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
               />
             </label>
           ) : (
-            <div>
-              {photos.map((i) => {
-                if (!i) {
-                  return null;
-                } else {
-                  return <img src={i} className="rounded-md" />;
-                }
-              })}
+            <div className="flex flex-col gap-2">
+              {photos.map((photo, index) => (
+                <div key={index} className="relative">
+                  <img 
+                    src={photo} 
+                    alt={`selfie-${index}`}
+                    className="w-20 h-20 object-cover rounded-lg border border-gray-300" 
+                  />
+                  {!isReadOnly && (
+                    <button
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+              {canUploadSelfie && !isReadOnly && (
+                <label className="flex items-center justify-center gap-2 px-3 py-2 text-[0.7rem] bg-[#ED2944] text-white border border-white rounded-lg cursor-pointer w-20 h-20">
+                  <SmallcameraSvg /> Add
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="user"
+                    multiple
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           )}
 
           <textarea
             id="summary_note_textarea"
-            placeholder="Write a short note..."
-            className="w-full min-w-[50%] min-h-[160px] p-3 text-sm text-black rounded-lg resize-none focus:outline-none"
+            placeholder={isReadOnly ? "No note available" : "Write a short note..."}
+            className={`w-full min-w-[50%] min-h-[160px] p-3 text-sm rounded-lg resize-none focus:outline-none ${
+              isReadOnly 
+                ? 'bg-gray-100 text-gray-600 cursor-not-allowed' 
+                : 'text-black'
+            }`}
             value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onBlur={() => handleSave()}
+            onChange={(e) => !isReadOnly && setNote(e.target.value)}
+            readOnly={isReadOnly}
           />
         </div>
+
+        {/* Save Button - Only show when there are changes and not read-only */}
+        {hasChanges && !isReadOnly && (
+          <div className="flex justify-center">
+            <Button
+              onClick={() => handleSave()}
+              disabled={makeSelfieNote.isPending}
+              className="bg-[#ED2944] text-white px-8 py-3 rounded-full font-medium hover:bg-[#cb1f38] transition-colors"
+            >
+              {makeSelfieNote.isPending ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        )}
 
         {makeSelfieNote.isSuccess && (
           <p className="text-sm font-medium text-center text-green-500">

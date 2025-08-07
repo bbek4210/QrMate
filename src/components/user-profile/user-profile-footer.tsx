@@ -1,7 +1,7 @@
 import EditProfileIconSvg from "../svgs/edit-profile-icon";
 import SendFeedbackIconSvg from "../svgs/send-feedback-icon";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Drawer,
   DrawerContent,
@@ -19,6 +19,19 @@ const UserProfileFooter = () => {
   const { data: userProfile } = useGetUserProfile();
 
   console.log("userProfile", userProfile);
+
+  // Listen for custom event from container
+  useEffect(() => {
+    const handleOpenFeedbackDrawer = () => {
+      setIsFeedbackDrawerOpen(true);
+    };
+
+    window.addEventListener('openFeedbackDrawer', handleOpenFeedbackDrawer);
+    
+    return () => {
+      window.removeEventListener('openFeedbackDrawer', handleOpenFeedbackDrawer);
+    };
+  }, []);
 
   const handleSendFeedback = async () => {
     if (feedback) {
@@ -66,86 +79,133 @@ const UserProfileFooter = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 mt-auto grow">
-      <a
-        href="https://x.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-4 py-3 text-center rounded-[29px] h-[42.9px] bg-white text-[#232323] text-sm font-medium shadow-md hover:bg-[#f5f5f5] transition-all cursor-pointer"
-      >
-        Follow QrMate on X
-      </a>
-      <div className="flex justify-between w-full gap-3 mt-3">
-        <Button
-          leftIcon={<SendFeedbackIconSvg />}
-          className="w-full py-4 rounded-[29px] h-[52px] text-[0.9rem] font-medium text-white border hover:bg-[#5A41FF] border-white bg-transparent"
-          onClick={() => setIsFeedbackDrawerOpen(true)}
-        >
-          Send feedback
-        </Button>
-        <Link className="w-full" href="/update-user-profile">
-          <Button
-            className="rounded-[29px] py-4 text-sm w-full h-[52pz] text-white border hover:bg-[#5A41FF] border-white bg-[#ED2944]"
-            leftIcon={<EditProfileIconSvg />}
-          >
-            Edit profile
-          </Button>
-        </Link>
+    <>
+      {/* Desktop Layout */}
+      <div className="hidden lg:block">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
+          <div className="text-center mb-8">
+            <h3 className="text-white text-2xl font-bold mb-2">Stay Connected</h3>
+            <p className="text-gray-400">Follow us for updates and connect with our community</p>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Follow QrMate Button */}
+            <a
+              href="https://x.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] text-white text-center py-4 px-6 rounded-2xl font-semibold hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              Follow QrMate on X
+            </a>
+            
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                leftIcon={<SendFeedbackIconSvg />}
+                className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                onClick={() => setIsFeedbackDrawerOpen(true)}
+              >
+                Send Feedback
+              </Button>
+              
+              <Link className="w-full" href="/update-user-profile">
+                <Button
+                  className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  leftIcon={<EditProfileIconSvg />}
+                >
+                  Edit Profile
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        <div className="space-y-4">
+          <a
+            href="https://x.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full px-6 py-4 text-center rounded-2xl bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] text-white text-base font-semibold shadow-lg hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105"
+          >
+            Follow QrMate on X
+          </a>
+          
+          <div className="flex justify-between w-full gap-4">
+            <Button
+              leftIcon={<SendFeedbackIconSvg />}
+              className="flex-1 py-4 rounded-2xl text-sm font-semibold text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200"
+              onClick={() => setIsFeedbackDrawerOpen(true)}
+            >
+              Send feedback
+            </Button>
+            
+            <Link className="flex-1" href="/update-user-profile">
+              <Button
+                className="w-full py-4 rounded-2xl text-sm font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200"
+                leftIcon={<EditProfileIconSvg />}
+              >
+                Edit profile
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Feedback Drawer */}
       {isFeedbackDrawerOpen && (
         <Drawer
           open={isFeedbackDrawerOpen}
           onClose={() => setIsFeedbackDrawerOpen(false)}
         >
-          <DrawerContent className="p-4 drawerContent">
-            <DrawerHeader>
-              <DrawerTitle className="mt-10 text-black hover:bg-[#5A41FF]">
-                Send feedback
+          <DrawerContent className="p-6 drawerContent bg-[#2a2a2a] border-white/10">
+            <DrawerHeader className="text-center">
+              <DrawerTitle className="text-white text-xl font-bold mb-2">
+                Send Feedback
               </DrawerTitle>
+              <p className="text-gray-400 text-sm">
+                Help us improve QrMate by sharing your thoughts
+              </p>
             </DrawerHeader>
-            <label className=" mt-6 text-[0.9rem] font-semibold text-black">
-              Write feedback for zefe
-            </label>
-            <textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="feedback..."
-              className="w-full h-40 p-2 my-4 text-gray-600 border border-black rounded"
-            />
-            {/* <div className="flex items-center justify-between">
-              <input
-                type="file"
-                accept="image/*"
-                id="feedback-image"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setImage(e.target.files[0]);
-                  }
-                }}
-              />
-              <label
-                htmlFor="feedback-image"
-                className="flex items-center justify-center px-4 py-2 text-[16px] font-medium text-black border border-black rounded-full cursor-pointer"
-              >
-                <span className="mt-1 mr-2">📎</span> Attach an image
-              </label>
-            </div>
-            {image && (
-              <div className="mt-2 text-sm text-black">
-                📎 Attached: {image.name}
+            
+            <div className="space-y-6 mt-6">
+              <div>
+                <label className="block text-white font-medium mb-3">
+                  Your Feedback
+                </label>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Tell us what you think about QrMate..."
+                  className="w-full h-32 p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#ED2944] focus:border-transparent"
+                />
               </div>
-            )} */}
-            <Button
-              className="w-full p-6 mt-8 border border-black text-white rounded-[29px] bg-[#ED2944] hover:bg-[#5A41FF]"
-              onClick={handleSendFeedback}
-            >
-              Send Feedback
-            </Button>
+              
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsFeedbackDrawerOpen(false)}
+                  className="flex-1 py-3 rounded-2xl text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200"
+                >
+                  Cancel
+                </Button>
+                
+                <Button
+                  onClick={handleSendFeedback}
+                  disabled={!feedback.trim()}
+                  className="flex-1 py-3 rounded-2xl text-white bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send Feedback
+                </Button>
+              </div>
+            </div>
           </DrawerContent>
         </Drawer>
       )}
-    </div>
+    </>
   );
 };
+
 export default UserProfileFooter;

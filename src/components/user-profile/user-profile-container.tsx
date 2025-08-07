@@ -9,6 +9,9 @@ import {
 } from "../svgs/social-icons";
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import EditProfileIconSvg from "../svgs/edit-profile-icon";
+import SendFeedbackIconSvg from "../svgs/send-feedback-icon";
 
 export interface UserField {
   id: number;
@@ -36,119 +39,330 @@ const UserProfileContainer = () => {
 
   // Show loading skeleton during SSR and initial client render
   if (!isClient || isLoading) {
-    return <div className="flex flex-col items-center justify-center gap-4 grow">
-      <div className="animate-pulse bg-gray-700 rounded-[36px] w-[100px] h-[100px]"></div>
-      <div className="animate-pulse bg-gray-700 h-8 w-48 rounded"></div>
-    </div>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-8 grow">
+        <div className="animate-pulse bg-gray-700 rounded-full w-32 h-32 lg:w-40 lg:h-40"></div>
+        <div className="animate-pulse bg-gray-700 h-8 w-48 rounded"></div>
+        <div className="flex gap-2">
+          <div className="animate-pulse bg-gray-700 h-8 w-24 rounded-full"></div>
+          <div className="animate-pulse bg-gray-700 h-8 w-20 rounded-full"></div>
+        </div>
+      </div>
+    );
   }
   
   if (isError) {
     console.error("Error loading the user profile:", error);
-    return <div className="flex flex-col items-center justify-center gap-4 grow text-white">
-      Error loading profile. Please try again later.
-    </div>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 grow">
+        <div className="text-center max-w-md mx-auto">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h3 className="text-white text-xl font-semibold mb-2">Error loading profile</h3>
+          <p className="text-gray-400">Please try again later</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 grow">
-      <Avatar className="rounded-[36px] w-[100px] h-[100px]">
-        <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
-        <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
-      </Avatar>
+    <div className="flex flex-col items-center justify-center gap-6 lg:gap-8">
+      {/* Profile Card - Desktop */}
+      <div className="hidden lg:block w-full max-w-8xl">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
+          {/* Three Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Left Column - Profile Info */}
+            <div className="flex flex-col items-center">
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative mb-4">
+                  <Avatar className="rounded-full w-32 h-32 border-4 border-white shadow-2xl">
+                    <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
+                    <AvatarFallback className="bg-gradient-to-br from-[#ED2944] to-[#ff6b7a] text-white text-4xl font-bold">
+                      {user?.name?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Online indicator */}
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 border-4 border-white rounded-full shadow-lg"></div>
+                </div>
 
-      <div className="flex flex-col items-center gap-2 ">
-        <h1 className="font-medium text-[26px] text-[#ffffff] uppercase text-center">
-          {user?.name || "No Name Provided"}
-        </h1>
+                <h1 className="font-bold text-3xl text-white text-center mb-2">
+                  {user?.name || "No Name Provided"}
+                </h1>
+                
+                {user?.username && (
+                  <p className="text-gray-400 text-lg">@{user.username}</p>
+                )}
+              </div>
 
-        {/* <h6 className="font-normal text-[20px] text-[#ffffff] uppercase text-center">
-          @{user?.username}
-        </h6> */}
-        
-        {/* User Fields Display */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mt-2">
+              {/* Skills/Fields Section */}
+              <div className="mb-6 w-full">
+                <h3 className="text-white font-semibold text-lg mb-4 text-center">Skills & Interests</h3>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  {user?.user_fields && user.user_fields.length > 0 ? (
+                    user.user_fields.map((field: UserField) => (
+                      <Badge
+                        key={field.id}
+                        className="text-sm text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-4 py-2 font-medium shadow-lg"
+                      >
+                        {field.name.toUpperCase()}
+                      </Badge>
+                    ))
+                  ) : user?.user_profile?.user_fields && user.user_profile.user_fields.length > 0 ? (
+                    user.user_profile.user_fields.map((field: UserField) => (
+                      <Badge
+                        key={field.id}
+                        className="text-sm text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-4 py-2 font-medium shadow-lg"
+                      >
+                        {field.name.toUpperCase()}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 italic">No fields selected</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Social Links Section */}
+              <div className="w-full">
+                <h3 className="text-white font-semibold text-lg mb-4 text-center">Connect With Me</h3>
+                <div className="flex items-center justify-center gap-4">
+                  {user?.user_profile?.twitter_account && (
+                    <a
+                      href={
+                        user.user_profile?.twitter_account?.includes("http")
+                          ? user?.user_profile?.twitter_account
+                          : `https://x.com/${user?.user_profile?.twitter_account}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl hover:bg-white/20 transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      <TwitterIcon />
+                    </a>
+                  )}
+                  {user?.user_profile?.linkedin_url && (
+                    <a
+                      href={user?.user_profile?.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl hover:bg-white/20 transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      <LinkedinIcon />
+                    </a>
+                  )}
+                  {user?.username && (
+                    <a
+                      href={`https://t.me/${user.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl hover:bg-white/20 transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      <BlackTelegramIcon />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Middle Column - Professional Info */}
+            <div className="flex flex-col justify-center">
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                <h3 className="text-white font-semibold text-xl mb-6 text-center">Professional Information</h3>
+                <div className="space-y-6">
+                  {user?.user_profile?.position && (
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+                      <div className="bg-[#ED2944] p-3 rounded-full">
+                        <PositionIcon />
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Position</p>
+                        <p className="text-white font-medium text-lg">{user.user_profile.position}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {user?.user_profile?.project_name && (
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+                      <div className="bg-[#ED2944] p-3 rounded-full">
+                        <PlaceIcon />
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Project</p>
+                        <p className="text-white font-medium text-lg">{user.user_profile.project_name}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {user?.user_profile?.city && (
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+                      <div className="bg-[#ED2944] p-3 rounded-full">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Location</p>
+                        <p className="text-white font-medium text-lg">{user.user_profile.city}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Action Buttons */}
+            <div className="flex flex-col justify-center">
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                <h3 className="text-white font-semibold text-xl mb-6 text-center">Quick Actions</h3>
+                <div className="space-y-4">
+                  {/* Follow QrMate Button */}
+                  <a
+                    href="https://x.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] text-white text-center py-4 px-6 rounded-2xl font-semibold hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  >
+                    Follow QrMate on X
+                  </a>
+                  
+                  {/* Edit Profile Button */}
+                  <Link href="/update-user-profile" className="block w-full">
+                    <button className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
+                      <EditProfileIconSvg />
+                      Edit Profile
+                    </button>
+                  </Link>
+                  
+                  {/* Send Feedback Button */}
+                  <button
+                    onClick={() => {
+                      // Import the state and function from the footer component
+                      const event = new CustomEvent('openFeedbackDrawer');
+                      window.dispatchEvent(event);
+                    }}
+                    className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <SendFeedbackIconSvg />
+                    Send Feedback
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden flex flex-col items-center justify-center gap-6">
+        {/* Avatar */}
+        <div className="relative">
+          <Avatar className="rounded-full w-24 h-24 border-4 border-white shadow-lg">
+            <AvatarImage src={user?.photo_url || "https://github.com/shadcn.png"} />
+            <AvatarFallback className="bg-gradient-to-br from-[#ED2944] to-[#ff6b7a] text-white text-2xl font-bold">
+              {user?.name?.[0]?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+          
+          {/* Online indicator */}
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full shadow-lg"></div>
+        </div>
+
+        {/* Name */}
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="font-bold text-2xl text-white text-center uppercase">
+            {user?.name || "No Name Provided"}
+          </h1>
+          
+          {user?.username && (
+            <p className="text-gray-400 text-sm">@{user.username}</p>
+          )}
+        </div>
+
+        {/* Skills/Fields */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {user?.user_fields && user.user_fields.length > 0 ? (
             user.user_fields.map((field: UserField) => (
               <Badge
                 key={field.id}
-                className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944] px-3 py-1 font-medium"
+                className="text-xs text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-3 py-1 font-medium"
               >
                 {field.name.toUpperCase()}
               </Badge>
             ))
           ) : user?.user_profile?.user_fields && user.user_profile.user_fields.length > 0 ? (
-            // Fallback for different data structure
             user.user_profile.user_fields.map((field: UserField) => (
               <Badge
                 key={field.id}
-                className="text-[0.9rem] text-white rounded-[29px] border-white border-[1.5px] bg-[#ED2944] px-3 py-1 font-medium"
+                className="text-xs text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-3 py-1 font-medium"
               >
                 {field.name.toUpperCase()}
               </Badge>
             ))
           ) : (
-            // Show message if no fields are selected
-            <p className="text-sm text-gray-400 italic">No fields selected</p>
+            <p className="text-gray-400 italic text-sm">No fields selected</p>
           )}
         </div>
-      </div>
 
-      <div className="flex flex-col gap-2 text-white text-[1rem] font-medium pt-4">
-        {user?.user_profile?.position && (
-          <div className="flex items-center gap-3">
-            <PositionIcon />
-            <div>
-              {/* <p className="text-xs text-gray-400">Position</p> */}
+        {/* Professional Info */}
+        <div className="flex flex-col gap-3 text-white text-base font-medium">
+          {user?.user_profile?.position && (
+            <div className="flex items-center gap-3">
+              <div className="bg-[#ED2944] p-2 rounded-full">
+                <PositionIcon />
+              </div>
               <p>{user.user_profile.position}</p>
             </div>
-          </div>
-        )}
-        {user?.user_profile?.project_name && (
-          <div className="flex items-center gap-3">
-            <PlaceIcon />
-            <div>
-              {/* <p className="text-xs text-gray-400">Project</p> */}
+          )}
+          {user?.user_profile?.project_name && (
+            <div className="flex items-center gap-3">
+              <div className="bg-[#ED2944] p-2 rounded-full">
+                <PlaceIcon />
+              </div>
               <p>{user.user_profile.project_name}</p>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <div className="flex items-center justify-center gap-2 pt-20">
-        {user?.user_profile?.twitter_account && (
-          <a
-            href={
-              user.user_profile?.twitter_account?.includes("http")
-                ? user?.user_profile?.twitter_account
-                : `https://x.com/${user?.user_profile?.twitter_account}`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
-          >
-            <TwitterIcon />
-          </a>
-        )}
-        {user?.user_profile?.linkedin_url && (
-          <a
-            href={user?.user_profile?.linkedin_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
-          >
-            <LinkedinIcon />
-          </a>
-        )}
-        {user?.username && (
-          <a
-            href={`mailto:${user.username}@example.com`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#F0F0F0] px-4 py-4 rounded-[16px]"
-          >
-            <BlackTelegramIcon />
-          </a>
-        )}
+        {/* Social Links */}
+        <div className="flex items-center justify-center gap-3 pt-4">
+          {user?.user_profile?.twitter_account && (
+            <a
+              href={
+                user.user_profile?.twitter_account?.includes("http")
+                  ? user?.user_profile?.twitter_account
+                  : `https://x.com/${user?.user_profile?.twitter_account}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-2xl hover:bg-white/20 transition-all duration-200"
+            >
+              <TwitterIcon />
+            </a>
+          )}
+          {user?.user_profile?.linkedin_url && (
+            <a
+              href={user?.user_profile?.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-2xl hover:bg-white/20 transition-all duration-200"
+            >
+              <LinkedinIcon />
+            </a>
+          )}
+          {user?.username && (
+            <a
+              href={`https://t.me/${user.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-2xl hover:bg-white/20 transition-all duration-200"
+            >
+              <BlackTelegramIcon />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -7,9 +7,8 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import {
   Select,
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import useUpdateUserProfile from "@/hooks/useUpdateUserProfile";
 
 const positionOptions = [
@@ -117,13 +116,14 @@ const CompleteProfileDrawer = ({
   userData,
 }: CompleteProfileDrawerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const projectNameRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<z.infer<typeof profileUpdateSchema>>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
@@ -131,11 +131,31 @@ const CompleteProfileDrawer = ({
       project_name: userData?.project_name || "",
       city: userData?.city || "",
     },
+    mode: "onChange", // Enable real-time validation
   });
+
+  // Watch form values for debugging
+  const watchedValues = watch();
+  console.log("Profile form values:", watchedValues);
+  console.log("Profile form errors:", errors);
+  console.log("Profile form isValid:", isValid);
 
   const { mutateAsync: updateProfile } = useUpdateUserProfile();
 
+  // Ensure focus works properly when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure drawer is fully rendered
+      setTimeout(() => {
+        if (projectNameRef.current) {
+          projectNameRef.current.focus();
+        }
+      }, 100);
+    }
+  }, [isOpen]);
+
   const onSubmit = async (formData: z.infer<typeof profileUpdateSchema>) => {
+    console.log("Submitting profile data:", formData);
     setIsSubmitting(true);
 
     try {
@@ -154,83 +174,108 @@ const CompleteProfileDrawer = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-6 py-8 bg-[#232322]">
+      <DrawerContent className="px-6 py-8 bg-[#232322] max-w-[80%] mx-auto">
         <DrawerHeader>
           <DrawerTitle className="text-lg font-semibold text-center text-white">
             Complete missing information
           </DrawerTitle>
         </DrawerHeader>
 
-                 <form
-           onSubmit={handleSubmit(onSubmit)}
-           className="flex flex-col gap-5 mt-4"
-         >
-           {/* Show existing user info (read-only) */}
-          
-           {userData?.username && (
-             <div>
-               <Label className="text-sm font-medium text-white">Username</Label>
-               <Input
-                 value={userData.username}
-                 disabled
-                 className="mt-2 text-black bg-[#F4F4F4] border border-gray-300"
-               />
-             </div>
-           )}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 mt-4"
+        >
+         
+         
+         <div>
+            <Label className="text-sm font-medium text-white">Project Name *</Label>
+            <Controller
+              name="project_name"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  ref={projectNameRef}
+                  placeholder="Enter your project name"
+                  className="mt-2 w-full h-[58px] rounded-[1rem] bg-white px-6 py-3 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ED2944] focus:border-transparent"
+                  onFocus={(e) => {
+                    console.log("Project name focused");
+                    e.target.select();
+                  }}
+                />
+              )}
+            />
+            {errors.project_name && (
+              <p className="text-sm text-red-500">{errors.project_name.message}</p>
+            )}
+          </div>
+          {/* Only ask for missing information */}
+          <div>
+            <Label className="text-sm font-medium text-white">Position *</Label>
+            <Controller
+              name="position"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  onValueChange={(value) => {
+                    console.log("Position selected:", value);
+                    field.onChange(value);
+                  }} 
+                  value={field.value || ""}
+                >
+                  <SelectTrigger className="mt-2 text-black">
+                    <SelectValue placeholder="Select your position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positionOptions.map((pos) => (
+                      <SelectItem key={pos} value={pos}>
+                        {pos}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.position && (
+              <p className="text-sm text-red-500">{errors.position.message}</p>
+            )}
+          </div>
 
-           {/* Only ask for missing information */}
-           <div>
-             <Label className="text-sm font-medium text-white">Position *</Label>
-             <Select onValueChange={(value) => setValue("position", value)}>
-               <SelectTrigger className="mt-2 text-black">
-                 <SelectValue placeholder="Select your position" />
-               </SelectTrigger>
-               <SelectContent>
-                 {positionOptions.map((pos) => (
-                   <SelectItem key={pos} value={pos}>
-                     {pos}
-                   </SelectItem>
-                 ))}
-               </SelectContent>
-             </Select>
-             {errors.position && (
-               <p className="text-sm text-red-500">{errors.position.message}</p>
-             )}
-           </div>
+         
 
-           <div>
-             <Label className="text-sm font-medium text-white">Project Name *</Label>
-             <Input
-               {...register("project_name")}
-               placeholder="Enter your project name"
-               className="mt-2 text-black"
-             />
-             {errors.project_name && (
-               <p className="text-sm text-red-500">{errors.project_name.message}</p>
-             )}
-           </div>
-
-           <div>
-             <Label className="text-sm font-medium text-white">City *</Label>
-             <Select onValueChange={(value) => setValue("city", value)}>
-               <SelectTrigger className="mt-2 text-black">
-                 <SelectValue placeholder="Select your city" />
-               </SelectTrigger>
-               <SelectContent>
-                 {cityOptions.map((city) => (
-                   <SelectItem key={city} value={city}>
-                     {city.replace(/_/g, ' ')}
-                   </SelectItem>
-                 ))}
-               </SelectContent>
-             </Select>
-             {errors.city && (
-               <p className="text-sm text-red-500">{errors.city.message}</p>
-             )}
-           </div>
+          <div>
+            <Label className="text-sm font-medium text-white">City *</Label>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  onValueChange={(value) => {
+                    console.log("City selected:", value);
+                    field.onChange(value);
+                  }} 
+                  value={field.value || ""}
+                >
+                  <SelectTrigger className="mt-2 w-full h-[58px] rounded-[1rem] bg-white text-black border border-gray-300 focus:ring-2 focus:ring-[#ED2944] focus:border-transparent">
+                    <SelectValue placeholder="Select your city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cityOptions.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city.replace(/_/g, ' ')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.city && (
+              <p className="text-sm text-red-500">{errors.city.message}</p>
+            )}
+          </div>
 
           <Button
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValid}
             type="submit"
             className="bg-[#ED2944] border hover:bg-[#5A41FF] border-white text-white rounded-lg py-3 mt-2"
           >

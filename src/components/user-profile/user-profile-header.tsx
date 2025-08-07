@@ -15,13 +15,19 @@ const UserProfileHeader = () => {
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <BackButtonSvg to="/" />
-        <h2 className="text-[#ffffff] text-[24px] font-medium">Your profile</h2>
+      <div className="flex items-center gap-4">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2 hover:bg-white/20 transition-all duration-200">
+          <BackButtonSvg to="/" />
+        </div>
+        <div>
+          <h1 className="text-white text-2xl lg:text-3xl font-bold">Your Profile</h1>
+          <p className="text-gray-400 text-sm lg:text-base">Manage your account and preferences</p>
+        </div>
       </div>
+      
       <button
         onClick={handleLogout}
-        className="p-1 hover:bg-gray-800 rounded-full transition-colors"
+        className="bg-[#ED2944] text-white p-3 rounded-full hover:bg-[#cb1f38] transition-all duration-200 shadow-lg hover:scale-105"
         title="Logout"
       >
         <LogoutIcon size={20} />
