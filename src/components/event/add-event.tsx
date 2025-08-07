@@ -28,13 +28,10 @@ type EventFormData = z.infer<typeof eventSchema>;
 interface AddEventInterface {
   triggerNode: React.ReactNode;
   onEventCreated: (newEvent: { title: string; city: string }) => void;
-  refetch: () => void;
 }
 
 const AddEvent = ({
   triggerNode,
-
-  refetch,
 }: AddEventInterface) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { mutate: createEvent, isPending } = useCreateEvent();
@@ -56,7 +53,6 @@ const AddEvent = ({
     createEvent(data, {
       onSuccess: () => {
         toast.success("Event created successfully!");
-        refetch();
         reset();
         setIsDrawerOpen(false);
       },

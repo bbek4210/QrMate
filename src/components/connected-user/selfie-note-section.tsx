@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-"use client";
+
 
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ interface SelfieNoteSectionProps {
   eventTitle: string;
   telegramAccount?: string;
   baseEventId: number;
+  onSaved?: () => void;
 }
 
 const SELFIE_KEY_PREFIX = "zefe_selfies";
@@ -31,10 +32,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   eventTitle,
   telegramAccount,
   baseEventId,
+  onSaved,
 }) => {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
-  const isFromScanner = searchParams.get("ref") === "scanner";
+  const isFromScanner = searchParams?.get("ref") === "scanner";
   const canUploadSelfie = isFromScanner;
 
   const [photos, setPhotos] = useState<string[]>([]);
@@ -46,11 +48,13 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   const makeSelfieNote = useMakeSelfieNote();
 
   useEffect(() => {
+    console.log("SelfieNote data received:", selfieNote);
     if (selfieNote) {
       setNote(selfieNote.summary_note || "");
       const existingImgs =
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selfieNote.meeting_images?.map((img: any) => img.image) || [];
+      console.log("Setting existing images:", existingImgs);
       setPhotos(existingImgs);
     }
   }, [selfieNote]);
@@ -127,6 +131,8 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
             queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, networkId],
           });
           setFiles([]); // Clear uploaded files after mutation
+          // Call the onSaved callback to refresh parent component data
+          onSaved?.();
         },
       });
     } catch (err) {
@@ -282,12 +288,17 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           />
         </div>
 
-        {/* {makeSelfieNote.isSuccess && (
+        {makeSelfieNote.isSuccess && (
           <p className="text-sm font-medium text-center text-green-500">
-            <GreenCheckedCircle />
-            Users information saved successfully!
+            ✓ Information saved successfully!
           </p>
-        )} */}
+        )}
+
+        {makeSelfieNote.isPending && (
+          <p className="text-sm font-medium text-center text-blue-500">
+            Saving information...
+          </p>
+        )}
 
         {makeSelfieNote.isError && (
           <p className="text-sm font-medium text-center text-red-500">

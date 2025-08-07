@@ -21,7 +21,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import useInitUser from "@/hooks/useUpdateUserProfile";
+import useUpdateUserProfile from "@/hooks/useUpdateUserProfile";
 
 const positionOptions = [
   "FOUNDER",
@@ -67,26 +67,54 @@ const positionOptions = [
   "OTHER",
 ];
 
+const cityOptions = [
+  "SAN_FRANCISCO",
+  "NEW_YORK_CITY",
+  "LONDON",
+  "TOKYO",
+  "SINGAPORE",
+  "BERLIN",
+  "PARIS",
+  "AMSTERDAM",
+  "BARCELONA",
+  "DUBAI",
+  "HONG_KONG",
+  "SYDNEY",
+  "TORONTO",
+  "AUSTIN",
+  "MIAMI",
+  "LOS_ANGELES",
+  "SEATTLE",
+  "BOSTON",
+  "CHICAGO",
+  "OTHER",
+];
+
 // Form validation schema
 const profileUpdateSchema = z.object({
-  user_id: z.number(),
-  first_name: z.string().min(1, "First name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  username: z.string().min(1, "Username is required"),
   position: z.string().min(1, "Position is required"),
   project_name: z.string().min(1, "Project name is required"),
+  city: z.string().min(1, "City is required"),
 });
 
 interface CompleteProfileDrawerProps {
   isOpen: boolean;
   onComplete: () => void;
   onOpenChange?: (open: boolean) => void;
+  userData?: {
+    name?: string;
+    username?: string;
+    position?: string;
+    project_name?: string;
+    city?: string;
+  };
 }
 
 const CompleteProfileDrawer = ({
   isOpen,
   onComplete,
   onOpenChange,
+  userData,
 }: CompleteProfileDrawerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -99,35 +127,27 @@ const CompleteProfileDrawer = ({
   } = useForm<z.infer<typeof profileUpdateSchema>>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
-      user_id: 123456789, // Replace with dynamic values if available
-      first_name: "Shooman",
-      last_name: "Khatri",
-      username: "shoomankhatri",
+      position: userData?.position || "",
+      project_name: userData?.project_name || "",
+      city: userData?.city || "",
     },
   });
 
-  const { mutate: initUser } = useInitUser();
+  const { mutateAsync: updateProfile } = useUpdateUserProfile();
 
-  const onSubmit = (formData: z.infer<typeof profileUpdateSchema>) => {
+  const onSubmit = async (formData: z.infer<typeof profileUpdateSchema>) => {
     setIsSubmitting(true);
 
-    const { user_id, first_name, last_name, username } = formData;
-
-    initUser(
-      { user_id, first_name, last_name, username },
-      {
-        onSuccess: () => {
-          toast.success("User initialized successfully");
-          onComplete();
-        },
-        onError: () => {
-          toast.error("Initialization failed");
-        },
-        onSettled: () => {
-          setIsSubmitting(false);
-        },
-      }
-    );
+    try {
+      // Only send the missing fields that need to be updated
+      await updateProfile(formData);
+      toast.success("Profile updated successfully");
+      onComplete();
+    } catch (error) {
+      toast.error("Profile update failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -141,87 +161,73 @@ const CompleteProfileDrawer = ({
           </DrawerTitle>
         </DrawerHeader>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-4"
-        >
-          <div>
-            <Label className="text-sm font-medium text-white">First Name</Label>
-            <Input
-              {...register("first_name")}
-              placeholder="Shooman"
-              className="mt-2 text-black"
-            />
-            {errors.first_name && (
-              <p className="text-sm text-red-500">
-                {errors.first_name.message}
-              </p>
-            )}
-          </div>
+                 <form
+           onSubmit={handleSubmit(onSubmit)}
+           className="flex flex-col gap-5 mt-4"
+         >
+           {/* Show existing user info (read-only) */}
+          
+           {userData?.username && (
+             <div>
+               <Label className="text-sm font-medium text-white">Username</Label>
+               <Input
+                 value={userData.username}
+                 disabled
+                 className="mt-2 text-black bg-[#F4F4F4] border border-gray-300"
+               />
+             </div>
+           )}
 
-          <div>
-            <Label className="text-sm font-medium text-white">Last Name</Label>
-            <Input
-              {...register("last_name")}
-              placeholder="Khatri"
-              className="mt-2 text-black"
-            />
-            {errors.last_name && (
-              <p className="text-sm text-red-500">{errors.last_name.message}</p>
-            )}
-          </div>
+           {/* Only ask for missing information */}
+           <div>
+             <Label className="text-sm font-medium text-white">Position *</Label>
+             <Select onValueChange={(value) => setValue("position", value)}>
+               <SelectTrigger className="mt-2 text-black">
+                 <SelectValue placeholder="Select your position" />
+               </SelectTrigger>
+               <SelectContent>
+                 {positionOptions.map((pos) => (
+                   <SelectItem key={pos} value={pos}>
+                     {pos}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+             {errors.position && (
+               <p className="text-sm text-red-500">{errors.position.message}</p>
+             )}
+           </div>
 
-          <div>
-            <Label className="text-sm font-medium text-white">Username</Label>
-            <Input
-              {...register("username")}
-              placeholder="shoomankhatri"
-              className="mt-2 text-black"
-            />
-            {errors.username && (
-              <p className="text-sm text-red-500">{errors.username.message}</p>
-            )}
-          </div>
+           <div>
+             <Label className="text-sm font-medium text-white">Project Name *</Label>
+             <Input
+               {...register("project_name")}
+               placeholder="Enter your project name"
+               className="mt-2 text-black"
+             />
+             {errors.project_name && (
+               <p className="text-sm text-red-500">{errors.project_name.message}</p>
+             )}
+           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-white">
-              Your position
-            </Label>
-            <Select
-              value={watch("position")}
-              onValueChange={(val) => setValue("position", val)}
-            >
-              <SelectTrigger className="text-black">
-                <SelectValue placeholder="Select position" />
-              </SelectTrigger>
-              <SelectContent className="text-black">
-                {positionOptions.map((pos) => (
-                  <SelectItem key={pos} value={pos} className="text-black">
-                    {pos}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.position && (
-              <p className="text-sm text-red-500">{errors.position.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium text-white">
-              Project Name
-            </Label>
-            <Input
-              {...register("project_name")}
-              placeholder="Zefe"
-              className="mt-3 text-black"
-            />
-            {errors.project_name && (
-              <p className="text-sm text-red-500">
-                {errors.project_name.message}
-              </p>
-            )}
-          </div>
+           <div>
+             <Label className="text-sm font-medium text-white">City *</Label>
+             <Select onValueChange={(value) => setValue("city", value)}>
+               <SelectTrigger className="mt-2 text-black">
+                 <SelectValue placeholder="Select your city" />
+               </SelectTrigger>
+               <SelectContent>
+                 {cityOptions.map((city) => (
+                   <SelectItem key={city} value={city}>
+                     {city.replace(/_/g, ' ')}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+             {errors.city && (
+               <p className="text-sm text-red-500">{errors.city.message}</p>
+             )}
+           </div>
 
           <Button
             disabled={isSubmitting}

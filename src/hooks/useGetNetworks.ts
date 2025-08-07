@@ -9,6 +9,7 @@ export const fetchNetworkData = async (filters?: {
   city?: string;
   field?: string;
 }) => {
+  console.log("Fetching networks with filters:", filters);
   const queryParams = new URLSearchParams();
   for (const key in filters) {
     const value = filters[key as keyof typeof filters];
@@ -18,7 +19,8 @@ export const fetchNetworkData = async (filters?: {
   const response = await axiosInstance.get(
     `/networks_and_connnections/?${queryParams.toString()}`
   );
-  return response.data.data;
+  console.log("Networks API response:", response.data);
+  return response.data;
 };
 
 const useFetchNetworksAndConnections = (filters?: {
@@ -30,7 +32,7 @@ const useFetchNetworksAndConnections = (filters?: {
   return useQuery({
     queryKey: [QUERY_KEYS.NETWORKS_AND_CONNECTIONS, filters],
     queryFn: () => fetchNetworkData(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always refetch when requested
   });
 };
 

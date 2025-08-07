@@ -7,6 +7,7 @@ import Link from "next/link";
 import ZefeLogo from "@/components/svgs/logo";
 import UserIcon from "@/components/svgs/user-icon";
 import CameraIcon from "@/components/svgs/camera-icon";
+import LogoutIcon from "@/components/svgs/logout-icon";
 import BottomNavbar from "@/components/bottom-navbar/bottom-navbar";
 import AddEvent from "@/components/event/add-event";
 import QRCodeScanner from "@/components/qr/qrcode-scanner";
@@ -17,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
+import { useQueryClient } from "@tanstack/react-query";
 
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
@@ -38,11 +40,14 @@ export default function Home() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const isInitDataReady = !!user?.id;
   const zefeUserId = user?.id;
+  
+
 
   const {
     data: fetchedEvents,
@@ -60,8 +65,9 @@ export default function Home() {
 
     const position = userProfile?.user_profile?.position?.trim?.();
     const project = userProfile?.user_profile?.project_name?.trim?.();
+    const city = userProfile?.user_profile?.city?.trim?.();
 
-    if (!position || !project) {
+    if (!position || !project || !city) {
       setIsDrawerOpen(true);
     } else {
       setIsDrawerOpen(false);
@@ -69,6 +75,8 @@ export default function Home() {
   }, [userProfile]);
 
   const eventList = Array.isArray(fetchedEvents) ? fetchedEvents : [];
+  
+
 
   const selectedEvent = useMemo(
     () =>
@@ -76,6 +84,8 @@ export default function Home() {
       eventList[0],
     [eventList, selectedEventId]
   );
+  
+
 
   useEffect(() => {
     if (!selectedEventId && eventList.length > 0) {
@@ -98,18 +108,35 @@ export default function Home() {
           base_event_id: parseInt(baseEventId),
           scanned_user_id: parseInt(scannedUserId),
         });
-        console.log({ response });
         const createdNetwork = response?.data?.data;
         if (!createdNetwork) {
           toast.error(
             "Please retry connecting, network was not established correctly."
           );
+        } else {
+          // Successfully created network - refresh events list and networks
+          
+          // Force refetch events
+          await refetch();
+          
+          // Force refetch networks by invalidating cache
+          await queryClient.invalidateQueries({ queryKey: ["networkData"] });
+          
+          toast.success("Connection established! Event added to your list.");
+          
+          // Redirect immediately after showing success message
+          let urlToReplace = `/connected-user/${scannedUserId}?ref=scanner`;
+          if (baseEventId) {
+            urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
+          }
+          router.push(urlToReplace);
         }
+        
+        // If network creation failed, still redirect but without delay
         let urlToReplace = `/connected-user/${scannedUserId}?ref=scanner`;
         if (baseEventId) {
           urlToReplace += `&event_id=${baseEventId}&telegram_user_id=${telegramUserId}`;
         }
-
         router.push(urlToReplace);
       }
     } catch (err) {
@@ -129,7 +156,6 @@ export default function Home() {
     try {
       await createEvent({ ...newEvent });
       toast.success("Event created successfully!");
-      refetch();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       toast.error("Failed to create event. Please try again.");
@@ -158,12 +184,24 @@ export default function Home() {
   }
 
   return (
-    <main className="bg-[#232223] min-h-screen pt-[90px]">
+    <main className="bg-[#232223] min-h-screen pt-4">
       <div className="flex items-center justify-between px-3 py-3">
         <ZefeLogo />
-        <Link href="/user">
-          <UserIcon />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/user">
+            <UserIcon />
+          </Link>
+          <button
+            onClick={() => {
+              logout();
+              router.push('/login');
+            }}
+            className="p-1 hover:bg-gray-800 rounded-full transition-colors"
+            title="Logout"
+          >
+            <LogoutIcon size={20} />
+          </button>
+        </div>
       </div>
 
       {isScannerOpen ? (
@@ -180,12 +218,11 @@ export default function Home() {
               You are at
             </p>
 
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">
-              <AddEvent
-                triggerNode={<> + ADD EVENT</>}
-                onEventCreated={handleNewEvent}
-                refetch={refetch}
-              />
+                         <div className="flex flex-wrap items-center gap-2 mt-2 text-black text-[0.9rem]">
+               <AddEvent
+                 triggerNode={<> + ADD EVENT</>}
+                 onEventCreated={handleNewEvent}
+               />
 
               {eventList.map((event, index) => (
                 <Badge
@@ -245,21 +282,28 @@ export default function Home() {
         </div>
       )}
 
-      {isDrawerOpen && (
-        <CompleteProfileDrawer
-          isOpen={isDrawerOpen}
-          onOpenChange={setIsDrawerOpen}
-          onComplete={async () => {
-            const result = await refetchUserProfile();
-            const updatedProfile = result.data?.data?.user_profile;
-            if (updatedProfile?.position && updatedProfile?.project_name) {
-              setIsDrawerOpen(false);
-            } else {
-              setIsDrawerOpen(true);
-            }
-          }}
-        />
-      )}
+             {isDrawerOpen && (
+         <CompleteProfileDrawer
+           isOpen={isDrawerOpen}
+           onOpenChange={setIsDrawerOpen}
+                             userData={{
+                    name: userProfile?.name,
+                    username: userProfile?.username,
+                    position: userProfile?.user_profile?.position,
+                    project_name: userProfile?.user_profile?.project_name,
+                    city: userProfile?.user_profile?.city,
+                  }}
+                             onComplete={async () => {
+                    const result = await refetchUserProfile();
+                    const updatedProfile = result.data?.data?.user_profile;
+                    if (updatedProfile?.position && updatedProfile?.project_name && updatedProfile?.city) {
+                      setIsDrawerOpen(false);
+                    } else {
+                      setIsDrawerOpen(true);
+                    }
+                  }}
+         />
+       )}
     </main>
   );
 }

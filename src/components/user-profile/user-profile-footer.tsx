@@ -68,12 +68,12 @@ const UserProfileFooter = () => {
   return (
     <div className="flex flex-col items-center gap-3 mt-auto grow">
       <a
-        href="https://x.com/zefexyz"
+        href="https://x.com/"
         target="_blank"
         rel="noopener noreferrer"
         className="px-4 py-3 text-center rounded-[29px] h-[42.9px] bg-white text-[#232323] text-sm font-medium shadow-md hover:bg-[#f5f5f5] transition-all cursor-pointer"
       >
-        Follow ZEFE on X
+        Follow QrMate on X
       </a>
       <div className="flex justify-between w-full gap-3 mt-3">
         <Button

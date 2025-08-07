@@ -9,13 +9,20 @@ const useUploadFile = () => {
       formData.append("file", file);
       formData.append("key", key);
 
+      console.log('Uploading file:', file.name, 'Size:', file.size, 'Key:', key);
+      
       const response = await axiosInstance.post("/upload/file/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      
+      console.log('Upload response:', response.data);
       return response.data; // contains file_url
     },
+    onError: (error) => {
+      console.error('Upload error:', error);
+    }
   });
 };
 

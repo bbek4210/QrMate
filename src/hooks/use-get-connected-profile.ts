@@ -14,9 +14,9 @@ export type DetailedNetworkConnection = {
       position: string;
       project_name: string;
       city: string;
-      telegram_account: string;
-      linkedin_url: string;
-      twitter_account: string;
+      telegram_account: string | null;
+      linkedin_url: string | null;
+      twitter_account: string | null;
       user_fields: Array<Record<string, any>>
     };
   };
@@ -25,11 +25,16 @@ export type DetailedNetworkConnection = {
     base_event: {
       id: number;
       name: string;
+      code: string;
+      city: string;
+      address: string | null;
     };
-    scanner_event_title: string;
-    scanned_event_title: string;
-    summary_note: string;
-    meeting_images: string[]; // Assuming these are URLs or identifiers
+    meeting_informations: Array<{
+      id: number;
+      summary_note: string;
+      information_saved_user_id: number;
+      meeting_images: Array<any>;
+    }>;
   };
 };
 
@@ -37,7 +42,7 @@ export type DetailedNetworkConnection = {
 
 const fetchConnectionProfile = async (id: number) => {
   const response = await axiosInstance.get(`/networks_and_connnections/${id}/`);
-  return response.data.data as DetailedNetworkConnection;
+  return response.data as DetailedNetworkConnection;
 };
 
 const useGetConnectionProfile = (currentUserId: number, connectedUserId: number) => {

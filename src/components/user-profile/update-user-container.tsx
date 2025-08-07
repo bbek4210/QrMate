@@ -90,6 +90,29 @@ const positionOptions = [
   "OTHER",
 ];
 
+const cityOptions = [
+  "SAN_FRANCISCO",
+  "NEW_YORK_CITY",
+  "LONDON",
+  "TOKYO",
+  "SINGAPORE",
+  "BERLIN",
+  "PARIS",
+  "AMSTERDAM",
+  "BARCELONA",
+  "DUBAI",
+  "HONG_KONG",
+  "SYDNEY",
+  "TORONTO",
+  "AUSTIN",
+  "MIAMI",
+  "LOS_ANGELES",
+  "SEATTLE",
+  "BOSTON",
+  "CHICAGO",
+  "OTHER",
+];
+
 const UpdateUserContainer = () => {
   const router = useRouter();
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -99,9 +122,16 @@ const UpdateUserContainer = () => {
   const { data, refetch } = useGetUserProfile();
   const user = data?.data;
   // User authentication data will be handled differently in web version
-  const { fieldOptions } = useFieldOptions();
+  const { fieldOptions, loading: fieldsLoading, error: fieldsError } = useFieldOptions();
   const { mutateAsync } = useUpdateUserProfile();
   const uploadFileMutation = useUploadFile();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Field options:', fieldOptions);
+    console.log('Fields loading:', fieldsLoading);
+    console.log('Fields error:', fieldsError);
+  }, [fieldOptions, fieldsLoading, fieldsError]);
 
   const {
     register,
@@ -147,16 +177,34 @@ const UpdateUserContainer = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
+
     const extension = file.name.split(".").pop() || "jpg";
     const key = `zefe_profile_images/avatar-${Date.now()}.${extension}`;
 
     try {
+      console.log('Uploading file:', file.name, 'Size:', file.size);
       const result = await uploadFileMutation.mutateAsync({ file, key });
-      const uploadedUrl = result?.data?.file_url;
-      if (!uploadedUrl) throw new Error("No URL returned");
+      console.log('Upload result:', result);
+      
+      const uploadedUrl = result?.data?.file_url || result?.file_url;
+      if (!uploadedUrl) {
+        console.error('No URL in response:', result);
+        throw new Error("No URL returned from upload");
+      }
 
       setAvatar(uploadedUrl);
-
       toast.success("Profile picture uploaded");
 
       // 🚀 Immediately save photo_url
@@ -166,8 +214,8 @@ const UpdateUserContainer = () => {
       // 🔥 NOW: Refetch user profile to sync form again
       await refetch();
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload/save profile picture");
+      console.error('Avatar upload error:', error);
+      toast.error("Failed to upload/save profile picture. Please try again.");
     }
   };
 
@@ -208,7 +256,7 @@ const UpdateUserContainer = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-8 pb-8 mt-12 grow"
+      className="flex flex-col gap-8 pb-8 mt-4 grow"
       noValidate
     >
       <div className="flex flex-col items-center gap-3">
@@ -220,7 +268,7 @@ const UpdateUserContainer = () => {
         </Avatar>
         <label
           htmlFor="avatarUpload"
-          className="text-sm text-white underline cursor-pointer"
+          className="text-sm text-white underline cursor-pointer hover:text-gray-300 transition-colors"
         >
           Upload new profile picture
         </label>
@@ -231,15 +279,26 @@ const UpdateUserContainer = () => {
           onChange={handleAvatarUpload}
           className="hidden"
         />
+        {uploadFileMutation.isPending && (
+          <p className="text-sm text-gray-300">Uploading...</p>
+        )}
       </div>
 
       {/* --- Personal Info --- */}
       <Section title="Personal">
         <FormField label="Your name" required error={errors.name?.message}>
-          <Input {...register("name")} className="text-black" />
+          <Input 
+            {...register("name")} 
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+            placeholder="Enter your name"
+          />
         </FormField>
         <FormField label="Username" required error={errors.username?.message}>
-          <Input {...register("username")} className="text-black" />
+          <Input 
+            {...register("username")} 
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+            placeholder="Enter your username"
+          />
         </FormField>
       </Section>
 
@@ -250,7 +309,7 @@ const UpdateUserContainer = () => {
           control={control}
           render={({ field }) => (
             <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger className="text-black">
+              <SelectTrigger className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]">
                 <SelectValue placeholder="Select position" />
               </SelectTrigger>
               <SelectContent>
@@ -268,67 +327,99 @@ const UpdateUserContainer = () => {
           required
           error={errors.project_name?.message}
         >
-          <Input {...register("project_name")} className="text-black" />
+          <Input 
+            {...register("project_name")} 
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+            placeholder="Enter your project name"
+          />
         </FormField>
         <FormField label="City" required error={errors.city?.message}>
-          <Input {...register("city")} className="text-black" />
+                      <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value || ""} onValueChange={field.onChange}>
+                  <SelectTrigger className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]">
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cityOptions.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city.replace(/_/g, ' ')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
         </FormField>
       </Section>
 
-      {/* --- Fields --- */}
-      <Section title="Fields">
-        <Label className="text-white">
-          Select up to 3 fields <span className="text-red-500">*</span>
-        </Label>
-        <div className="flex flex-wrap gap-2">
-          {fieldOptions.map((field) => {
-            const isSelected = selectedFields.includes(field.id);
-            const isDisabled = selectedFields.length >= 3 && !isSelected;
-            return (
-              <Badge
-                key={field.id}
-                onClick={() => toggleSelectedField(field.id)}
-                className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem]
-                  ${
-                    isSelected
-                      ? "bg-[#ED2944] text-white"
-                      : "bg-transparent text-white hover:bg-white/10"
-                  }
-                  ${isDisabled ? "opacity-50 pointer-events-none" : ""}
-                `}
-              >
-                {field.name}
-              </Badge>
-            );
-          })}
-        </div>
-        {errors.selected_fields && (
-          <p className="text-sm text-red-500">
-            {errors.selected_fields.message}
-          </p>
-        )}
-      </Section>
+             {/* --- Fields --- */}
+       <Section title="Fields">
+         <Label className="text-white">
+           Select up to 3 fields <span className="text-red-500">*</span>
+         </Label>
+         <div className="flex flex-wrap gap-2">
+           {fieldsLoading ? (
+             <div className="flex items-center gap-2">
+               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+               <p className="text-white">Loading fields...</p>
+             </div>
+           ) : fieldOptions && fieldOptions.length > 0 ? (
+             fieldOptions.map((field) => {
+               const isSelected = selectedFields.includes(field.id);
+               const isDisabled = selectedFields.length >= 3 && !isSelected;
+               return (
+                 <Badge
+                   key={field.id}
+                   onClick={() => toggleSelectedField(field.id)}
+                   className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem]
+                     ${
+                       isSelected
+                         ? "bg-[#ED2944] text-white"
+                         : "bg-transparent text-white hover:bg-white/10"
+                     }
+                     ${isDisabled ? "opacity-50 pointer-events-none" : ""}
+                   `}
+                 >
+                   {field.name}
+                 </Badge>
+               );
+             })
+           ) : (
+             <p className="text-white">No fields available. Please try refreshing the page.</p>
+           )}
+         </div>
+         {errors.selected_fields && (
+           <p className="text-sm text-red-500">
+             {errors.selected_fields.message}
+           </p>
+         )}
+         {/* Debug info */}
+        
+       </Section>
 
       {/* --- Socials --- */}
       <Section title="Socials">
         <FormField label="Twitter account">
           <Input
             {...register("twitter_account")}
-            className="text-black"
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
             placeholder="@twitter"
           />
         </FormField>
         <FormField label="Linkedin account">
           <Input
             {...register("linkedin_url")}
-            className="text-black"
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
             placeholder="linkedin.com/"
           />
         </FormField>
         <FormField label="Email">
           <Input
             {...register("email")}
-            className="text-black"
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
             placeholder="you@example.com"
           />
         </FormField>

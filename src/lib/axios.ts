@@ -26,7 +26,8 @@ const axiosInstance = axios.create({
 // Request Interceptor
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const token = getCookie(ACCESS_TOKEN_KEY);
+    // Get token from localStorage (AuthContext stores it there)
+    const token = localStorage.getItem('qr-mate-access-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -56,9 +57,22 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response; // optional: log successful responses here
   },
-  (error) => {
+  async (error) => {
     const { config, response } = error;
     console.log({ response })
+
+    // Handle token expiration
+    if (response?.status === 401 && response?.data?.code === 'token_not_valid') {
+      // Clear auth data and redirect to login
+      localStorage.removeItem('qr-mate-access-token')
+      localStorage.removeItem('qr-mate-refresh-token')
+      localStorage.removeItem('qr-mate-user')
+      
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
+    }
 
     const logMessage = [
       `❌ **API ERROR**`,
