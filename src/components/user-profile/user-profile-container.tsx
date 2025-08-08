@@ -12,21 +12,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import EditProfileIconSvg from "../svgs/edit-profile-icon";
 import SendFeedbackIconSvg from "../svgs/send-feedback-icon";
-
-export interface UserField {
-  id: number;
-  name: string;
-}
+import { UserField } from "@/types/api";
 
 const UserProfileContainer = () => {
   const [isClient, setIsClient] = useState(false);
-  const { data, isLoading, isError, error } = useGetUserProfile();
+  const { data, isLoading, isError, error, refetch } = useGetUserProfile();
   const user = data?.data;
 
-  // Ensure component only renders on client side
+  // Ensure component only renders on client side and refetch data
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    // Refetch data when component mounts to ensure we have the latest data
+    refetch();
+  }, [refetch]);
 
   // Debug logging - only on client side and only in development
   useEffect(() => {
@@ -69,8 +67,8 @@ const UserProfileContainer = () => {
       {/* Profile Card - Desktop */}
       <div className="hidden lg:block w-full max-w-8xl">
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
-          {/* Three Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left Column - Profile Info */}
             <div className="flex flex-col items-center">
               {/* Avatar Section */}
@@ -100,32 +98,27 @@ const UserProfileContainer = () => {
               <div className="mb-6 w-full">
                 <h3 className="text-white font-semibold text-lg mb-4 text-center">Skills & Interests</h3>
                 <div className="flex items-center justify-center gap-3 flex-wrap">
-                  {user?.user_fields && user.user_fields.length > 0 ? (
-                    user.user_fields.map((field: UserField) => (
-                      <Badge
-                        key={field.id}
-                        className="text-sm text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-4 py-2 font-medium shadow-lg"
-                      >
-                        {field.name.toUpperCase()}
-                      </Badge>
-                    ))
-                  ) : user?.user_profile?.user_fields && user.user_profile.user_fields.length > 0 ? (
-                    user.user_profile.user_fields.map((field: UserField) => (
-                      <Badge
-                        key={field.id}
-                        className="text-sm text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-4 py-2 font-medium shadow-lg"
-                      >
-                        {field.name.toUpperCase()}
-                      </Badge>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 italic">No fields selected</p>
-                  )}
+                                     {(() => {
+                     const fields = user?.user_fields || user?.user_profile?.user_fields || [];
+                     
+                     if (fields.length > 0) {
+                       return fields.map((field: any) => (
+                         <Badge
+                           key={field.id}
+                           className="text-sm text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-4 py-2 font-medium shadow-lg"
+                         >
+                           {field.name?.toUpperCase() || 'Unknown Field'}
+                         </Badge>
+                       ));
+                     } else {
+                       return <p className="text-gray-400 italic">No fields selected</p>;
+                     }
+                   })()}
                 </div>
               </div>
 
               {/* Social Links Section */}
-              <div className="w-full">
+              <div className="w-full mb-6">
                 <h3 className="text-white font-semibold text-lg mb-4 text-center">Connect With Me</h3>
                 <div className="flex items-center justify-center gap-4">
                   {user?.user_profile?.twitter_account && (
@@ -163,6 +156,16 @@ const UserProfileContainer = () => {
                     </a>
                   )}
                 </div>
+              </div>
+
+              {/* Edit Profile Button */}
+              <div className="w-full">
+                <Link href="/update-user-profile" className="block w-full">
+                  <button className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
+                    <EditProfileIconSvg />
+                    Edit Profile
+                  </button>
+                </Link>
               </div>
             </div>
 
@@ -213,44 +216,7 @@ const UserProfileContainer = () => {
               </div>
             </div>
 
-            {/* Right Column - Action Buttons */}
-            <div className="flex flex-col justify-center">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                <h3 className="text-white font-semibold text-xl mb-6 text-center">Quick Actions</h3>
-                <div className="space-y-4">
-                  {/* Follow QrMate Button */}
-                  <a
-                    href="https://x.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] text-white text-center py-4 px-6 rounded-2xl font-semibold hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  >
-                    Follow QrMate on X
-                  </a>
-                  
-                  {/* Edit Profile Button */}
-                  <Link href="/update-user-profile" className="block w-full">
-                    <button className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
-                      <EditProfileIconSvg />
-                      Edit Profile
-                    </button>
-                  </Link>
-                  
-                  {/* Send Feedback Button */}
-                  <button
-                    onClick={() => {
-                      // Import the state and function from the footer component
-                      const event = new CustomEvent('openFeedbackDrawer');
-                      window.dispatchEvent(event);
-                    }}
-                    className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <SendFeedbackIconSvg />
-                    Send Feedback
-                  </button>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -281,30 +247,25 @@ const UserProfileContainer = () => {
           )}
         </div>
 
-        {/* Skills/Fields */}
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {user?.user_fields && user.user_fields.length > 0 ? (
-            user.user_fields.map((field: UserField) => (
-              <Badge
-                key={field.id}
-                className="text-xs text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-3 py-1 font-medium"
-              >
-                {field.name.toUpperCase()}
-              </Badge>
-            ))
-          ) : user?.user_profile?.user_fields && user.user_profile.user_fields.length > 0 ? (
-            user.user_profile.user_fields.map((field: UserField) => (
-              <Badge
-                key={field.id}
-                className="text-xs text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-3 py-1 font-medium"
-              >
-                {field.name.toUpperCase()}
-              </Badge>
-            ))
-          ) : (
-            <p className="text-gray-400 italic text-sm">No fields selected</p>
-          )}
-        </div>
+                          {/* Skills/Fields */}
+         <div className="flex items-center justify-center gap-2 flex-wrap">
+           {(() => {
+             const fields = user?.user_fields || user?.user_profile?.user_fields || [];
+             
+             if (fields.length > 0) {
+               return fields.map((field: any) => (
+                 <Badge
+                   key={field.id}
+                   className="text-xs text-white rounded-full border-white/20 border bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] px-3 py-1 font-medium"
+                 >
+                   {field.name?.toUpperCase() || 'Unknown Field'}
+                 </Badge>
+               ));
+             } else {
+               return <p className="text-gray-400 italic text-sm">No fields selected</p>;
+             }
+           })()}
+         </div>
 
         {/* Professional Info */}
         <div className="flex flex-col gap-3 text-white text-base font-medium">

@@ -34,21 +34,21 @@ const correctImageOrientation = (file: File): Promise<string> => {
       
       // Convert to data URL
       const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+      
+      // Clean up object URL
+      URL.revokeObjectURL(objectURL);
+      
       resolve(dataURL);
     };
     
     img.onerror = () => {
+      URL.revokeObjectURL(objectURL);
       reject(new Error('Failed to load image'));
     };
     
     // Create object URL for the file
     const objectURL = URL.createObjectURL(file);
     img.src = objectURL;
-    
-    // Clean up object URL after image loads
-    img.onload = () => {
-      URL.revokeObjectURL(objectURL);
-    };
   });
 };
 
@@ -89,12 +89,16 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
 
   useEffect(() => {
     console.log("SelfieNote data received:", selfieNote);
+    console.log("Network ID:", networkId);
+    console.log("Is loading:", isLoading);
+    
     if (selfieNote) {
       const newNote = selfieNote.summary_note || "";
       const existingImgs = selfieNote.meeting_images?.map((img: any) => img.image) || [];
       
       console.log("Setting note:", newNote);
       console.log("Setting images:", existingImgs);
+      console.log("Meeting images raw:", selfieNote.meeting_images);
       
       setNote(newNote);
       setOriginalNote(newNote);
@@ -106,8 +110,15 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       const hasData = newNote.trim() !== "" || existingImgs.length > 0;
       setHasExistingData(hasData);
       setIsReadOnly(hasData); // Make read-only if there's existing data
+      
+      console.log("Has existing data:", hasData);
+      console.log("Is read-only:", hasData);
+    } else if (!isLoading) {
+      console.log("No selfie note data found, allowing new input");
+      setHasExistingData(false);
+      setIsReadOnly(false);
     }
-  }, [selfieNote]);
+  }, [selfieNote, isLoading, networkId]);
 
   // Check for changes whenever note or photos change
   useEffect(() => {
@@ -147,7 +158,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     };
   }, []);
 
-  const handleSave = async (incomingFiles?: File[]) => {
+  const handleSave = async () => {
     const currentImages =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       selfieNote?.meeting_images?.map((img: any) => ({
@@ -158,12 +169,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     try {
       let newImages: { note: string; image: string }[] = [];
 
-      const fileList = incomingFiles ?? files; // Prefer incomingFiles if provided, otherwise fallback to state
-
-      if (fileList.length > 0 && !uploadFileMutation.isPending) {
-        const uploads = fileList.map((file) => {
+      // Upload new files if any
+      if (files.length > 0 && !uploadFileMutation.isPending) {
+        const uploads = files.map((file) => {
           const extension = file.name.split(".").pop() || "jpg";
-          const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}.${extension}`;
+          const key = `${SELFIE_KEY_PREFIX}/selfie-${Date.now()}-${Math.random()}.${extension}`;
           return uploadFileMutation.mutateAsync({ file, key });
         });
 
@@ -171,11 +181,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         newImages = results.map((res) => {
           return {
             note: "",
-            image: res?.data?.file_url,
+            image: res?.data?.file_url || res?.file_url,
           };
         });
 
-        console.log({ newImages });
+        console.log("New images uploaded:", newImages);
       }
 
       const payload = {
@@ -193,7 +203,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
           setFiles([]); // Clear uploaded files after mutation
           setHasChanges(false); // Reset changes flag
           setOriginalNote(note); // Update original note
-          setOriginalPhotos([...photos, ...newImages.map(img => img.image)]); // Update original photos
+          setOriginalPhotos([...originalPhotos, ...newImages.map(img => img.image)]); // Update original photos
           setIsReadOnly(true); // Make read-only after save
           setHasExistingData(true); // Mark as having existing data
           // Call the onSaved callback to refresh parent component data
@@ -212,12 +222,14 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     const validFiles = selectedFiles.filter((f) => f.size > 0);
 
     if (validFiles.length) {
+      // Create preview images immediately (no API call)
       const correctedImages = await Promise.all(
         validFiles.map((file) => {
           return correctImageOrientation(file);
         })
       );
 
+      // Store files and show previews
       setPhotos((prev) => [...prev, ...correctedImages]);
       setFiles((prev) => [...prev, ...validFiles]);
     }
@@ -255,47 +267,22 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         {/* Show existing data message if read-only */}
         {isReadOnly && hasExistingData && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <p className="text-blue-800 text-sm font-medium">
-              📝 Meeting information has been saved and is now read-only
+            <p className="text-blue-800 text-sm font-medium text-center">
+              📝 Meeting information has been saved and is now permanent. You can view but cannot edit this data.
             </p>
           </div>
         )}
 
-        <div className="flex items-stretch gap-3">
-          {photos.length === 0 && canUploadSelfie && !isReadOnly ? (
-            <label className="flex items-center justify-center gap-2 px-5 py-3 text-[0.8rem] bg-[#ED2944] text-white border border-white rounded-[29px] cursor-pointer">
-              <SmallcameraSvg /> Take an selfie
-              <input
-                type="file"
-                accept="image/*"
-                capture="user"
-                multiple
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
-            </label>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {photos.map((photo, index) => (
-                <div key={index} className="relative">
-                  <img 
-                    src={photo} 
-                    alt={`selfie-${index}`}
-                    className="w-20 h-20 object-cover rounded-lg border border-gray-300" 
-                  />
-                  {!isReadOnly && (
-                    <button
-                      onClick={() => handleRemoveImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-                    >
-                      ×
-                    </button>
-                  )}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Photo Section */}
+          <div className="lg:w-2/5">
+            {photos.length === 0 && canUploadSelfie && !isReadOnly ? (
+              <div className="flex flex-col items-center justify-center gap-4 p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#ED2944] transition-all">
+                <div className="w-16 h-16 bg-[#ED2944] rounded-full flex items-center justify-center">
+                  <SmallcameraSvg />
                 </div>
-              ))}
-              {canUploadSelfie && !isReadOnly && (
-                <label className="flex items-center justify-center gap-2 px-3 py-2 text-[0.7rem] bg-[#ED2944] text-white border border-white rounded-lg cursor-pointer w-20 h-20">
-                  <SmallcameraSvg /> Add
+                <label className="flex items-center justify-center gap-3 px-6 py-4 text-sm bg-gradient-to-r from-[#ED2944] to-[#cb1f38] text-white border border-white rounded-xl cursor-pointer hover:from-[#cb1f38] hover:to-[#a01830] transition-all shadow-lg">
+                  Take a selfie
                   <input
                     type="file"
                     accept="image/*"
@@ -305,23 +292,84 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
                     className="hidden"
                   />
                 </label>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {photos.map((photo, index) => (
+                    <div key={index} className="relative group bg-white rounded-2xl p-3 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <div className="aspect-[4/3] relative overflow-hidden rounded-xl">
+                                                 <img 
+                           src={photo} 
+                           alt={`selfie-${index}`}
+                           className="w-full h-full object-contain bg-gray-50 hover:scale-105 transition-transform duration-300" 
+                           onError={(e) => {
+                             console.error('Failed to load image:', photo);
+                             e.currentTarget.style.display = 'none';
+                           }}
+                           onLoad={() => {
+                             console.log('Image loaded successfully:', photo);
+                           }}
+                         />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-xl flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="bg-white bg-opacity-90 rounded-full p-2">
+                              <svg className="w-6 h-6 text-[#ED2944]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {!isReadOnly && (
+                        <button
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-lg hover:scale-110"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {canUploadSelfie && !isReadOnly && (
+                  <label className="flex items-center justify-center gap-3 px-6 py-4 text-sm bg-gradient-to-r from-[#ED2944] to-[#cb1f38] text-white border border-white rounded-xl cursor-pointer hover:from-[#cb1f38] hover:to-[#a01830] transition-all shadow-lg hover:shadow-xl">
+                    <SmallcameraSvg /> Add More Photos
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="user"
+                      multiple
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
 
-          <textarea
-            id="summary_note_textarea"
-            placeholder={isReadOnly ? "No note available" : "Write a short note..."}
-            className={`w-full min-w-[50%] min-h-[160px] p-3 text-sm rounded-lg resize-none focus:outline-none ${
-              isReadOnly 
-                ? 'bg-gray-100 text-gray-600 cursor-not-allowed' 
-                : 'text-black'
-            }`}
-            value={note}
-            onChange={(e) => !isReadOnly && setNote(e.target.value)}
-            readOnly={isReadOnly}
-          />
+          {/* Note Section */}
+          <div className="lg:w-3/5">
+            <div className="bg-white rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Meeting Notes</h3>
+              <textarea
+                id="summary_note_textarea"
+                placeholder={isReadOnly ? "No note available" : "Write a detailed note about your meeting, what you discussed, follow-up actions, or any important points..."}
+                className={`w-full min-h-[250px] p-4 text-sm rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#ED2944] transition-all ${
+                  isReadOnly 
+                    ? 'bg-gray-100 text-gray-600 cursor-not-allowed' 
+                    : 'text-gray-800 border-2 border-gray-200 hover:border-[#ED2944] bg-gray-50'
+                }`}
+                value={note}
+                onChange={(e) => !isReadOnly && setNote(e.target.value)}
+                readOnly={isReadOnly}
+              />
+            </div>
+          </div>
         </div>
+
+        
 
         {/* Save Button - Only show when there are changes and not read-only */}
         {hasChanges && !isReadOnly && (
@@ -337,9 +385,11 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
         )}
 
         {makeSelfieNote.isSuccess && (
-          <p className="text-sm font-medium text-center text-green-500">
-            ✓ Information saved successfully!
-          </p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+            <p className="text-green-800 text-sm font-medium text-center">
+              ✓ Meeting information saved successfully! This data is now permanent and cannot be edited.
+            </p>
+          </div>
         )}
 
         {makeSelfieNote.isPending && (

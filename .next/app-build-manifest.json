@@ -16,16 +16,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/login/page.js"
     ],
-    "/connected-user/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/connected-user/[id]/page.js"
-    ],
-    "/networks-and-connections/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/networks-and-connections/page.js"
-    ],
     "/user/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -36,10 +26,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/update-user-profile/page.js"
     ],
-    "/_not-found/page": [
+    "/networks-and-connections/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/networks-and-connections/page.js"
+    ],
+    "/connected-user/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/connected-user/[id]/page.js"
     ]
   }
 }

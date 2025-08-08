@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import FilterButtonSvg from "@/components/svgs/filter-button";
 import CrossIcon from "@/components/svgs/cross-icon";
 import LogoutIcon from "@/components/svgs/logout-icon";
-
-import useFetchNetworksAndConnections from "@/hooks/useGetNetworks";
 import FilterDrawer from "@/components/filter-drawer";
 import ConnectionBox from "@/components/connection-box";
 import { useAuth } from "@/contexts/AuthContext";
+
+import useFetchNetworksAndConnections from "@/hooks/useGetNetworks";
 
 const NetworksAndConnections = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -92,6 +92,7 @@ const NetworksAndConnections = () => {
                 <FilterButtonSvg />
                 Filter
               </button>
+              
               
               <button
                 onClick={handleLogout}

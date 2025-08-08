@@ -13,6 +13,8 @@ export const useFieldOptions = () => {
     queryKey: userQueryKeys.fields(),
     queryFn: api.user.getFields,
     staleTime: 30 * 60 * 1000, // 30 minutes
+    retry: 3,
+    retryDelay: 1000,
     placeholderData: [
       { id: 1, name: 'Blockchain' },
       { id: 2, name: 'Web3' },
@@ -28,6 +30,6 @@ export const useFieldOptions = () => {
   return { 
     fieldOptions: data || [], 
     loading: isLoading, 
-    error: error ? 'Failed to load fields.' : null 
+    error: error ? `Failed to load fields: ${error.message}` : null 
   };
 };

@@ -13,8 +13,13 @@ import AddEvent from "@/components/event/add-event";
 import QRCodeScanner from "@/components/qr/qrcode-scanner";
 import ProfileBanner from "@/components/profile-banner";
 import FancyQRCode from "@/components/FancyQRCode";
+import { useGetConnectionStrength, useGetConnectionRecommendations } from '@/hooks/api-hooks';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Target, Sparkles, TrendingUp, Users, UserPlus } from 'lucide-react';
+import DirectConnectButton from '@/components/DirectConnectButton';
 
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import useCreateEvent from "@/hooks/useCreateEvent";
 import useGetEvents from "@/hooks/useGetEvent";
@@ -29,7 +34,6 @@ import {
 import useGetUserProfile from "@/hooks/use-get-user-profile";
 import CompleteProfileDrawer from "@/components/connected-user/collect-role-project";
 import SplashScreen from "@/components/splash-screen";
-import { useQRAnalytics } from "@/hooks/useQRAnalytics";
 
 let hasAppInitialized = false;
 
@@ -57,8 +61,12 @@ export default function Home() {
   const { data, refetch: refetchUserProfile } = useGetUserProfile();
   const userProfile = data?.data;
   
-  // Get real QR analytics data
-  const qrAnalytics = useQRAnalytics();
+  // Get algorithm insights data
+  const { data: strengthData, isLoading: strengthLoading } = useGetConnectionStrength();
+  const { data: recommendationsData, isLoading: recommendationsLoading } = useGetConnectionRecommendations();
+
+  const strengthInfo = strengthData?.data;
+  const recommendations = recommendationsData?.data?.recommendations || [];
 
   useEffect(() => {
     if (!userProfile) return;
@@ -194,7 +202,14 @@ export default function Home() {
              </div>
              <div className="flex items-center space-x-4">
                <Link href="/user" className="flex items-center space-x-2 text-white hover:text-gray-300 transition-colors hover-lift p-2 rounded-lg">
-                 <UserIcon />
+                 <Avatar className="w-8 h-8 border-2 border-white/20">
+                   <AvatarImage 
+                     src={userProfile?.photo_url || "https://github.com/shadcn.png"} 
+                   />
+                   <AvatarFallback className="bg-gradient-to-br from-[#ED2944] to-[#ff6b7a] text-white text-sm font-bold">
+                     {userProfile?.name?.[0]?.toUpperCase() || "U"}
+                   </AvatarFallback>
+                 </Avatar>
                  <span className="text-sm">Profile</span>
                </Link>
                <button
@@ -219,7 +234,14 @@ export default function Home() {
           <ZefeLogo />
           <div className="flex items-center gap-3">
             <Link href="/user">
-              <UserIcon />
+              <Avatar className="w-8 h-8 border-2 border-white/20">
+                <AvatarImage 
+                  src={userProfile?.photo_url || "https://github.com/shadcn.png"} 
+                />
+                <AvatarFallback className="bg-gradient-to-br from-[#ED2944] to-[#ff6b7a] text-white text-sm font-bold">
+                  {userProfile?.name?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
             </Link>
             <button
               onClick={() => {
@@ -333,130 +355,180 @@ export default function Home() {
                    </div>
                  </div>
 
-                 {/* QR Code Analytics */}
-                 <div className="glass-card card-hover rounded-2xl p-6">
-                   <h3 className="text-[#DDCCCC] font-bold text-xl mb-4">
-                     QR Code Analytics
-                   </h3>
-                   <div className="space-y-6">
-                     {/* Today's Scans */}
-                     <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center space-x-3">
-                           <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
-                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                             </svg>
-                           </div>
-                           <div>
-                             <h4 className="text-white font-semibold text-sm">Today's Scans</h4>
-                             <p className="text-gray-400 text-xs">QR Code views</p>
-                           </div>
-                         </div>
-                         <div className="text-right">
-                           <div className="text-2xl font-bold gradient-text">{qrAnalytics.todayScans}</div>
-                           <div className={`text-xs flex items-center ${qrAnalytics.scanGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                             {qrAnalytics.scanGrowth >= 0 ? (
-                               <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                 <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                               </svg>
-                             ) : (
-                               <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                 <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
-                               </svg>
-                             )}
-                             {qrAnalytics.scanGrowth >= 0 ? '+' : ''}{qrAnalytics.scanGrowth} from yesterday
-                           </div>
-                         </div>
-                       </div>
-                     </div>
+                 {/* Algorithm Insights */}
+                <div className="glass-card card-hover rounded-2xl p-6">
+                  <h3 className="text-[#DDCCCC] font-bold text-xl mb-4">
+                    Network Intelligence
+                  </h3>
+                  <div className="space-y-6">
+                    {/* Connection Strength Overview */}
+                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
+                            <Target className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-white font-semibold text-sm">Connection Strength</h4>
+                            <p className="text-gray-400 text-xs">Your strongest connections</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold gradient-text">
+                            {strengthLoading ? '...' : strengthInfo?.strong_connections || 0}
+                          </div>
+                          <div className="text-gray-400 text-xs">
+                            {strengthLoading ? 'Loading...' : `${strengthInfo?.total_connections || 0} total`}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-[#ED2944] to-[#c41e3a] h-2 rounded-full" 
+                          style={{ 
+                            width: `${strengthInfo?.total_connections ? Math.round((strengthInfo.strong_connections / strengthInfo.total_connections) * 100) : 0}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
 
-                     {/* Most Active Time */}
-                     <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
-                       <div className="flex items-start space-x-3">
-                         <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
-                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                           </svg>
-                         </div>
-                                                    <div className="flex-1">
-                             <h4 className="text-white font-semibold text-sm mb-1">Peak Activity Time</h4>
-                             <p className="text-gray-300 text-sm leading-relaxed">
-                               <span className="text-[#ED2944] font-semibold">{qrAnalytics.peakActivityTime}</span> is when your QR gets scanned most often
-                             </p>
-                             <div className="mt-2 flex space-x-1">
-                               {['8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM'].map((time, index) => (
-                                 <div key={time} className={`flex-1 h-2 rounded-full ${index === 3 ? 'bg-[#ED2944]' : 'bg-gray-600'}`}></div>
-                               ))}
-                             </div>
-                           </div>
-                       </div>
-                     </div>
+                    {/* Top Connections */}
+                    {strengthInfo?.connections?.slice(0, 2).map((connection: any, index: number) => (
+                      <div key={index} className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={connection.user_photo} />
+                            <AvatarFallback className="text-xs bg-[#ED2944] text-white">
+                              {connection.user_name?.[0] || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-semibold text-sm truncate">
+                              {connection.user_name}
+                            </h4>
+                            <p className="text-gray-400 text-xs truncate">
+                              {connection.event_name}
+                            </p>
+                          </div>
+                          <Badge className={`text-xs ${
+                            connection.strength_category === 'Strong' ? 'bg-green-100 text-green-600' :
+                            connection.strength_category === 'Good' ? 'bg-blue-100 text-blue-600' :
+                            connection.strength_category === 'Fair' ? 'bg-yellow-100 text-yellow-600' :
+                            'bg-red-100 text-red-600'
+                          }`}>
+                            {connection.strength_category === 'Strong' ? '🔥' :
+                             connection.strength_category === 'Good' ? '⭐' :
+                             connection.strength_category === 'Fair' ? '📈' : '💡'} {connection.score}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
 
-                     {/* Connection Success Rate */}
-                     <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center space-x-3">
-                           <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
-                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                             </svg>
-                           </div>
-                           <div>
-                             <h4 className="text-white font-semibold text-sm">Success Rate</h4>
-                             <p className="text-gray-400 text-xs">Connections made</p>
-                           </div>
-                         </div>
-                         <div className="text-right">
-                           <div className="text-2xl font-bold gradient-text">{qrAnalytics.successRate}%</div>
-                           <div className="text-gray-400 text-xs">{qrAnalytics.successfulConnections} of {qrAnalytics.totalScans} scans</div>
-                         </div>
-                       </div>
-                       <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
-                         <div className="bg-gradient-to-r from-[#ED2944] to-[#c41e3a] h-2 rounded-full" style={{ width: `${qrAnalytics.successRate}%` }}></div>
-                       </div>
-                     </div>
+                    {/* Recommendations Overview */}
+                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-white font-semibold text-sm">Smart Recommendations</h4>
+                            <p className="text-gray-400 text-xs">People you should connect with</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold gradient-text">
+                            {recommendationsLoading ? '...' : recommendations.length}
+                          </div>
+                          <div className="text-gray-400 text-xs">
+                            {recommendationsLoading ? 'Loading...' : 'matches found'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                     {/* Trending Notification */}
-                     <div className={`bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border hover-lift relative overflow-hidden ${qrAnalytics.isTrending ? 'border-[#ED2944]' : 'border-gray-700'}`}>
-                       <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#ED2944] to-[#c41e3a] opacity-10 rounded-full -translate-y-8 translate-x-8"></div>
-                       <div className="relative z-10">
-                         <div className="flex items-start space-x-3">
-                           <div className={`flex-shrink-0 w-8 h-8 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center ${qrAnalytics.isTrending ? 'animate-pulse' : ''}`}>
-                             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                               <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                             </svg>
-                           </div>
-                           <div className="flex-1">
-                             <h4 className="text-white font-semibold text-sm mb-1 flex items-center">
-                               <span className={`mr-2 ${qrAnalytics.isTrending ? 'text-[#ED2944]' : 'text-gray-400'}`}>
-                                 {qrAnalytics.isTrending ? '🔥 Trending!' : '📊 Analytics'}
-                               </span>
-                               {qrAnalytics.isTrending ? 'Your QR is hot today' : 'Your networking stats'}
-                             </h4>
-                             <p className="text-gray-300 text-sm leading-relaxed">
-                               {qrAnalytics.trendingMessage}
-                             </p>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
+                    {/* Top Recommendations */}
+                    {recommendations.slice(0, 2).map((recommendation: any, index: number) => {
+                      // Check if this user is already connected
+                      const isAlreadyConnected = strengthInfo?.connections?.some(
+                        (connection: any) => connection.user_id === recommendation.user_id
+                      );
+                      
+                      return (
+                        <div key={index} className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={recommendation.user_photo} />
+                              <AvatarFallback className="text-xs bg-[#ED2944] text-white">
+                                {recommendation.user_name?.[0] || 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-white font-semibold text-sm truncate">
+                                {recommendation.user_name}
+                              </h4>
+                              <p className="text-gray-400 text-xs truncate">
+                                {recommendation.position} • {recommendation.city}
+                              </p>
+                              <p className="text-blue-400 text-xs truncate">
+                                {recommendation.recommendation_reason}
+                              </p>
+                            </div>
+                            <Badge className="text-xs bg-blue-100 text-blue-600">
+                              {recommendation.similarity_score}%
+                            </Badge>
+                          </div>
+                          <DirectConnectButton
+                            targetUserId={recommendation.user_id}
+                            similarityScore={recommendation.similarity_score}
+                            targetUserName={recommendation.user_name}
+                            isAlreadyConnected={isAlreadyConnected}
+                            className="mt-2"
+                          />
+                        </div>
+                      );
+                    })}
 
-                     {/* View Detailed Analytics Button */}
-                     <button 
-                       onClick={() => {
-                         // TODO: Navigate to detailed analytics page
-                         toast.success('Detailed analytics coming soon!');
-                       }}
-                       className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] text-white py-3 px-4 rounded-xl border border-gray-600 hover:border-gray-500 transition-all duration-200 shadow-lg hover-lift"
-                     >
-                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                       </svg>
-                       <span className="font-medium text-sm">View Detailed Analytics</span>
-                     </button>
-                   </div>
-                 </div>
+                    {/* Network Growth */}
+                    <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-4 border border-gray-700 hover-lift">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#ED2944] to-[#c41e3a] rounded-full flex items-center justify-center">
+                            <TrendingUp className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-white font-semibold text-sm">Network Growth</h4>
+                            <p className="text-gray-400 text-xs">Your networking progress</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold gradient-text">
+                            {strengthLoading ? '...' : Math.round(strengthInfo?.average_score || 0)}
+                          </div>
+                          <div className="text-gray-400 text-xs">avg score /100</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-[#ED2944] to-[#c41e3a] h-2 rounded-full" 
+                          style={{ width: `${strengthInfo?.average_score || 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <button 
+                      onClick={() => {
+                        // Navigate to networks page to see all connections
+                        router.push('/networks-and-connections');
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] text-white py-3 px-4 rounded-xl border border-gray-600 hover:border-gray-500 transition-all duration-200 shadow-lg hover-lift"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span className="font-medium text-sm">View All Connections</span>
+                    </button>
+                  </div>
+                </div>
                </div>
             </div>
           </div>

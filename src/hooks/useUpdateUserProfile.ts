@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { userQueryKeys } from "@/lib/query-keys";
 
 // Define the shape of the update profile payload
 interface UpdateProfilePayload {
@@ -40,7 +41,7 @@ const useUpdateUserProfile = () => {
     mutationFn: updateUserProfile,
     onSuccess: () => {
       // Invalidate and refetch user profile after update
-      queryClient.invalidateQueries({ queryKey: ["USERPROFILE_QUERY_KEY"] });
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.profile() });
     },
   });
 };

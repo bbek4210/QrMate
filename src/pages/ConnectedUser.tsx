@@ -31,7 +31,7 @@ const ConnectedUserPage = () => {
     isLoading,
     isError,
     refetch,
-  } = useGetConnectionProfile(data?.data?.id, numericId as number);
+  } = useGetConnectionProfile(data?.data?.id || 0, numericId || 0);
 
   // Add a callback to refresh connection data when selfie/note is saved
   const handleSelfieNoteSaved = () => {

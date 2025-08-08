@@ -224,6 +224,30 @@ export const networkingAPI = {
     return response.data;
   },
 
+  // Get QR analytics
+  getQRAnalytics: async (): Promise<ApiResponse<any>> => {
+    const response = await axiosInstance.get('/qr-analytics/');
+    return response.data;
+  },
+
+  // Get connection strength analysis
+  getConnectionStrength: async (): Promise<ApiResponse<any>> => {
+    const response = await axiosInstance.get('/connection-strength/');
+    return response.data;
+  },
+
+  // Get connection recommendations
+  getConnectionRecommendations: async (): Promise<ApiResponse<any>> => {
+    const response = await axiosInstance.get('/connection-recommendations/');
+    return response.data;
+  },
+
+  // Create direct connection (for 75%+ similarity)
+  createDirectConnection: async (targetUserId: number): Promise<ApiResponse<any>> => {
+    const response = await axiosInstance.post(`/direct-connection/${targetUserId}/`);
+    return response.data;
+  },
+
   // Report spam
   reportSpam: async (reportData: any): Promise<ApiResponse> => {
     const response = await axiosInstance.post('/networking/spam-reports/', reportData);

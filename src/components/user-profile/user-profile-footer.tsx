@@ -100,24 +100,7 @@ const UserProfileFooter = () => {
             </a>
             
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button
-                leftIcon={<SendFeedbackIconSvg />}
-                className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                onClick={() => setIsFeedbackDrawerOpen(true)}
-              >
-                Send Feedback
-              </Button>
-              
-              <Link className="w-full" href="/update-user-profile">
-                <Button
-                  className="w-full py-4 rounded-2xl text-base font-semibold text-white border border-white/20 bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  leftIcon={<EditProfileIconSvg />}
-                >
-                  Edit Profile
-                </Button>
-              </Link>
-            </div>
+           
           </div>
         </div>
       </div>
@@ -192,13 +175,7 @@ const UserProfileFooter = () => {
                   Cancel
                 </Button>
                 
-                <Button
-                  onClick={handleSendFeedback}
-                  disabled={!feedback.trim()}
-                  className="flex-1 py-3 rounded-2xl text-white bg-gradient-to-r from-[#ED2944] to-[#ff6b7a] hover:from-[#cb1f38] hover:to-[#e55a68] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Send Feedback
-                </Button>
+              
               </div>
             </div>
           </DrawerContent>

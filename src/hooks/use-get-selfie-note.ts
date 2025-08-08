@@ -9,7 +9,7 @@ const fetchSelfieNote = async (id: number) => {
 
 const useGetSelfieNote = (id?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, id],
+    queryKey: [QUERY_KEYS.NETWORKING.GET_SELFIE_NOTE, id],
     queryFn: () => fetchSelfieNote(id!),
     enabled: !!id,
   });

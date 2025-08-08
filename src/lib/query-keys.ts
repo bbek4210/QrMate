@@ -31,6 +31,9 @@ export const QUERY_KEYS = {
     BROWSE_USERS: 'browse-users',
     NOTIFICATION_COUNT: 'notification-count',
     GET_SELFIE_NOTE: 'get-selfie-note',
+    QR_ANALYTICS: 'qr-analytics',
+    CONNECTION_STRENGTH: 'connection-strength',
+    CONNECTION_RECOMMENDATIONS: 'connection-recommendations',
   },
 
   // Wallet
@@ -79,6 +82,12 @@ export const networkingQueryKeys = {
     [QUERY_KEYS.NETWORKING.BROWSE_USERS, filters] as const,
   notificationCount: () => 
     [QUERY_KEYS.NETWORKING.NOTIFICATION_COUNT] as const,
+  qrAnalytics: () => 
+    [QUERY_KEYS.NETWORKING.QR_ANALYTICS] as const,
+  connectionStrength: () => 
+    [QUERY_KEYS.NETWORKING.CONNECTION_STRENGTH] as const,
+  connectionRecommendations: () => 
+    [QUERY_KEYS.NETWORKING.CONNECTION_RECOMMENDATIONS] as const,
 };
 
 export const eventsQueryKeys = {

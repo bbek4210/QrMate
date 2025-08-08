@@ -296,8 +296,52 @@ export const useGetNotificationCount = () => {
   return useQuery({
     queryKey: networkingQueryKeys.notificationCount(),
     queryFn: api.networking.getNotificationCount,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 1 * 60 * 1000, // 1 minute
     refetchInterval: 30 * 1000, // Refetch every 30 seconds
+  });
+};
+
+export const useGetQRAnalytics = () => {
+  return useQuery({
+    queryKey: networkingQueryKeys.qrAnalytics(),
+    queryFn: api.networking.getQRAnalytics,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useGetConnectionStrength = () => {
+  return useQuery({
+    queryKey: networkingQueryKeys.connectionStrength(),
+    queryFn: api.networking.getConnectionStrength,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useGetConnectionRecommendations = () => {
+  return useQuery({
+    queryKey: networkingQueryKeys.connectionRecommendations(),
+    queryFn: api.networking.getConnectionRecommendations,
+    staleTime: 15 * 60 * 1000, // 15 minutes
+  });
+};
+
+export const useCreateDirectConnection = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: api.networking.createDirectConnection,
+    onSuccess: (data, variables) => {
+      // Invalidate all relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: networkingQueryKeys.connectionRecommendations() });
+      queryClient.invalidateQueries({ queryKey: networkingQueryKeys.connectionStrength() });
+      queryClient.invalidateQueries({ queryKey: networkingQueryKeys.myConnections() });
+      queryClient.invalidateQueries({ queryKey: networkingQueryKeys.networksAndConnections() });
+      queryClient.invalidateQueries({ queryKey: networkingQueryKeys.notificationCount() });
+      
+      // Force refetch the connections data immediately
+      queryClient.refetchQueries({ queryKey: networkingQueryKeys.myConnections() });
+      queryClient.refetchQueries({ queryKey: networkingQueryKeys.networksAndConnections() });
+    },
   });
 };
 
