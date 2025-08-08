@@ -1,4 +1,8 @@
 {
-  "/user/page": "app/user/page.js",
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js",
+  "/connected-user/[id]/page": "app/connected-user/[id]/page.js",
+  "/networks-and-connections/page": "app/networks-and-connections/page.js",
+  "/update-user-profile/page": "app/update-user-profile/page.js",
+  "/user/page": "app/user/page.js"
 }

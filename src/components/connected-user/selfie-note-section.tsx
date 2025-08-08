@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
 
 import CheckedcircleSvg from "@/components/svgs/checked-circle";
 import SmallcameraSvg from "@/components/svgs/smallcamera";
@@ -15,7 +16,41 @@ import { QUERY_KEYS } from "@/lib/query-keys";
 import useUploadFile from "@/hooks/use-upload-file";
 import useMakeSelfieNote from "@/hooks/use-make-selfie-note";
 import useGetSelfieNote from "@/hooks/use-get-selfie-note";
-import loadImage from "blueimp-load-image";
+
+// Native image orientation correction function
+const correctImageOrientation = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Set canvas size to image size
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Draw image on canvas (this automatically corrects orientation)
+      ctx?.drawImage(img, 0, 0);
+      
+      // Convert to data URL
+      const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+      resolve(dataURL);
+    };
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image'));
+    };
+    
+    // Create object URL for the file
+    const objectURL = URL.createObjectURL(file);
+    img.src = objectURL;
+    
+    // Clean up object URL after image loads
+    img.onload = () => {
+      URL.revokeObjectURL(objectURL);
+    };
+  });
+};
 
 interface SelfieNoteSectionProps {
   networkId: number;
@@ -153,7 +188,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
       makeSelfieNote.mutate(payload, {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [QUERY_KEYS.GET_SELFIE_NOTE, networkId],
+            queryKey: [QUERY_KEYS.NETWORKING.GET_SELFIE_NOTE, networkId],
           });
           setFiles([]); // Clear uploaded files after mutation
           setHasChanges(false); // Reset changes flag
@@ -179,19 +214,7 @@ const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
     if (validFiles.length) {
       const correctedImages = await Promise.all(
         validFiles.map((file) => {
-          return new Promise<string>((resolve, reject) => {
-            loadImage(
-              file,
-              (img: { toDataURL: () => string | PromiseLike<string> }) => {
-                if (img instanceof HTMLCanvasElement) {
-                  resolve(img.toDataURL());
-                } else {
-                  reject("Could not load image");
-                }
-              },
-              { orientation: true, canvas: true }
-            );
-          });
+          return correctImageOrientation(file);
         })
       );
 

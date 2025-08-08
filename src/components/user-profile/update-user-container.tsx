@@ -159,7 +159,10 @@ const UpdateUserContainer = () => {
 
   useEffect(() => {
     if (!user) return;
-    const profile = user.user_profile || {};
+    // The API returns ApiResponse<UserWithProfile> where data.data contains user_profile and user_fields
+    const profile = data?.data?.user_profile || {};
+    const fields = data?.data?.user_fields || [];
+    
     setValue("name", user.name ?? "");
     setValue("username", user.username ?? "");
     setValue("position", profile.position ?? "");
@@ -169,10 +172,9 @@ const UpdateUserContainer = () => {
     setValue("linkedin_url", profile.linkedin_url ?? "");
     setValue("email", user.email ?? "");
 
-    const selectedFieldIds =
-      profile.user_fields?.map((f: { id: number }) => f.id) || [];
+    const selectedFieldIds = fields.map((f: { id: number }) => f.id) || [];
     setValue("selected_fields", selectedFieldIds);
-  }, [user, setValue]);
+  }, [user, data, setValue]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -259,7 +261,8 @@ const UpdateUserContainer = () => {
       className="flex flex-col gap-8 pb-8 mt-4 grow"
       noValidate
     >
-      <div className="flex flex-col items-center gap-3">
+      {/* Avatar section - only show on mobile */}
+      <div className="lg:hidden flex flex-col items-center gap-3">
         <Avatar className="rounded-[36px] w-[144px] h-[144px] border border-white shadow-md">
           <AvatarImage
             src={avatar || user?.photo_url || "https://github.com/shadcn.png"}
@@ -286,55 +289,49 @@ const UpdateUserContainer = () => {
 
       {/* --- Personal Info --- */}
       <Section title="Personal">
-        <FormField label="Your name" required error={errors.name?.message}>
-          <Input 
-            {...register("name")} 
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
-            placeholder="Enter your name"
-          />
-        </FormField>
-        <FormField label="Username" required error={errors.username?.message}>
-          <Input 
-            {...register("username")} 
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
-            placeholder="Enter your username"
-          />
-        </FormField>
+        <div className="grid lg:grid-cols-2 gap-6">
+          <FormField label="Your name" required error={errors.name?.message}>
+            <Input 
+              {...register("name")} 
+              className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+              placeholder="Enter your name"
+            />
+          </FormField>
+          <FormField label="Username" required error={errors.username?.message}>
+            <Input 
+              {...register("username")} 
+              className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+              placeholder="Enter your username"
+            />
+          </FormField>
+        </div>
       </Section>
 
       {/* --- Project Info --- */}
       <Section title="Project">
-        <Controller
-          name="position"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]">
-                <SelectValue placeholder="Select position" />
-              </SelectTrigger>
-              <SelectContent>
-                {positionOptions.map((pos) => (
-                  <SelectItem key={pos} value={pos}>
-                    {pos}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-        <FormField
-          label="Project name"
-          required
-          error={errors.project_name?.message}
-        >
-          <Input 
-            {...register("project_name")} 
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
-            placeholder="Enter your project name"
-          />
-        </FormField>
-        <FormField label="City" required error={errors.city?.message}>
-                      <Controller
+        <div className="grid lg:grid-cols-2 gap-6">
+          <FormField label="Position" required error={errors.position?.message}>
+            <Controller
+              name="position"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value || ""} onValueChange={field.onChange}>
+                  <SelectTrigger className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]">
+                    <SelectValue placeholder="Select position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positionOptions.map((pos) => (
+                      <SelectItem key={pos} value={pos}>
+                        {pos}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </FormField>
+          <FormField label="City" required error={errors.city?.message}>
+            <Controller
               name="city"
               control={control}
               render={({ field }) => (
@@ -352,103 +349,117 @@ const UpdateUserContainer = () => {
                 </Select>
               )}
             />
+          </FormField>
+        </div>
+        <FormField
+          label="Project name"
+          required
+          error={errors.project_name?.message}
+        >
+          <Input 
+            {...register("project_name")} 
+            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]" 
+            placeholder="Enter your project name"
+          />
         </FormField>
       </Section>
 
-             {/* --- Fields --- */}
-       <Section title="Fields">
-         <Label className="text-white">
-           Select up to 3 fields <span className="text-red-500">*</span>
-         </Label>
-         <div className="flex flex-wrap gap-2">
-           {fieldsLoading ? (
-             <div className="flex items-center gap-2">
-               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-               <p className="text-white">Loading fields...</p>
-             </div>
-           ) : fieldOptions && fieldOptions.length > 0 ? (
-             fieldOptions.map((field) => {
-               const isSelected = selectedFields.includes(field.id);
-               const isDisabled = selectedFields.length >= 3 && !isSelected;
-               return (
-                 <Badge
-                   key={field.id}
-                   onClick={() => toggleSelectedField(field.id)}
-                   className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem]
-                     ${
-                       isSelected
-                         ? "bg-[#ED2944] text-white"
-                         : "bg-transparent text-white hover:bg-white/10"
-                     }
-                     ${isDisabled ? "opacity-50 pointer-events-none" : ""}
-                   `}
-                 >
-                   {field.name}
-                 </Badge>
-               );
-             })
-           ) : (
-             <p className="text-white">No fields available. Please try refreshing the page.</p>
-           )}
-         </div>
-         {errors.selected_fields && (
-           <p className="text-sm text-red-500">
-             {errors.selected_fields.message}
-           </p>
-         )}
-         {/* Debug info */}
-        
-       </Section>
+      {/* --- Fields --- */}
+      <Section title="Fields">
+        <Label className="text-white">
+          Select up to 3 fields <span className="text-red-500">*</span>
+        </Label>
+        <div className="flex flex-wrap gap-3">
+          {fieldsLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <p className="text-white">Loading fields...</p>
+            </div>
+          ) : fieldOptions && fieldOptions.length > 0 ? (
+            fieldOptions.map((field) => {
+              const isSelected = selectedFields.includes(field.id);
+              const isDisabled = selectedFields.length >= 3 && !isSelected;
+              return (
+                <Badge
+                  key={field.id}
+                  onClick={() => toggleSelectedField(field.id)}
+                  className={`cursor-pointer border border-white rounded-[29px] px-4 py-2 font-semibold text-[0.9rem] transition-all duration-200 hover:scale-105
+                    ${
+                      isSelected
+                        ? "bg-[#ED2944] text-white shadow-lg"
+                        : "bg-transparent text-white hover:bg-white/10"
+                    }
+                    ${isDisabled ? "opacity-50 pointer-events-none" : ""}
+                  `}
+                >
+                  {field.name}
+                </Badge>
+              );
+            })
+          ) : (
+            <p className="text-white">No fields available. Please try refreshing the page.</p>
+          )}
+        </div>
+        {errors.selected_fields && (
+          <p className="text-sm text-red-500">
+            {errors.selected_fields.message}
+          </p>
+        )}
+      </Section>
 
       {/* --- Socials --- */}
       <Section title="Socials">
-        <FormField label="Twitter account">
-          <Input
-            {...register("twitter_account")}
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
-            placeholder="@twitter"
-          />
-        </FormField>
-        <FormField label="Linkedin account">
-          <Input
-            {...register("linkedin_url")}
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
-            placeholder="linkedin.com/"
-          />
-        </FormField>
-        <FormField label="Email">
-          <Input
-            {...register("email")}
-            className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
-            placeholder="you@example.com"
-          />
-        </FormField>
+        <div className="grid lg:grid-cols-3 gap-6">
+          <FormField label="Twitter account">
+            <Input
+              {...register("twitter_account")}
+              className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
+              placeholder="@twitter"
+            />
+          </FormField>
+          <FormField label="Linkedin account">
+            <Input
+              {...register("linkedin_url")}
+              className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
+              placeholder="linkedin.com/"
+            />
+          </FormField>
+          <FormField label="Email">
+            <Input
+              {...register("email")}
+              className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]"
+              placeholder="you@example.com"
+            />
+          </FormField>
+        </div>
       </Section>
 
       {/* --- Terms Acceptance and Submit --- */}
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="terms"
-          checked={termsAccepted}
-          onCheckedChange={(checked) => setTermsAccepted(!!checked)}
-          className="data-[state=checked]:bg-[#5A41FF] data-[state=checked]:border-[#5A41FF]"
-        />
-        <label htmlFor="terms" className="text-sm font-medium">
-          I agree to receive updates from Zefe.
-        </label>
-      </div>
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-xl border border-gray-600">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(!!checked)}
+            className="data-[state=checked]:bg-[#5A41FF] data-[state=checked]:border-[#5A41FF]"
+          />
+          <label htmlFor="terms" className="text-sm font-medium text-white">
+            I agree to receive updates from Zefe.
+          </label>
+        </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className={`rounded-[29px] text-white py-4 transition-colors duration-200 ${
-          isSubmitting
-            ? "!bg-[#5A41FF] !text-white !cursor-not-allowed"
-            : "bg-[#ED2944] hover:bg-[#cb1f38]"
-        }`}
-      >
-        {isSubmitting ? "Submitting..." : "Continue"}
-      </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className={`w-full lg:w-auto lg:px-12 rounded-[29px] text-white py-4 transition-all duration-200 shadow-lg transform hover:scale-105 ${
+            isSubmitting
+              ? "!bg-[#5A41FF] !text-white !cursor-not-allowed"
+              : "bg-[#ED2944] hover:bg-[#cb1f38]"
+          }`}
+        >
+          {isSubmitting ? "Submitting..." : "Continue"}
+        </Button>
+      </div>
     </form>
   );
 };
@@ -461,8 +472,11 @@ const Section = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="my-4">
-    <p className="font-semibold text-[32px] mb-6 uppercase">{title}</p>
+  <div className="my-6">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-1 h-8 bg-gradient-to-b from-[#ED2944] to-[#c41e3a] rounded-full"></div>
+      <p className="font-bold text-2xl lg:text-3xl uppercase text-white">{title}</p>
+    </div>
     <div className="flex flex-col gap-6">{children}</div>
   </div>
 );

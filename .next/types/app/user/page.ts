@@ -1,4 +1,4 @@
-// File: C:\Users\Lenovo\OneDrive\Desktop\Programming\QrMate\src\app\user\page.tsx
+// File: C:\Users\Lenovo\OneDrive\Desktop\Programming\qrmate\client\src\app\user\page.tsx
 import * as entry from '../../../../src/app/user/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

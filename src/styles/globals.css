@@ -64,6 +64,46 @@ main {
   }
 }
 
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+  
+  body {
+    overflow: auto;
+  }
+  
+  main {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  /* Custom scrollbar for desktop */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -139,10 +179,63 @@ body {
   background-color: #232322;
   color: white;
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Desktop-specific enhancements */
+@media (min-width: 1024px) {
+  /* Glass morphism effect for cards */
+  .glass-card {
+    background: rgba(42, 42, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Hover effects for interactive elements */
+  .hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Gradient text effect */
+  .gradient-text {
+    background: linear-gradient(135deg, #ED2944, #c41e3a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Animated background for buttons */
+  .animated-button {
+    background: linear-gradient(45deg, #ED2944, #c41e3a, #ED2944);
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
 }

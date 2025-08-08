@@ -3,33 +3,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import axios from '@/lib/axios'
 import toast from 'react-hot-toast'
-
-interface User {
-  id: number
-  email: string
-  name: string
-  username?: string
-  photo_url?: string
-}
+import { api } from '@/lib/api'
+import { User, SignupRequest } from '@/types/api'
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
-  signup: (userData: SignupData) => Promise<boolean>
+  signup: (userData: SignupRequest) => Promise<boolean>
   logout: () => void
   isLoading: boolean
   accessToken: string | null
-}
-
-interface SignupData {
-  email: string
-  password: string
-  full_name: string
-  profile?: {
-    position?: string
-    city?: string
-    bio?: string
-  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -64,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyToken = async (token: string) => {
     try {
-      await axios.get('/web/profile/')
+      await api.user.getProfile()
       // Token is valid, keep user logged in
     } catch (error) {
       console.error('Token verification failed:', error)
@@ -83,13 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await axios.post('/auth/login/', {
-        email,
-        password
-      })
+      const response = await api.auth.login({ email, password })
 
-      if (response.data.status === 'SUCCESS') {
-        const { access_token, refresh_token, user: userData } = response.data.data
+      if (response.status === 'SUCCESS' && response.data) {
+        const { access_token, refresh_token, user: userData } = response.data
         
         setUser(userData)
         setAccessToken(access_token)
@@ -105,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.success('Login successful!')
         return true
       } else {
-        toast.error(response.data.message || 'Login failed')
+        toast.error(response.message || 'Login failed')
         return false
       }
     } catch (error: any) {
@@ -116,12 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const signup = async (userData: SignupData): Promise<boolean> => {
+  const signup = async (userData: SignupRequest): Promise<boolean> => {
     try {
-      const response = await axios.post('/auth/signup/', userData)
+      const response = await api.auth.signup(userData)
 
-      if (response.data.status === 'SUCCESS') {
-        const { access_token, refresh_token, user: newUser } = response.data.data
+      if (response.status === 'SUCCESS' && response.data) {
+        const { access_token, refresh_token, user: newUser } = response.data
         
         setUser(newUser)
         setAccessToken(access_token)
@@ -137,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.success('Account created successfully!')
         return true
       } else {
-        toast.error(response.data.message || 'Registration failed')
+        toast.error(response.message || 'Registration failed')
         return false
       }
     } catch (error: any) {
