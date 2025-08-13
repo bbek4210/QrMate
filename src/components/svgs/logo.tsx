@@ -1,4 +1,4 @@
-const ZefeLogo = () => {
-  return <img src="/zefelogo.svg" alt="logo" />;
+const QrMateLogo = () => {
+  return <img src="/qrmatelogo.svg" alt="logo" />;
 };
-export default ZefeLogo;
+export default QrMateLogo;

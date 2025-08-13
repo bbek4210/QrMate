@@ -10,7 +10,7 @@ const FancyQRCode = ({ value }: { value: string }) => {
       height: 216,
       type: "svg",
       data: value,
-      image: "/zefelogo.png",
+      image: "/qrmatelogo.png",
       dotsOptions: {
         color: "#000000",
         type: "rounded",

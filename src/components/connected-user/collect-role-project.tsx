@@ -67,25 +67,25 @@ const positionOptions = [
 ];
 
 const cityOptions = [
-  "SAN_FRANCISCO",
-  "NEW_YORK_CITY",
-  "LONDON",
-  "TOKYO",
-  "SINGAPORE",
-  "BERLIN",
-  "PARIS",
-  "AMSTERDAM",
-  "BARCELONA",
-  "DUBAI",
-  "HONG_KONG",
-  "SYDNEY",
-  "TORONTO",
-  "AUSTIN",
-  "MIAMI",
-  "LOS_ANGELES",
-  "SEATTLE",
-  "BOSTON",
-  "CHICAGO",
+  "KATHMANDU",
+  "POKHARA",
+  "LALITPUR",
+  "BHARATPUR",
+  "BIRATNAGAR",
+  "BIRGUNJ",
+  "DHARAN",
+  "DHANGADHI",
+  "BUTWAL",
+  "HETAUDA",
+  "NEPALGANJ",
+  "ITAHARI",
+  "TRIYUGA",
+  "GODAWARI",
+  "GULARIYA",
+  "TULSIPUR",
+  "SIDDHARTHANAGAR",
+  "BHAKTAPUR",
+  "DHANKUTA",
   "OTHER",
 ];
 
@@ -116,6 +116,8 @@ const CompleteProfileDrawer = ({
   userData,
 }: CompleteProfileDrawerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customCity, setCustomCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const projectNameRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -123,6 +125,7 @@ const CompleteProfileDrawer = ({
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = useForm<z.infer<typeof profileUpdateSchema>>({
     resolver: zodResolver(profileUpdateSchema),
@@ -131,7 +134,7 @@ const CompleteProfileDrawer = ({
       project_name: userData?.project_name || "",
       city: userData?.city || "",
     },
-    mode: "onChange", // Enable real-time validation
+    mode: "onChange",
   });
 
   // Watch form values for debugging
@@ -154,19 +157,49 @@ const CompleteProfileDrawer = ({
     }
   }, [isOpen]);
 
+  // Reset form when drawer opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setValue("position", userData?.position || "");
+      setValue("project_name", userData?.project_name || "");
+      setValue("city", userData?.city || "");
+      setSelectedCity(userData?.city || "");
+      setCustomCity("");
+    }
+  }, [isOpen, userData, setValue]);
+
   const onSubmit = async (formData: z.infer<typeof profileUpdateSchema>) => {
     console.log("Submitting profile data:", formData);
     setIsSubmitting(true);
 
     try {
+      // If "OTHER" is selected, use the custom city value
+      const finalCity = formData.city === "OTHER" ? customCity : formData.city;
+      
+      const profileData = {
+        ...formData,
+        city: finalCity,
+      };
+      
       // Only send the missing fields that need to be updated
-      await updateProfile(formData);
+      await updateProfile(profileData);
       toast.success("Profile updated successfully");
       onComplete();
     } catch (error) {
       toast.error("Profile update failed");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCityChange = (value: string) => {
+    console.log("City selected:", value);
+    setSelectedCity(value);
+    setValue("city", value);
+    
+    // Clear custom city if not "OTHER"
+    if (value !== "OTHER") {
+      setCustomCity("");
     }
   };
 
@@ -250,11 +283,8 @@ const CompleteProfileDrawer = ({
               control={control}
               render={({ field }) => (
                 <Select 
-                  onValueChange={(value) => {
-                    console.log("City selected:", value);
-                    field.onChange(value);
-                  }} 
-                  value={field.value || ""}
+                  onValueChange={handleCityChange}
+                  value={selectedCity || ""}
                 >
                   <SelectTrigger className="mt-2 w-full h-[58px] rounded-[1rem] bg-white text-black border border-gray-300 focus:ring-2 focus:ring-[#ED2944] focus:border-transparent">
                     <SelectValue placeholder="Select your city" />
@@ -269,13 +299,31 @@ const CompleteProfileDrawer = ({
                 </Select>
               )}
             />
+            
+            {/* Custom city input field */}
+            {selectedCity === "OTHER" && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={customCity}
+                  onChange={(e) => setCustomCity(e.target.value)}
+                  placeholder="Enter your city name"
+                  className="w-full h-[58px] rounded-[1rem] bg-white px-6 py-3 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ED2944] focus:border-transparent"
+                  disabled={isSubmitting}
+                />
+                {!customCity && selectedCity === "OTHER" && (
+                  <p className="text-sm text-red-500 mt-1">Please enter your city name</p>
+                )}
+              </div>
+            )}
+            
             {errors.city && (
               <p className="text-sm text-red-500">{errors.city.message}</p>
             )}
           </div>
 
           <Button
-            disabled={isSubmitting || !isValid}
+            disabled={isSubmitting || !isValid || (selectedCity === "OTHER" && !customCity)}
             type="submit"
             className="bg-[#ED2944] border hover:bg-[#5A41FF] border-white text-white rounded-lg py-3 mt-2"
           >

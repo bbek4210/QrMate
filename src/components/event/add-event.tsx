@@ -26,25 +26,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const cityOptions = [
-  "SAN_FRANCISCO",
-  "NEW_YORK_CITY",
-  "LONDON",
-  "TOKYO",
-  "SINGAPORE",
-  "BERLIN",
-  "PARIS",
-  "AMSTERDAM",
-  "BARCELONA",
-  "DUBAI",
-  "HONG_KONG",
-  "SYDNEY",
-  "TORONTO",
-  "AUSTIN",
-  "MIAMI",
-  "LOS_ANGELES",
-  "SEATTLE",
-  "BOSTON",
-  "CHICAGO",
+  "KATHMANDU",
+  "POKHARA",
+  "LALITPUR",
+  "BHARATPUR",
+  "BIRATNAGAR",
+  "BIRGUNJ",
+  "DHARAN",
+  "DHANGADHI",
+  "BUTWAL",
+  "HETAUDA",
+  "NEPALGANJ",
+  "ITAHARI",
+  "TRIYUGA",
+  "GODAWARI",
+  "GULARIYA",
+  "TULSIPUR",
+  "SIDDHARTHANAGAR",
+  "BHAKTAPUR",
+  "DHANKUTA",
   "OTHER",
 ];
 
@@ -57,15 +57,19 @@ type EventFormData = z.infer<typeof eventSchema>;
 
 interface AddEventInterface {
   triggerNode: React.ReactNode;
-  onEventCreated: (newEvent: { title: string; city: string }) => void;
+  onEventCreated: (event: { title: string; city: string }) => void;
 }
 
 const AddEvent = ({
   triggerNode,
+  onEventCreated,
 }: AddEventInterface) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { mutate: createEvent, isPending } = useCreateEvent();
+  const [customCity, setCustomCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
+
+  const { mutateAsync: createEvent, isPending } = useCreateEvent();
 
   const {
     register,
@@ -73,6 +77,7 @@ const AddEvent = ({
     reset,
     control,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -82,6 +87,16 @@ const AddEvent = ({
     },
     mode: "onChange", // Enable real-time validation
   });
+
+  // Custom validation for the form
+  const isFormValid = () => {
+    const watchedValues = watch();
+    const hasTitle = watchedValues.title && watchedValues.title.trim() !== "";
+    const hasCity = watchedValues.city && watchedValues.city.trim() !== "";
+    const hasCustomCity = selectedCity === "OTHER" ? customCity && customCity.trim() !== "" : true;
+    
+    return hasTitle && hasCity && hasCustomCity;
+  };
 
   // Watch form values for debugging
   const watchedValues = watch();
@@ -101,11 +116,30 @@ const AddEvent = ({
     }
   }, [isDrawerOpen]);
 
+  // Reset form when drawer closes
+  useEffect(() => {
+    if (!isDrawerOpen) {
+      reset();
+      setCustomCity("");
+      setSelectedCity("");
+    }
+  }, [isDrawerOpen, reset]);
+
   const onSubmit = (data: EventFormData) => {
     console.log("Submitting data:", data);
-    createEvent(data, {
+    
+    // If "OTHER" is selected, use the custom city value
+    const finalCity = data.city === "OTHER" ? customCity : data.city;
+    
+    const eventData = {
+      ...data,
+      city: finalCity,
+    };
+    
+    createEvent(eventData, {
       onSuccess: () => {
         toast.success("Event created successfully!");
+        onEventCreated(eventData);
         reset();
         setIsDrawerOpen(false);
       },
@@ -115,6 +149,17 @@ const AddEvent = ({
         toast.error("❌ " + message);
       },
     });
+  };
+
+  const handleCityChange = (value: string) => {
+    console.log("City selected:", value);
+    setSelectedCity(value);
+    setValue("city", value, { shouldValidate: true });
+    
+    // Clear custom city if not "OTHER"
+    if (value !== "OTHER") {
+      setCustomCity("");
+    }
   };
 
   return (
@@ -170,11 +215,8 @@ const AddEvent = ({
               control={control}
               render={({ field }) => (
                 <Select 
-                  onValueChange={(value) => {
-                    console.log("City selected:", value);
-                    field.onChange(value);
-                  }} 
-                  value={field.value || ""}
+                  onValueChange={handleCityChange}
+                  value={selectedCity || ""}
                 >
                   <SelectTrigger className="w-full h-[58px] rounded-[1rem] bg-white text-black border border-gray-300 focus:ring-2 focus:ring-[#ED2944] focus:border-transparent">
                     <SelectValue placeholder="Select your city" />
@@ -189,6 +231,24 @@ const AddEvent = ({
                 </Select>
               )}
             />
+            
+            {/* Custom city input field */}
+            {selectedCity === "OTHER" && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={customCity}
+                  onChange={(e) => setCustomCity(e.target.value)}
+                  placeholder="Enter your city name"
+                  className="w-full h-[58px] rounded-[1rem] bg-white px-6 py-3 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ED2944] focus:border-transparent"
+                  disabled={isPending}
+                />
+                {!customCity && selectedCity === "OTHER" && (
+                  <p className="text-sm text-red-500 mt-1">Please enter your city name</p>
+                )}
+              </div>
+            )}
+            
             {errors.city && (
               <p className="text-sm text-red-500">{errors.city.message}</p>
             )}
@@ -197,7 +257,7 @@ const AddEvent = ({
           <Button
             type="submit"
             className="rounded-[1rem] py-4 border border-[#ffffff] bg-[#ED2944] hover:bg-[#5A41FF] text-white text-[1.1rem]"
-            disabled={isPending || !isValid}
+            disabled={isPending || !isFormValid()}
           >
             {isPending ? "Creating..." : "Continue"}
           </Button>

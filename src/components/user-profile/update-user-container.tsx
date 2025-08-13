@@ -90,25 +90,25 @@ const positionOptions = [
 ];
 
 const cityOptions = [
-  "SAN_FRANCISCO",
-  "NEW_YORK_CITY",
-  "LONDON",
-  "TOKYO",
-  "SINGAPORE",
-  "BERLIN",
-  "PARIS",
-  "AMSTERDAM",
-  "BARCELONA",
-  "DUBAI",
-  "HONG_KONG",
-  "SYDNEY",
-  "TORONTO",
-  "AUSTIN",
-  "MIAMI",
-  "LOS_ANGELES",
-  "SEATTLE",
-  "BOSTON",
-  "CHICAGO",
+  "KATHMANDU",
+  "POKHARA",
+  "LALITPUR",
+  "BHARATPUR",
+  "BIRATNAGAR",
+  "BIRGUNJ",
+  "DHARAN",
+  "DHANGADHI",
+  "BUTWAL",
+  "HETAUDA",
+  "NEPALGANJ",
+  "ITAHARI",
+  "TRIYUGA",
+  "GODAWARI",
+  "GULARIYA",
+  "TULSIPUR",
+  "SIDDHARTHANAGAR",
+  "BHAKTAPUR",
+  "DHANKUTA",
   "OTHER",
 ];
 
@@ -124,6 +124,8 @@ const UpdateUserContainer = ({
   const router = useRouter();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customCity, setCustomCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   // Avatar state is now handled in the parent component (UpdateUserProfile.tsx)
 
   const { data, refetch } = useGetUserProfile();
@@ -182,6 +184,10 @@ const UpdateUserContainer = ({
 
     const selectedFieldIds = fields.map((f: { id: number }) => f.id) || [];
     setValue("selected_fields", selectedFieldIds);
+    
+    // Set selected city for custom city handling
+    setSelectedCity(profile.city ?? "");
+    setCustomCity("");
   }, [user, data, setValue]);
 
   // Avatar upload is now handled in the parent component (UpdateUserProfile.tsx)
@@ -202,13 +208,30 @@ const UpdateUserContainer = ({
     }
   };
 
+  // --- Handle City Selection ---
+  const handleCityChange = (value: string) => {
+    console.log("City selected:", value);
+    setSelectedCity(value);
+    setValue("city", value);
+    
+    // Clear custom city if not "OTHER"
+    if (value !== "OTHER") {
+      setCustomCity("");
+    }
+  };
+
   // --- Submit Form ---
   const onSubmit = async (formData: z.infer<typeof profileSchema>) => {
     setIsSubmitting(true);
     const { selected_fields, ...rest } = formData;
+    
+    // If "OTHER" is selected, use the custom city value
+    const finalCity = formData.city === "OTHER" ? customCity : formData.city;
+    
     try {
       await mutateAsync({
         ...rest,
+        city: finalCity,
         selected_fields,
       });
       toast.success("Profile updated successfully");
@@ -303,7 +326,7 @@ const UpdateUserContainer = ({
               name="city"
               control={control}
               render={({ field }) => (
-                <Select value={field.value || ""} onValueChange={field.onChange}>
+                <Select value={selectedCity || ""} onValueChange={handleCityChange}>
                   <SelectTrigger className="text-black bg-white border-gray-300 focus:border-[#ED2944] focus:ring-[#ED2944]">
                     <SelectValue placeholder="Select city" />
                   </SelectTrigger>
@@ -317,6 +340,23 @@ const UpdateUserContainer = ({
                 </Select>
               )}
             />
+            
+            {/* Custom city input field */}
+            {selectedCity === "OTHER" && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={customCity}
+                  onChange={(e) => setCustomCity(e.target.value)}
+                  placeholder="Enter your city name"
+                  className="w-full h-[58px] rounded-[1rem] bg-white px-6 py-3 text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ED2944] focus:border-transparent"
+                  disabled={isSubmitting}
+                />
+                {!customCity && selectedCity === "OTHER" && (
+                  <p className="text-sm text-red-500 mt-1">Please enter your city name</p>
+                )}
+              </div>
+            )}
           </FormField>
         </div>
         <FormField
@@ -430,15 +470,15 @@ const UpdateUserContainer = ({
             className="data-[state=checked]:bg-[#5A41FF] data-[state=checked]:border-[#5A41FF]"
           />
           <label htmlFor="terms" className="text-sm font-medium text-white">
-            I agree to receive updates from Zefe.
+            I agree to receive updates from QrMate.
           </label>
         </div>
 
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || (selectedCity === "OTHER" && !customCity)}
           className={`w-full lg:w-auto lg:px-12 rounded-[29px] text-white py-4 transition-all duration-200 shadow-lg transform hover:scale-105 ${
-            isSubmitting
+            isSubmitting || (selectedCity === "OTHER" && !customCity)
               ? "!bg-[#5A41FF] !text-white !cursor-not-allowed"
               : "bg-[#ED2944] hover:bg-[#cb1f38]"
           }`}

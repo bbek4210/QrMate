@@ -42,7 +42,7 @@ const UpdateUserProfile = () => {
     setIsUploading(true);
 
     const extension = file.name.split(".").pop() || "jpg";
-    const key = `zefe_profile_images/avatar-${Date.now()}.${extension}`;
+    const key = `qrmate_profile_images/avatar-${Date.now()}.${extension}`;
 
     try {
       console.log('Uploading file:', file.name, 'Size:', file.size);

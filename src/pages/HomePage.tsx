@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import ZefeLogo from "@/components/svgs/logo";
+import QrMateLogo from "@/components/svgs/logo";
 import UserIcon from "@/components/svgs/user-icon";
 import CameraIcon from "@/components/svgs/camera-icon";
 import LogoutIcon from "@/components/svgs/logout-icon";
@@ -50,13 +50,13 @@ export default function Home() {
   const queryClient = useQueryClient();
 
   const isInitDataReady = !!user?.id;
-  const zefeUserId = user?.id;
+  const qrmateUserId = user?.id;
   
   const {
     data: fetchedEvents,
     isLoading: isEventsLoading,
     refetch,
-  } = useGetEvents(zefeUserId?.toString() ?? "");
+  } = useGetEvents(qrmateUserId?.toString() ?? "");
 
   const { data, refetch: refetchUserProfile } = useGetUserProfile();
   const userProfile = data?.data;
@@ -152,7 +152,7 @@ export default function Home() {
   const { mutateAsync: createEvent } = useCreateEvent();
 
   const handleNewEvent = async (newEvent: { title: string; city: string }) => {
-    if (!zefeUserId) {
+    if (!qrmateUserId) {
       toast("User not identified, please try again!");
       return;
     }
@@ -231,7 +231,7 @@ export default function Home() {
       {/* Mobile Header */}
       <div className="lg:hidden pt-4">
         <div className="flex items-center justify-between px-3 py-3">
-          <ZefeLogo />
+          <QrMateLogo />
           <div className="flex items-center gap-3">
             <Link href="/user">
               <Avatar className="w-8 h-8 border-2 border-white/20">
@@ -314,7 +314,7 @@ export default function Home() {
                          <FancyQRCode
                            value={generateTelegramMiniAppLink({
                              eventId: selectedEvent?.base_event?.id?.toString() ?? "",
-                             userId: zefeUserId?.toString() ?? "",
+                             userId: qrmateUserId?.toString() ?? "",
                              telegramUserId: user?.id?.toString() ?? "",
                            })}
                          />
@@ -574,7 +574,7 @@ export default function Home() {
                 <FancyQRCode
                   value={generateTelegramMiniAppLink({
                     eventId: selectedEvent?.base_event?.id?.toString() ?? "",
-                    userId: zefeUserId?.toString() ?? "",
+                    userId: qrmateUserId?.toString() ?? "",
                     telegramUserId: user?.id?.toString() ?? "",
                   })}
                 />

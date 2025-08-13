@@ -60,7 +60,7 @@ interface SelfieNoteSectionProps {
   onSaved?: () => void;
 }
 
-const SELFIE_KEY_PREFIX = "zefe_selfies";
+const SELFIE_KEY_PREFIX = "qrmate_selfies";
 
 const SelfieNoteSection: React.FC<SelfieNoteSectionProps> = ({
   networkId,

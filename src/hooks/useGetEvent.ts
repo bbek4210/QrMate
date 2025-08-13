@@ -32,12 +32,12 @@ const fetchEvents = async (): Promise<EventDetails[]> => {
 };
 
 const GET_EVENT_QUERY_KEY = "GET_EVENT_QUERY_KEY";
-const useGetEvents = (zefeUserId: string) => {
+const useGetEvents = (qrmateUserId: string) => {
   return useQuery<EventDetails[], Error>({
-    queryKey: [GET_EVENT_QUERY_KEY, zefeUserId],
+    queryKey: [GET_EVENT_QUERY_KEY, qrmateUserId],
     queryFn: fetchEvents,
     staleTime: 0, // Always refetch when requested
-    enabled: Boolean(zefeUserId),
+    enabled: Boolean(qrmateUserId),
   });
 };
 
